@@ -1,0 +1,45 @@
+group 'com.github.h0tk3y.betterParse'
+version '1.0-SNAPSHOT'
+
+buildscript {
+    ext.kotlin_version = '1.1.3-2'
+
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+apply plugin: 'kotlin'
+
+repositories {
+    mavenCentral()
+    maven { url "http://dl.bintray.com/sargunster/maven" }
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+    testCompile "junit:junit:4.12"
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+kotlin.experimental.coroutines "enable"
+
+// Code generation
+
+def maxTupleSize = 16
+
+task('codegen').doFirst {
+    AndCodegenKt.andCodegen(maxTupleSize, sourceSets.main.kotlin.srcDirs.first().absolutePath + "/generated/andFunctions.kt")
+    TupleCodegenKt.tupleCodegen(maxTupleSize, sourceSets.main.kotlin.srcDirs.first().absolutePath + "/generated/tuples.kt")
+}
+
+compileKotlin.dependsOn codegen
