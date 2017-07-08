@@ -25,8 +25,6 @@ class AndCombinator<out R : Tuple> internal @PublishedApi constructor(
 ) : Parser<R> {
 
     fun process(tokens: Sequence<TokenMatch>): Pair<List<ParseResult<*>>, Sequence<TokenMatch>> {
-        3.1 in 1..3
-
         var lastTokens = tokens
         var errorResult: ErrorResult? = null
         return consumers.map { consumer ->
@@ -37,7 +35,7 @@ class AndCombinator<out R : Tuple> internal @PublishedApi constructor(
             }
             val result = errorResult ?: parser.tryParse(lastTokens)
             when (result) {
-                is ErrorResult -> errorResult = result
+                is ErrorResult -> return@process listOf(result) to lastTokens
                 is Parsed<*> -> lastTokens = result.remainder
             }
             if (consumer is SkipParser<*>) null else result

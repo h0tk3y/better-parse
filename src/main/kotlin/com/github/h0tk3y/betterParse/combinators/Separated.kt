@@ -13,8 +13,10 @@ class Separated<T, S>(
     }
 
     /** Returns the result of reducing [terms] and [separators] with [function], starting from the left and processing
-     * current result (initially, `terms[0]`), `separators[i]` and `terms[i + 1]` at each step for `i` in `0 until terms.size`. */
+     * current result (initially, `terms[0]`), `separators[i]` and `terms[i + 1]` at each step for `i` in `0 until terms.size`.
+     * @throws [NoSuchElementException] if [terms] are empty */
     fun reduce(function: (T, S, T) -> T): T {
+        if (terms.isEmpty()) throw NoSuchElementException()
         var result = terms.first()
         for (i in separators.indices)
             result = function(result, separators[i], terms[i + 1])
@@ -22,8 +24,10 @@ class Separated<T, S>(
     }
 
     /** Returns the result of reducing [terms] and [separators] with [function], starting from the right and processing
-     * `terms[i]`, `separators[i]` and current result (initially, `terms.last()`) at each step for `i` in `terms.size - 1 downTo 0` */
+     * `terms[i]`, `separators[i]` and current result (initially, `terms.last()`) at each step for `i` in `terms.size - 1 downTo 0`.
+     * @throws [NoSuchElementException] if [terms] are empty */
     fun reduceRight(function: (T, S, T) -> T): T {
+        if (terms.isEmpty()) throw NoSuchElementException()
         var result = terms.last()
         for (i in separators.indices.reversed())
             result = function(terms[i], separators[i], result)

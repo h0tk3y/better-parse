@@ -16,7 +16,8 @@ object EmptyParser : Parser<Unit> {
 fun <T> Parser<T>.tryParseToEnd(tokens: Sequence<TokenMatch>) = tryParse(tokens).let { result ->
     when (result) {
         is ErrorResult -> result
-        is Parsed -> result.remainder.firstOrNull()?.let { UnexpectedToken(it) } ?: result
+        is Parsed -> result.remainder.firstOrNull { !it.type.ignored }?.let { UnparsedRemainder(it) }
+                     ?: result
     }
 }
 
@@ -39,8 +40,9 @@ data class Parsed<out T>(val value: T, internal val remainder: Sequence<TokenMat
 /** Represents a parse error of a [Parser] that could not successfully parse an input sequence. */
 abstract class ErrorResult : ParseResult<Nothing>()
 
-/** A token was [found] where the end of the input sequence was expected while [tryParseToEnd] or [parseToEnd]. */
-data class UnexpectedToken(val found: TokenMatch) : ErrorResult()
+/** A [startsWith] token was found where the end of the input sequence was expected during
+ * [tryParseToEnd] or [parseToEnd]. */
+data class UnparsedRemainder(val startsWith: TokenMatch) : ErrorResult()
 
 /** A token was [found] where another type of token was [expected]. */
 data class MismatchedToken(val expected: Token, val found: TokenMatch) : ErrorResult()

@@ -1,13 +1,13 @@
 package com.github.h0tk3y.betterParse.lexer
 
+import com.github.h0tk3y.betterParse.utils.CachedSequence
 import com.github.h0tk3y.betterParse.utils.cached
 import java.io.InputStream
 import java.util.*
 import kotlin.coroutines.experimental.buildSequence
 
-/** Represents a [Sequence] of [Token]s with the [Lexer] that produced it. */
-class LexerTokenSequence(
-    tokens: Sequence<TokenMatch>,
+internal class LexerTokenSequence(
+    val tokens: CachedSequence<TokenMatch>,
     val lexer: Lexer
 ) : Sequence<TokenMatch> by tokens
 

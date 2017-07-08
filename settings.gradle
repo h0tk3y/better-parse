@@ -1,2 +1,4 @@
+include 'demo'
+
 rootProject.name = 'better-parse'
 

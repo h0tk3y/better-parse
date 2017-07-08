@@ -1,4 +1,8 @@
-import com.github.h0tk3y.betterParse.combinators.*
+
+import com.github.h0tk3y.betterParse.combinators.oneOrMore
+import com.github.h0tk3y.betterParse.combinators.times
+import com.github.h0tk3y.betterParse.combinators.timesOrMore
+import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 import com.github.h0tk3y.betterParse.grammar.Grammar
 import com.github.h0tk3y.betterParse.parser.*
 import org.junit.Assert
@@ -33,7 +37,7 @@ class RepeatTest : Grammar<Nothing>() {
 
                 when {
                     n in range -> Assert.assertTrue(result is Parsed)
-                    n > range.last -> Assert.assertTrue(result is UnexpectedToken)
+                    n > range.last -> Assert.assertTrue(result is UnparsedRemainder)
                     n < range.first -> Assert.assertTrue(result is UnexpectedEof)
                 }
             }

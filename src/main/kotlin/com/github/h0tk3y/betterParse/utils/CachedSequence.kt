@@ -1,5 +1,7 @@
 package com.github.h0tk3y.betterParse.utils
 
+import com.github.h0tk3y.betterParse.lexer.LexerTokenSequence
+import com.github.h0tk3y.betterParse.lexer.TokenMatch
 import java.util.*
 
 internal class CachedSequence<T> constructor(
@@ -25,8 +27,9 @@ internal class CachedSequence<T> constructor(
     }
 }
 
-internal fun <T> Sequence<T>.skipOne() = when (this) {
-    is CachedSequence<T> -> CachedSequence(source, cache, startAt + 1)
+internal fun Sequence<TokenMatch>.skipOne(): Sequence<TokenMatch> = when (this) {
+    is LexerTokenSequence -> LexerTokenSequence(tokens.skipOne() as CachedSequence<TokenMatch>, lexer)
+    is CachedSequence -> CachedSequence(source, cache, startAt + 1)
     else -> drop(1)
 }
 
