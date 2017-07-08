@@ -1,4 +1,4 @@
-package com.example.booleanExpr
+package com.example
 
 import com.github.h0tk3y.betterParse.combinators.*
 import com.github.h0tk3y.betterParse.grammar.Grammar
@@ -30,9 +30,9 @@ val booleanGrammar = object : Grammar<BooleanExpression>() {
 
     val term: Parser<BooleanExpression> =
         (tru asJust TRUE) or
-        (fal asJust FALSE) or
-        (id map { Variable(it.text) }) or
-        (not and parser(this::term) map { (_, t) -> Not(t) }) or
+            (fal asJust FALSE) or
+            (id map { Variable(it.text) }) or
+            (not and parser(this::term) map { (_, t) -> Not(t) }) or
         (lpar and parser(this::implChain) and rpar map { (_, i, _) -> i })
 
 

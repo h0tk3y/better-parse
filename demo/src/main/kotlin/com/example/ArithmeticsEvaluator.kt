@@ -1,4 +1,4 @@
-package com.example.booleanExpr
+package com.example
 
 import com.github.h0tk3y.betterParse.combinators.*
 import com.github.h0tk3y.betterParse.grammar.Grammar
