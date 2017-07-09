@@ -11,9 +11,9 @@ A nice parser combinator library for Kotlin
         val rpar by token("\\)")
         
         val term = 
-            id use { Variable(text) } or
-            not and parser(this::term) map { (_, n) -> Not(n) } or
-            lpar and parser(this::rootParser) and rpar map { (_, e, _) -> e }
+            (id use { Variable(text) }) or
+            (not and parser(this::term) map { (_, n) -> Not(n) }) or
+            (lpar and parser(this::rootParser) and rpar map { (_, e, _) -> e })
             
         val andChain = leftAssociative(term, and) { l, _, r -> And(l, r) }
         val rootParser = leftAssociative(andChain, or) { l, _, r -> Or(l, r) }
