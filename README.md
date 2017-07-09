@@ -1,6 +1,26 @@
 # better-parse
 A nice parser combinator library for Kotlin
 
+    val booleanGrammar = object : Grammar<BooleanExpression>() {
+        val id by token("\\w+")
+        val not by token("!")
+        val and by token("&")
+        val or by token("|")
+        val ws by token("\\s+", ignore = true)
+        val lpar by token("\\(")
+        val rpar by token("\\)")
+        
+        val term = 
+            id use { Variable(text) } or
+            not and parser(this::term) map { (_, n) -> Not(n) } or
+            lpar and parser(this::rootParser) and rpar map { (_, e, _) -> e }
+            
+        val andChain = leftAssociative(term, and) { l, _, r -> And(l, r) }
+        val rootParser = leftAssociative(andChain, or) { l, _, r -> Or(l, r) }
+    }
+    
+    val ast = booleanGrammar.parseToEnd("a & !b | b & (!a | c)")
+
 ## Lexer & tokens ##
 As many other language recognition tools, `better-parse` abstracts away from raw input by 
 pre-processing it with a `Lexer`, that can match `Token`s by their patterns (regular expressions) against an input sequence.
@@ -34,7 +54,7 @@ as build blocks to create new parsers by *combining* them.
 When a parser tries to process the input, there are two possible outcomes:
 
 * If it succeeds, it returns `Parsed<T>` containing the `T` result and the `remainder: Sequence<TokenMatch>` that it left unprocessed. 
-This can and often is then passed to another parser.
+The latter can then be, and often is, passed to another parser.
 
 * If it fails, it reports the failure returning an `ErrorResult`, which provides detailed information about the failure.
 
@@ -132,8 +152,8 @@ There are several kinds of combinators included in `better-parse`:
         
 # Grammar
 
-As a convenient way of defining a grammar of a language, there is an abstract class `Grammar`, that collects the `token(...)`-delegated 
-properties into a `Lexer` automatically, and also behaves as a composition of the `Lexer` and the `rootParser`:
+As a convenient way of defining a grammar of a language, there is an abstract class `Grammar`, that collects the `by token(...)`-delegated 
+properties into a `Lexer` automatically, and also behaves as a composition of the `Lexer` and the `rootParser`.
 
     interface Item
     class Number(val value: Int) : Item
@@ -151,6 +171,13 @@ properties into a `Lexer` automatically, and also behaves as a composition of th
     }
     
     val result: List<Item> = ItemsParser.parseToEnd("one, 2, three, 4, five")
+    
+To use a parser that has not been constructed yet, reference it with `parser { someParser }` or `parser(this::someParser):
+
+    val term = 
+        constParser or 
+        variableParser or 
+        skip(lpar) and parser(this::term) and skip(lpar) use { t1 }
         
 # Examples
 
