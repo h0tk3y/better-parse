@@ -1,4 +1,7 @@
 # better-parse
+
+[ ![Download](https://api.bintray.com/packages/hotkeytlt/maven/better-parse/images/download.svg) ](https://bintray.com/hotkeytlt/maven/better-parse/_latestVersion) [![Build Status](https://travis-ci.org/h0tk3y/better-parse.svg?branch=master)](https://travis-ci.org/h0tk3y/better-parse) 
+
 A nice parser combinator library for Kotlin
 
     val booleanGrammar = object : Grammar<BooleanExpression>() {
@@ -20,6 +23,16 @@ A nice parser combinator library for Kotlin
     }
     
     val ast = booleanGrammar.parseToEnd("a & !b | b & (!a | c)")
+    
+### Using with Gradle-based projects
+
+    repositories {
+        jcenter()
+    }
+    
+    dependencies {
+        compile 'com.github.h0tk3y.betterParse:better-parse:0.1'
+    }
 
 ## Lexer & tokens ##
 As many other language recognition tools, `better-parse` abstracts away from raw input by 
