@@ -1,13 +1,18 @@
 group 'com.github.h0tk3y.betterParse'
 version '0.1'
 
+wrapper {
+    gradleVersion = '3.3'
+}
+
 buildscript {
     ext.kotlin_version = '1.1.3-2'
 
     repositories {
-        mavenCentral()
+        jcenter()
     }
     dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -15,8 +20,7 @@ buildscript {
 apply plugin: 'kotlin'
 
 repositories {
-    mavenCentral()
-    maven { url "http://dl.bintray.com/sargunster/maven" }
+    jcenter()
 }
 
 dependencies {
@@ -43,3 +47,52 @@ task('codegen').doFirst {
 }
 
 compileKotlin.dependsOn codegen
+
+// Publication
+
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives sourcesJar
+}
+
+publishing {
+    publications {
+        publishToBintray(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+        }
+    }
+}
+
+bintray {
+    user = findProperty('bintray_user')
+    key = findProperty('bintray_api_key')
+
+    publications = ['publishToBintray']
+    publish = true
+    pkg {
+        repo = 'maven'
+        name = 'better-parse'
+        desc = 'A nice parser combinator library for Kotlin'
+        websiteUrl = 'https://github.com/h0tk3y/better-parse'
+        issueTrackerUrl = 'https://github.com/h0tk3y/better-parse/issues'
+        vcsUrl = 'https://github.com/h0tk3y/better-parse.git'
+        licenses = ['Apache-2.0']
+        labels = ['kotlin', 'parser', 'parser-combinator', 'dsl']
+        publicDownloadNumbers = true
+
+        version {
+            name = project.version
+            mavenCentralSync {
+                sync = false
+            }
+        }
+    }
+}
