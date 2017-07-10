@@ -188,7 +188,7 @@ There are several kinds of combinators included in `better-parse`:
       val sumParser = separated(number, plus) use { reduce { a, _, b -> a + b } }
       ```
   
-      The `associativeLeft` and `associativeRight` combinators do exactly this, but they take the reducing operation as they are built:
+      The `leftAssociative` and `rightAssociative` combinators do exactly this, but they take the reducing operation as they are built:
       
       ```kotlin
       val term: Parser<Term>
