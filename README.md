@@ -20,7 +20,7 @@ val booleanGrammar = object : Grammar<BooleanExpression>() {
         (lpar and parser(this::rootParser) and rpar map { (_, e, _) -> e })
 
     val andChain = leftAssociative(term, and) { l, _, r -> And(l, r) }
-    val rootParser = leftAssociative(andChain, or) { l, _, r -> Or(l, r) }
+    override val rootParser = leftAssociative(andChain, or) { l, _, r -> Or(l, r) }
 }
 
 val ast = booleanGrammar.parseToEnd("a & !b | b & (!a | c)")
