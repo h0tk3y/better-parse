@@ -176,7 +176,7 @@ There are several kinds of combinators included in `better-parse`:
       val rectangleParser = 4 times number map { (a, b, c, d) -> Rect(a, b, c, d) }
       ```
       
-  * `separated(term, separator)`, `separatedTerms(term, separator)`, `associativeLeft(...)`, `associativeRight(...)`
+  * `separated(term, separator)`, `separatedTerms(term, separator)`, `leftAssociative(...)`, `rightAssociative(...)`
   
       Combines the two parsers, invoking them in turn and thus parsing a sequence of `term` matches separated by `separator` matches.
       
@@ -192,7 +192,7 @@ There are several kinds of combinators included in `better-parse`:
       
       ```kotlin
       val term: Parser<Term>
-      val andChain = associativeLeft(term, andOperator) { l, _, r -> And(l, r) }
+      val andChain = leftAssociative(term, andOperator) { l, _, r -> And(l, r) }
       ```
         
 # Grammar
