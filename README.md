@@ -4,59 +4,69 @@
 
 A nice parser combinator library for Kotlin
 
-    val booleanGrammar = object : Grammar<BooleanExpression>() {
-        val id by token("\\w+")
-        val not by token("!")
-        val and by token("&")
-        val or by token("|")
-        val ws by token("\\s+", ignore = true)
-        val lpar by token("\\(")
-        val rpar by token("\\)")
-        
-        val term = 
-            (id use { Variable(text) }) or
-            (not and parser(this::term) map { (_, n) -> Not(n) }) or
-            (lpar and parser(this::rootParser) and rpar map { (_, e, _) -> e })
-            
-        val andChain = leftAssociative(term, and) { l, _, r -> And(l, r) }
-        val rootParser = leftAssociative(andChain, or) { l, _, r -> Or(l, r) }
-    }
-    
-    val ast = booleanGrammar.parseToEnd("a & !b | b & (!a | c)")
-    
-### Using with Gradle-based projects
+```kotlin
+val booleanGrammar = object : Grammar<BooleanExpression>() {
+    val id by token("\\w+")
+    val not by token("!")
+    val and by token("&")
+    val or by token("|")
+    val ws by token("\\s+", ignore = true)
+    val lpar by token("\\(")
+    val rpar by token("\\)")
 
-    repositories {
-        jcenter()
-    }
+    val term = 
+        (id use { Variable(text) }) or
+        (not and parser(this::term) map { (_, n) -> Not(n) }) or
+        (lpar and parser(this::rootParser) and rpar map { (_, e, _) -> e })
+
+    val andChain = leftAssociative(term, and) { l, _, r -> And(l, r) }
+    val rootParser = leftAssociative(andChain, or) { l, _, r -> Or(l, r) }
+}
+
+val ast = booleanGrammar.parseToEnd("a & !b | b & (!a | c)")
+ ```
     
-    dependencies {
-        compile 'com.github.h0tk3y.betterParse:better-parse:0.1'
-    }
+### Using with Gradle
+
+```groovy
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'com.github.h0tk3y.betterParse:better-parse:0.1'
+}
+```
 
 ## Lexer & tokens ##
-As many other language recognition tools, `better-parse` abstracts away from raw input by 
+As many other language recognition tools, `better-parse` abstracts away from raw character input by 
 pre-processing it with a `Lexer`, that can match `Token`s by their patterns (regular expressions) against an input sequence.
 
 A `Lexer` tokenizes an input sequence such as `InputStream` or a `String` into a `Sequence<TokenMatch>`, providing each with a position in the input.
 
 One way to create a `Lexer` is to first define the `Tokens` to be matched:
 
-    val id = Token("identifier", pattern = "\\w+")
-    val cm = Token("comma", pattern = ",")
-    val ws = Token("whitespace", pattern = "\\s+", ignore = true)
-    
+```kotlin
+val id = Token("identifier", pattern = "\\w+")
+val cm = Token("comma", pattern = ",")
+val ws = Token("whitespace", pattern = "\\s+", ignore = true)
+```
+
 > A `Token` can be ignored by setting its `ignore = true`. An ignored token can still be matched explicitly, but if 
 another token is expected, the ignored one is just dropped from the sequence.
 
-    val lexer = Lexer(listOf(id, cm, ws))
+```kotlin
+val lexer = Lexer(listOf(id, cm, ws))
+```
     
 > Note: the tokens order matters in some cases, because the lexer tries to match them in exactly this order. For instance, if `Token("singleA", "a")` 
 is listed before `Token("doubleA", "aa")`, the latter will never be matched. Be careful with keyword tokens!
 
-    val tokenMatches: Sequence<TokenMatch> = lexer.tokenize("hello, world") // Other types of input are also accepted.
+```kotlin
+val tokenMatches: Sequence<TokenMatch> = lexer.tokenize("hello, world") // Support other types of input as well.
+```
     
-_A more convenient way of defining tokens and creating a lexer is described in the **Grammar** section_
+> A more convenient way of defining tokens and creating a lexer is described in the **Grammar** section.
 
 ## Parser ##
 
@@ -75,10 +85,12 @@ A very basic parser to start with is a `Token` itself: when given an input `Sequ
 with the match of this token itself _(possibly, skipping some **ignored** tokens)_ and returns that `TokenMatch`, also excluding it 
 _(and, possibly, some ignored tokens)_ from the remainder.
 
-    val a = Token(name = "a", pattern = "a+")
-    val b = Token(name = "b", pattern = "b+")
-    val tokenMatches = Lexer(listOf(a, b)).tokenize("aabbaaa")
-    val result = a.tryParse(tokenMatches) // contains the match for "aa" and the remainder with "bbaaa" in it
+```kotlin
+val a = Token(name = "a", pattern = "a+")
+val b = Token(name = "b", pattern = "b+")
+val tokenMatches = Lexer(listOf(a, b)).tokenize("aabbaaa")
+val result = a.tryParse(tokenMatches) // contains the match for "aa" and the remainder with "bbaaa" in it
+```
     
 ## Combinators ## 
 
@@ -90,14 +102,18 @@ There are several kinds of combinators included in `better-parse`:
     The map combinator takes a successful input of another parser and applies a transforming function to it. 
     The error results are returned unchanged.
     
-      val id = Token("identifier", pattern = "\\w+")
-      val aText = a map { it.text } // Parser<String>, returns the matched text from the input sequence
+    ```kotlin
+    val id = Token("identifier", pattern = "\\w+")
+    val aText = a map { it.text } // Parser<String>, returns the matched text from the input sequence
+    ```
       
     A parser for objects of a custom type can be created with `map`:
+    
+    ```kotlin
+    val variable = a map { JavaVariable(name = it.text) } // Parser<JavaVariable>.
+    ```
       
-      val variable = a map { JavaVariable(name = it.text) } // Parser<JavaVariable>.
-      
-    * `a use { ... }` is a `map` equivalent that takes a function with receiver instead. Example: `id use { text }`.
+    * `someParser use { ... }` is a `map` equivalent that takes a function with receiver instead. Example: `id use { text }`.
     
     * `foo asJust bar` can be used to map a parser to some constant value.
     
@@ -105,23 +121,29 @@ There are several kinds of combinators included in `better-parse`:
  
      Given a `Parser<T>`, tries to parse the sequence with it, but returns a `null` result if the parser failed, and thus never fails itself:
      
-       val p: Parser<T> = ...
-       val o = optional(p) // Parser<T?>    
+     ```kotlin
+     val p: Parser<T> = ...
+     val o = optional(p) // Parser<T?>    
+     ```
 
 * `and`, `and skip(...)`
 
     The tuple combinator arranges the parsers in a sequence, so that the remainder of the first one goes to the second one and so on. 
     If all the parsers succeed, their results are merged into a `Tuple`. If either parser failes, its `ErrorResult` is returned by the combinator.
     
-      val a: Parser<A> = ...
-      val b: Parser<B> = ...
-      val aAndB = a and b                 // This is a `Parser<Tuple2<A, B>>`
-      val bAndBAndA = b and b and a       // This is a `Parser<Tuple3<B, B, A>>`
+    ```kotlin
+    val a: Parser<A> = ...
+    val b: Parser<B> = ...
+    val aAndB = a and b                 // This is a `Parser<Tuple2<A, B>>`
+    val bAndBAndA = b and b and a       // This is a `Parser<Tuple3<B, B, A>>`
+    ```
       
      You can `skip(...)` components in a tuple combinator: the parsers will be called just as well, but their results won't be included in the
      resulting tuple:
      
-      val bbWithoutA = skip(a) and b and skip(a) and b and skip(a)  // Parser<Tuple2<B, B>>
+     ```kotlin
+     val bbWithoutA = skip(a) and b and skip(a) and b and skip(a)  // Parser<Tuple2<B, B>>
+     ```
       
      To process the resulting `Tuple`, use the aforementioned `map` and `use`. These parsers are equivalent:
      
@@ -131,6 +153,8 @@ There are several kinds of combinators included in `better-parse`:
       
      * ```val fCall = id and lpar and id and rpar use { FunctionCall(t1, t3) }```
      
+     > There are `Tuple` classes up to `Tuple16` and the corresponding `and` overloads.
+     
  * `or`
  
      The alternative combinator tries to parse the sequence with the parsers it combines one by one until one succeeds. If all the parsers fail,
@@ -138,15 +162,19 @@ There are several kinds of combinators included in `better-parse`:
      
      The result type for the combined parsers is the least common supertype (which is possibly `Any`).
      
-       val expr = const or var or fCall
+     ```kotlin
+     val expr = const or var or fCall
+     ```
      
   * `zeroOrMore(...)`, `oneOrMore(...)`, `N times`, `N timesOrMore`, `N..M times`
   
       These combinators transform a `Parser<T>` into a `Parser<List<T>>`, invokng the parser several times and failing if there was not
       enough matches.
       
-        val modifiers = zeroOrMore(functionModifier)
-        val rectangleParser = 4 times number map { (a, b, c, d) -> Rect(a, b, c, d) }
+      ```kotlin
+      val modifiers = zeroOrMore(functionModifier)
+      val rectangleParser = 4 times number map { (a, b, c, d) -> Rect(a, b, c, d) }
+      ```
       
   * `separated(term, separator)`, `separatedTerms(term, separator)`, `associativeLeft(...)`, `associativeRight(...)`
   
@@ -155,42 +183,50 @@ There are several kinds of combinators included in `better-parse`:
       The result is a `Separated<T, S>` which provides the matches of both parsers (note that terms are one more than separators) and 
       can also be reduced in either direction.
       
-        val number: Parser<Int> = ...
-        val sumParser = separated(number, plus) use { reduce { a, _, b -> a + b } }
+      ```kotlin
+      val number: Parser<Int> = ...
+      val sumParser = separated(number, plus) use { reduce { a, _, b -> a + b } }
+      ```
   
       The `associativeLeft` and `associativeRight` combinators do exactly this, but they take the reducing operation as they are built:
       
-        val term: Parser<Term>
-        val andChain = associativeLeft(term, andOperator) { l, _, r -> And(l, r) }
+      ```kotlin
+      val term: Parser<Term>
+      val andChain = associativeLeft(term, andOperator) { l, _, r -> And(l, r) }
+      ```
         
 # Grammar
 
 As a convenient way of defining a grammar of a language, there is an abstract class `Grammar`, that collects the `by token(...)`-delegated 
 properties into a `Lexer` automatically, and also behaves as a composition of the `Lexer` and the `rootParser`.
 
-    interface Item
-    class Number(val value: Int) : Item
-    class Variable(val name: String) : Item
-    
-    object ItemsParser : Grammar<Item>() {
-        val num by token("\\d+")
-        val word by token("[A-Za-z]")
-        val comma by token(",\\s+")
-        
-        val numParser = num use { Number(text.toInt()) }
-        val varParser = word use { Variable(text) }
-        
-        override val rootParser = separatedTerms(numParser or varParser, comma)
-    }
-    
-    val result: List<Item> = ItemsParser.parseToEnd("one, 2, three, 4, five")
-    
-To use a parser that has not been constructed yet, reference it with `parser { someParser }` or `parser(this::someParser):
+```kotlin
+interface Item
+class Number(val value: Int) : Item
+class Variable(val name: String) : Item
 
-    val term = 
-        constParser or 
-        variableParser or 
-        skip(lpar) and parser(this::term) and skip(lpar) use { t1 }
+object ItemsParser : Grammar<Item>() {
+    val num by token("\\d+")
+    val word by token("[A-Za-z]")
+    val comma by token(",\\s+")
+
+    val numParser = num use { Number(text.toInt()) }
+    val varParser = word use { Variable(text) }
+
+    override val rootParser = separatedTerms(numParser or varParser, comma)
+}
+
+val result: List<Item> = ItemsParser.parseToEnd("one, 2, three, 4, five")
+```
+    
+To use a parser that has not been constructed yet, reference it with `parser { someParser }` or `parser(this::someParser)`:
+
+```kotlin
+val term = 
+    constParser or 
+    variableParser or 
+    (skip(lpar) and parser(this::term) and skip(lpar) use { t1 })
+```
         
 # Examples
 
