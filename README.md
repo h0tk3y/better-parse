@@ -34,7 +34,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.github.h0tk3y.betterParse:better-parse:0.1'
+    compile 'com.github.h0tk3y.betterParse:better-parse:0.2'
 }
 ```
 
