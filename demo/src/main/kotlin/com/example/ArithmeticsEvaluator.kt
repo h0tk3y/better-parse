@@ -19,8 +19,8 @@ class ArithmeticsEvaluator : Grammar<Int>() {
 
     val number = num use { text.toInt() }
     val term: Parser<Int> = number or
-        (skip(minus) and parser(this::term) use { -t1 }) or
-        (skip(lpar) and parser(this::rootParser) and skip(rpar) use { t1 })
+        (skip(minus) and parser(this::term) map { -it }) or
+        (skip(lpar) and parser(this::rootParser) and skip(rpar))
 
     val powChain = leftAssociative(term, pow) { a, _, b -> Math.pow(a.toDouble(), b.toDouble()).toInt() }
 

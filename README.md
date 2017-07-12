@@ -5,25 +5,25 @@
 A nice parser combinator library for Kotlin
 
 ```kotlin
-val booleanGrammar = object : Grammar<BooleanExpression>() {
-    val id by token("\\w+")
-    val not by token("!")
-    val and by token("&")
-    val or by token("|")
-    val ws by token("\\s+", ignore = true)
-    val lpar by token("\\(")
-    val rpar by token("\\)")
-
-    val term = 
-        (id use { Variable(text) }) or
-        (not and parser(this::term) map { (_, n) -> Not(n) }) or
-        (lpar and parser(this::rootParser) and rpar map { (_, e, _) -> e })
-
-    val andChain = leftAssociative(term, and) { l, _, r -> And(l, r) }
-    override val rootParser = leftAssociative(andChain, or) { l, _, r -> Or(l, r) }
-}
-
-val ast = booleanGrammar.parseToEnd("a & !b | b & (!a | c)")
+    val booleanGrammar = object : Grammar<BooleanExpression>() {
+        val id by token("\\w+")
+        val not by token("!")
+        val and by token("&")
+        val or by token("|")
+        val ws by token("\\s+", ignore = true)
+        val lpar by token("\\(")
+        val rpar by token("\\)")
+        
+        val term = 
+            (id use { Variable(text) }) or
+            (-not * parser(this::term) map { (Not(it) }) or
+            (-lpar * parser(this::rootParser) * -rpar)
+            
+        val andChain = leftAssociative(term, and) { l, _, r -> And(l, r) }
+        val rootParser = leftAssociative(andChain, or) { l, _, r -> Or(l, r) }
+    }
+    
+    val ast = booleanGrammar.parseToEnd("a & !b | b & (!a | c)")
  ```
     
 ### Using with Gradle
@@ -145,6 +145,9 @@ There are several kinds of combinators included in `better-parse`:
      val bbWithoutA = skip(a) and b and skip(a) and b and skip(a)  // Parser<Tuple2<B, B>>
      ```
       
+     > If all the components in an `and` chain are skipped except for one `Parser<T>`, the resulting parser
+      is `Parser<T>`, not `Parser<Tuple1<T>>`. 
+      
      To process the resulting `Tuple`, use the aforementioned `map` and `use`. These parsers are equivalent:
      
      * ```val fCall = id and skip(lpar) and id and skip(rpar) map { (fName, arg) -> FunctionCall(fName, arg) }```
@@ -154,6 +157,17 @@ There are several kinds of combinators included in `better-parse`:
      * ```val fCall = id and lpar and id and rpar use { FunctionCall(t1, t3) }```
      
      > There are `Tuple` classes up to `Tuple16` and the corresponding `and` overloads.
+     
+     ##### Operators
+     
+     There are operator overloads for more compact `and` chains definition:
+     
+     * `a * b` is equivalent to `a and b`.
+     
+     * `-a` is equivalent to `skip(a)`.
+     
+     With these operators, the parser `a and skip(b) and skip(c) and d` can also be defined as 
+     `a * -b * -c * d`.
      
  * `or`
  
@@ -225,7 +239,7 @@ To use a parser that has not been constructed yet, reference it with `parser { s
 val term = 
     constParser or 
     variableParser or 
-    (skip(lpar) and parser(this::term) and skip(lpar) use { t1 })
+    (-lpar and parser(this::term) and -rpar)
 ```
         
 # Examples

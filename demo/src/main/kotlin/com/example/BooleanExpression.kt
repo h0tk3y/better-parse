@@ -30,11 +30,10 @@ val booleanGrammar = object : Grammar<BooleanExpression>() {
 
     val term: Parser<BooleanExpression> =
         (tru asJust TRUE) or
-            (fal asJust FALSE) or
-            (id map { Variable(it.text) }) or
-            (not and parser(this::term) map { (_, t) -> Not(t) }) or
-        (lpar and parser(this::implChain) and rpar map { (_, i, _) -> i })
-
+        (fal asJust FALSE) or
+        (id map { Variable(it.text) }) or
+        (-not * parser(this::term) map { Not(it) }) or
+        (-lpar * parser(this::implChain) * -rpar)
 
     val andChain = leftAssociative(term, and) { a, _, b -> And(a, b) }
     val orChain = leftAssociative(andChain, or) { a, _, b -> Or(a, b) }

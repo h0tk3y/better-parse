@@ -22,6 +22,11 @@ fun andCodegen(maxN: Int, outputFile: String) {
                     Tuple${i + 1}($casts)
                 })
                 """.trimIndent() + "\n")
+
+            appendln("""
+                @JvmName("and$i${"Operator"}") inline operator fun <$reifiedNext>
+                 AndCombinator<Tuple$i$generics>.times(p${i + 1}: Parser<T${i + 1}>) = this and p${i + 1}
+                """.trimIndent() + "\n\n")
         }
     }
 
