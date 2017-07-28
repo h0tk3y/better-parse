@@ -5,25 +5,25 @@
 A nice parser combinator library for Kotlin
 
 ```kotlin
-    val booleanGrammar = object : Grammar<BooleanExpression>() {
-        val id by token("\\w+")
-        val not by token("!")
-        val and by token("&")
-        val or by token("|")
-        val ws by token("\\s+", ignore = true)
-        val lpar by token("\\(")
-        val rpar by token("\\)")
-        
-        val term = 
-            (id use { Variable(text) }) or
-            (-not * parser(this::term) map { (Not(it) }) or
-            (-lpar * parser(this::rootParser) * -rpar)
-            
-        val andChain = leftAssociative(term, and) { l, _, r -> And(l, r) }
-        val rootParser = leftAssociative(andChain, or) { l, _, r -> Or(l, r) }
-    }
-    
-    val ast = booleanGrammar.parseToEnd("a & !b | b & (!a | c)")
+val booleanGrammar = object : Grammar<BooleanExpression>() {
+    val id by token("\\w+")
+    val not by token("!")
+    val and by token("&")
+    val or by token("|")
+    val ws by token("\\s+", ignore = true)
+    val lpar by token("\\(")
+    val rpar by token("\\)")
+
+    val term = 
+        (id use { Variable(text) }) or
+        (-not * parser(this::term) map { (Not(it) }) or
+        (-lpar * parser(this::rootParser) * -rpar)
+
+    val andChain = leftAssociative(term, and) { l, _, r -> And(l, r) }
+    val rootParser = leftAssociative(andChain, or) { l, _, r -> Or(l, r) }
+}
+
+val ast = booleanGrammar.parseToEnd("a & !b | b & (!a | c)")
  ```
     
 ### Using with Gradle
