@@ -20,7 +20,7 @@ val booleanGrammar = object : Grammar<BooleanExpression>() {
         (-lpar * parser(this::rootParser) * -rpar)
 
     val andChain = leftAssociative(term, and) { l, _, r -> And(l, r) }
-    val rootParser = leftAssociative(andChain, or) { l, _, r -> Or(l, r) }
+    override val rootParser = leftAssociative(andChain, or) { l, _, r -> Or(l, r) }
 }
 
 val ast = booleanGrammar.parseToEnd("a & !b | b & (!a | c)")
@@ -246,4 +246,5 @@ val term =
 
 * A boolean expressions parser that constructs a simple AST: [`BooleanExpression.kt`](https://github.com/h0tk3y/better-parse/blob/master/demo/src/main/kotlin/com/example/BooleanExpression.kt)
 * An integer arithmetic expressions evaluator: [`ArithmeticsEvaluator.kt`](https://github.com/h0tk3y/better-parse/blob/master/demo/src/main/kotlin/com/example/ArithmeticsEvaluator.kt)
+* A toy programming language parser: [(link)](https://github.com/h0tk3y/compilers-course/blob/master/src/main/kotlin/com/github/h0tk3y/compilersCourse/parsing/Parser.kt)
       
