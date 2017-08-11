@@ -29,6 +29,8 @@ class AndCombinator<out R> internal @PublishedApi constructor(
     val transform: (List<*>) -> R
 ) : Parser<R> {
 
+    private val nonSkippedIndices by lazy { consumers.indices.filter { consumers[it] is SkipParser } }
+
     private fun process(tokens: Sequence<TokenMatch>): Pair<List<ParseResult<*>>, Sequence<TokenMatch>> {
         var lastTokens = tokens
         return consumers.map { consumer ->
@@ -42,13 +44,18 @@ class AndCombinator<out R> internal @PublishedApi constructor(
                 is ErrorResult -> return@process listOf(result) to lastTokens
                 is Parsed<*> -> lastTokens = result.remainder
             }
-            if (consumer is SkipParser) null else result
-        }.filterNotNull() to lastTokens
+            result
+        } to lastTokens
     }
 
     override fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<R> {
         val (results, remainder) = process(tokens)
-        return results.firstOrNull { it is ErrorResult } as? ErrorResult
-               ?: results.filterIsInstance<Parsed<*>>().let { Parsed(transform(it.map { it.value }), remainder) }
+        val errorResult = results.singleOrNull() as? ErrorResult
+        if (errorResult != null)
+            return errorResult
+
+        val values = nonSkippedIndices.map { (results[it] as Parsed).value }
+
+        return Parsed(transform(values), remainder)
     }
 }
