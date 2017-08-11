@@ -14,13 +14,13 @@ val booleanGrammar = object : Grammar<BooleanExpression>() {
     val lpar by token("\\(")
     val rpar by token("\\)")
 
-    val term = 
+    val term by 
         (id use { Variable(text) }) or
         (-not * parser(this::term) map { (Not(it) }) or
         (-lpar * parser(this::rootParser) * -rpar)
 
-    val andChain = leftAssociative(term, and) { l, _, r -> And(l, r) }
-    override val rootParser = leftAssociative(andChain, or) { l, _, r -> Or(l, r) }
+    val andChain by leftAssociative(term, and) { l, _, r -> And(l, r) }
+    override val rootParser by leftAssociative(andChain, or) { l, _, r -> Or(l, r) }
 }
 
 val ast = booleanGrammar.parseToEnd("a & !b | b & (!a | c)")
@@ -224,10 +224,10 @@ object ItemsParser : Grammar<List<Item>>() {
     val word by token("[A-Za-z]")
     val comma by token(",\\s+")
 
-    val numParser = num use { Number(text.toInt()) }
-    val varParser = word use { Variable(text) }
+    val numParser by num use { Number(text.toInt()) }
+    val varParser by word use { Variable(text) }
 
-    override val rootParser = separatedTerms(numParser or varParser, comma)
+    override val rootParser by separatedTerms(numParser or varParser, comma)
 }
 
 val result: List<Item> = ItemsParser.parseToEnd("one, 2, three, 4, five")
@@ -236,7 +236,7 @@ val result: List<Item> = ItemsParser.parseToEnd("one, 2, three, 4, five")
 To use a parser that has not been constructed yet, reference it with `parser { someParser }` or `parser(this::someParser)`:
 
 ```kotlin
-val term = 
+val term by
     constParser or 
     variableParser or 
     (-lpar and parser(this::term) and -rpar)

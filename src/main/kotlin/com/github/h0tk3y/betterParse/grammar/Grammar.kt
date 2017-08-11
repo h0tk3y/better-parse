@@ -21,7 +21,7 @@ abstract class Grammar<out T> : Parser<T> {
 
     private val _tokens = arrayListOf<Token>()
 
-    private val _parsers = hashSetOf<Parser<*>>()
+    private val _parsers = linkedSetOf<Parser<*>>()
 
     /** List of tokens that is by default used for tokenizing a sequence before parsing this language. The tokens are
      * added to this list during an instance construction. */
