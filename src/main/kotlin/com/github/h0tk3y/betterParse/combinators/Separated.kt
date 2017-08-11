@@ -1,6 +1,50 @@
 package com.github.h0tk3y.betterParse.combinators
 
+import com.github.h0tk3y.betterParse.lexer.TokenMatch
+import com.github.h0tk3y.betterParse.parser.ErrorResult
+import com.github.h0tk3y.betterParse.parser.ParseResult
+import com.github.h0tk3y.betterParse.parser.Parsed
 import com.github.h0tk3y.betterParse.parser.Parser
+
+@Suppress("UNCHECKED_CAST")
+class SeparatedCombinator<T, S>(
+    val termParser: Parser<T>,
+    val separatorParser: Parser<S>,
+    val acceptZero: Boolean
+) : Parser<Separated<T, S>> {
+    override fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<Separated<T, S>> {
+        val termMatches = mutableListOf<T>()
+        val separatorMatches = mutableListOf<S>()
+
+        val first = termParser.tryParse(tokens)
+
+        return when (first) {
+            is ErrorResult -> if (acceptZero) Parsed(Separated(emptyList(), emptyList()), tokens) else first
+            is Parsed -> {
+                termMatches += first.value
+                var currentRemainder = first.remainder
+                loop@ while (true) {
+                    val separator = separatorParser.tryParse(currentRemainder)
+                    when (separator) {
+                        is ErrorResult -> break@loop
+                        is Parsed -> {
+                            val nextTerm = termParser.tryParse(separator.remainder)
+                            when (nextTerm) {
+                                is ErrorResult -> break@loop
+                                is Parsed -> {
+                                    separatorMatches += separator.value
+                                    termMatches += nextTerm.value
+                                    currentRemainder = nextTerm.remainder
+                                }
+                            }
+                        }
+                    }
+                }
+                Parsed(Separated(termMatches, separatorMatches), currentRemainder)
+            }
+        }
+    }
+}
 
 /** A list of [terms] separated by [separators], which is either empty (both `terms` and `separators`) or contains one
  * more term than there are separators. */
@@ -40,15 +84,7 @@ inline fun <reified T, reified S> separated(
     term: Parser<T>,
     separator: Parser<S>,
     acceptZero: Boolean = false
-): Parser<Separated<T, S>> {
-    val separatedParser = term and (zeroOrMore(separator and term)) map {
-        (first, nexts) ->
-        Separated(terms = nexts.mapTo(arrayListOf(first)) { (_, b) -> b }, separators = nexts.map { (a, _) -> a })
-    }
-    return if (acceptZero)
-        optional(separatedParser) map { it ?: Separated(terms = listOf(), separators = listOf()) } else
-        separatedParser
-}
+): Parser<Separated<T, S>> = SeparatedCombinator(term, separator, acceptZero)
 
 /** Parses a chain of [term]s separated by [separator], also accepting no matches at all if [acceptZero] is true, and returning
  * only matches of [term]. */
