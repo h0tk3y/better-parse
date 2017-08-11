@@ -29,7 +29,7 @@ class AndCombinator<out R> internal @PublishedApi constructor(
     val transform: (List<*>) -> R
 ) : Parser<R> {
 
-    private val nonSkippedIndices by lazy { consumers.indices.filter { consumers[it] is SkipParser } }
+    private val nonSkippedIndices by lazy { consumers.indices.filter { consumers[it] !is SkipParser } }
 
     private fun process(tokens: Sequence<TokenMatch>): Pair<List<ParseResult<*>>, Sequence<TokenMatch>> {
         var lastTokens = tokens
