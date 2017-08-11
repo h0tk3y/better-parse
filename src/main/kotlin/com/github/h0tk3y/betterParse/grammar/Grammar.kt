@@ -21,9 +21,13 @@ abstract class Grammar<out T> : Parser<T> {
 
     private val _tokens = arrayListOf<Token>()
 
+    private val _parsers = hashSetOf<Parser<*>>()
+
     /** List of tokens that is by default used for tokenizing a sequence before parsing this language. The tokens are
      * added to this list during an instance construction. */
-    val tokens get(): List<Token> = _tokens
+    open val tokens get(): List<Token> = _tokens
+
+    open val declaredParsers get() = _parsers + _tokens + rootParser
 
     /** Creates a [TokenDelegate] for simple [Token] definition within an implementation of this [Grammar]. */
     protected fun token(@RegExp pattern: String, ignore: Boolean = false) = TokenDelegate(pattern.toPattern(), ignore, _tokens)
@@ -34,13 +38,23 @@ abstract class Grammar<out T> : Parser<T> {
     /** Creates a [TokenDelegate] for simple [Token] definition within an implementation of this [Grammar]. */
     protected fun token(pattern: Regex, ignore: Boolean = false) = TokenDelegate(pattern.toPattern(), ignore, _tokens)
 
+
     /** A [Lexer] that is built with the [Token]s defined within this [Grammar], in their order of declaration */
-    val lexer by lazy { Lexer(_tokens) }
+    val lexer by lazy { Lexer(tokens) }
 
     /** A [Parser] that represents the root rule of this [Grammar] and is used by default for parsing. */
     abstract val rootParser: Parser<T>
 
     final override fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<T> = rootParser.tryParse(tokens)
+
+    protected operator fun <T> Parser<T>.provideDelegate(thisRef: Grammar<*>, property: KProperty<*>): Parser<T> {
+        _parsers.add(this)
+        return this
+    }
+
+    protected operator fun <T> Parser<T>.getValue(thisRef: Grammar<*>, property: KProperty<*>): Parser<T> {
+        return this
+    }
 }
 
 /** Constructs a [Token] and, if provided, adds it to the [addTo] collection upon the token construction. */
@@ -64,11 +78,11 @@ fun token(pattern: Pattern, addTo: MutableCollection<in Token>? = null, ignore: 
 fun token(pattern: Regex, addTo: MutableCollection<in Token>? = null, ignore: Boolean = false) = TokenDelegate(pattern.toPattern(), ignore, addTo)
 
 /** A convenience function to use for referencing a parser that is not initialized up to this moment. */
-fun <T> parser(block: () -> Parser<T>): Parser<T> {
-    val innerParser by lazy { block() }
-    return object : Parser<T> {
-        override fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<T> = innerParser.tryParse(tokens)
-    }
+fun <T> parser(block: () -> Parser<T>): Parser<T> = ParserReference(block)
+
+class ParserReference<out T> internal constructor(parserProvider: () -> Parser<T>) : Parser<T> {
+    val parser by lazy(parserProvider)
+    override fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<T> = parser.tryParse(tokens)
 }
 
 fun <T> Grammar<T>.tryParseToEnd(input: String) = rootParser.tryParseToEnd(lexer.tokenize(input))
