@@ -27,7 +27,7 @@ abstract class Grammar<out T> : Parser<T> {
      * added to this list during an instance construction. */
     open val tokens get(): List<Token> = _tokens
 
-    open val declaredParsers get() = _parsers + _tokens + rootParser
+    open val declaredParsers get() = (_parsers + _tokens + rootParser).toSet()
 
     /** Creates a [TokenDelegate] for simple [Token] definition within an implementation of this [Grammar]. */
     protected fun token(@RegExp pattern: String, ignore: Boolean = false) = TokenDelegate(pattern.toPattern(), ignore, _tokens)
