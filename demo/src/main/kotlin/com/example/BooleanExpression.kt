@@ -28,18 +28,18 @@ val booleanGrammar = object : Grammar<BooleanExpression>() {
     val impl by token("->")
     val ws by token("\\s+", ignore = true)
 
-    val term: Parser<BooleanExpression> =
+    val term: Parser<BooleanExpression> by
         (tru asJust TRUE) or
         (fal asJust FALSE) or
         (id map { Variable(it.text) }) or
         (-not * parser(this::term) map { Not(it) }) or
         (-lpar * parser(this::implChain) * -rpar)
 
-    val andChain = leftAssociative(term, and) { a, _, b -> And(a, b) }
-    val orChain = leftAssociative(andChain, or) { a, _, b -> Or(a, b) }
-    val implChain = rightAssociative(orChain, impl) { a, _, b -> Impl(a, b) }
+    val andChain by leftAssociative(term, and) { a, _, b -> And(a, b) }
+    val orChain by leftAssociative(andChain, or) { a, _, b -> Or(a, b) }
+    val implChain by rightAssociative(orChain, impl) { a, _, b -> Impl(a, b) }
 
-    override val rootParser = implChain
+    override val rootParser by implChain
 }
 
 fun main(args: Array<String>) {
