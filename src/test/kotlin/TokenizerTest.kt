@@ -1,16 +1,16 @@
 
-import com.github.h0tk3y.betterParse.lexer.Lexer
+import com.github.h0tk3y.betterParse.lexer.DefaultTokenizer
 import com.github.h0tk3y.betterParse.lexer.Token
 import com.github.h0tk3y.betterParse.lexer.noneMatched
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class LexerTest {
+class TokenizerTest {
     @Test fun simpleInput() {
         val aPlus = Token("aPlus", "a+", false)
         val bPlus = Token("bPlus", "b+", false)
         val justX = Token("justX", "x", false)
-        val lexer = Lexer(listOf(aPlus, bPlus, justX))
+        val lexer = DefaultTokenizer(listOf(aPlus, bPlus, justX))
 
         val input = "aaaxxxbbbaaa"
         val types = lexer.tokenize(input).toList().map { it.type }
@@ -21,7 +21,7 @@ class LexerTest {
     @Test fun position() {
         val aPlus = Token("aPlus", "a+")
         val bPlus = Token("bPlus", "b+")
-        val lexer = Lexer(listOf(aPlus, bPlus))
+        val lexer = DefaultTokenizer(listOf(aPlus, bPlus))
 
         val input = "abaaabbbaaaabbbb"
         val positions = lexer.tokenize(input).toList().map { it.position }
@@ -33,7 +33,7 @@ class LexerTest {
         val aPlus = Token("aPlus", "a+")
         val bPlus = Token("bPlus", "b+")
         val br = Token("break", "\n")
-        val lexer = Lexer(listOf(aPlus, bPlus, br))
+        val lexer = DefaultTokenizer(listOf(aPlus, bPlus, br))
 
         val input = """
             aaa
@@ -51,7 +51,7 @@ class LexerTest {
     @Test fun mismatchedToken() {
         val a = Token("a", "a")
         val b = Token("b", "b")
-        val lexer = Lexer(listOf(a, b))
+        val lexer = DefaultTokenizer(listOf(a, b))
 
         val input = "aabbxxaa"
 
@@ -69,12 +69,12 @@ class LexerTest {
 
         val input = "aaaaaa"
 
-        val lexAFirst = Lexer(listOf(a, aa))
+        val lexAFirst = DefaultTokenizer(listOf(a, aa))
         val resultAFirst = lexAFirst.tokenize(input).toList().map { it.type }
         assertEquals(6, resultAFirst.size)
         assertEquals(a, resultAFirst.distinct().single())
 
-        val lexAaFirst = Lexer(listOf(aa, a))
+        val lexAaFirst = DefaultTokenizer(listOf(aa, a))
         val resultAaFirst = lexAaFirst.tokenize(input).toList().map { it.type }
         assertEquals(3, resultAaFirst.size)
         assertEquals(aa, resultAaFirst.distinct().single())

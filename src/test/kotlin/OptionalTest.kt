@@ -16,13 +16,13 @@ class OptionalTest : Grammar<Nothing>() {
     val b by token("b")
 
     @Test fun successful() {
-        val tokens = lexer.tokenize("abab")
+        val tokens = tokenizer.tokenize("abab")
         val result = optional(a and b and a and b).tryParse(tokens)
         Assert.assertTrue(result.toParsedOrThrow().value is Tuple4)
     }
 
     @Test fun unsuccessful() {
-        val tokens = lexer.tokenize("abab")
+        val tokens = tokenizer.tokenize("abab")
         val result = optional(b and a and b and a).tryParse(tokens)
         assertNull(result.toParsedOrThrow().value)
     }

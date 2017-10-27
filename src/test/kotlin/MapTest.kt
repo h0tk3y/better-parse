@@ -3,7 +3,7 @@ import com.github.h0tk3y.betterParse.combinators.and
 import com.github.h0tk3y.betterParse.combinators.asJust
 import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.combinators.use
-import com.github.h0tk3y.betterParse.lexer.Lexer
+import com.github.h0tk3y.betterParse.lexer.DefaultTokenizer
 import com.github.h0tk3y.betterParse.lexer.Token
 import com.github.h0tk3y.betterParse.parser.toParsedOrThrow
 import org.junit.Assert.assertEquals
@@ -12,7 +12,7 @@ import org.junit.Test
 class MapTest {
     val aPlus = Token("aPlus", "a+")
     val bPlus = Token("aPlus", "b+")
-    val lexer = Lexer(listOf(aPlus, bPlus))
+    val lexer = DefaultTokenizer(listOf(aPlus, bPlus))
 
     @Test fun testSuccessfulMap() {
         val tokens = lexer.tokenize("aaa")

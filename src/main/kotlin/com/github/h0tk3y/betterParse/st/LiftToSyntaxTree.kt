@@ -9,14 +9,14 @@ import com.github.h0tk3y.betterParse.parser.EmptyParser
 import com.github.h0tk3y.betterParse.parser.Parser
 
 /** Encloses custom logic for transforming a [Parser] to a parser of [AST].
- * A correct implementation overrides [liftToAst] so that it calls `recurse` for the sub-parsers, if any, and
- * combines them into the parser it returns. */
+ * A correct implementation overrides [liftToSyntaxTree] so that it calls `recurse` for the sub-parsers, if any, and
+ * combines them into the parser that it returns. */
 interface LiftToSyntaxTreeTransformer {
     interface DefaultTransformerReference {
         fun <T> transform(parser: Parser<T>): Parser<SyntaxTree<T>>
     }
 
-    fun <T> liftToAst(parser: Parser<T>, recurse: DefaultTransformerReference): Parser<SyntaxTree<T>>
+    fun <T> liftToSyntaxTree(parser: Parser<T>, default: DefaultTransformerReference): Parser<SyntaxTree<T>>
 }
 
 /** Options for transforming a [Parser] to a parser of [SyntaxTree].
@@ -78,9 +78,9 @@ private class ParserToSyntaxTreeLifter(
             is RepeatCombinator<*> -> liftRepeatCombinatorToAST(parser)
             is ParserReference<*> -> liftParserReferenceToAST(parser)
             is SeparatedCombinator<*, *> -> liftSeparatedCombinatorToAST(parser)
-            else -> transformer?.liftToAst(parser, object : LiftToSyntaxTreeTransformer.DefaultTransformerReference {
-                override fun <T> transform(p: Parser<T>): Parser<SyntaxTree<T>> = lift(p)
-            }) ?: throw IllegalArgumentException("Unexpected parser $this. Provide a custom transformer that can lift it.")
+            else -> {
+                transformer?.liftToSyntaxTree(parser, default) ?: throw IllegalArgumentException("Unexpected parser $this. Provide a custom transformer that can lift it.")
+            }
         } as Parser<SyntaxTree<T>>
 
         resultMap[parser] = result
@@ -88,6 +88,10 @@ private class ParserToSyntaxTreeLifter(
         parsersInStack -= parser
 
         return result
+    }
+
+    private val default = object : LiftToSyntaxTreeTransformer.DefaultTransformerReference {
+        override fun <T> transform(parser: Parser<T>): Parser<SyntaxTree<T>> = lift(parser)
     }
 
     private fun liftTokenToAST(token: Token): Parser<SyntaxTree<TokenMatch>> {
@@ -113,7 +117,7 @@ private class ParserToSyntaxTreeLifter(
     }
 
     private fun <T> liftAndCombinatorToAST(combinator: AndCombinator<T>): AndCombinator<SyntaxTree<T>> {
-        val liftedConsumers = combinator.consumers.mapIndexed { idx, it ->
+        val liftedConsumers = combinator.consumers.map {
             when (it) {
                 is Parser<*> -> lift(it)
                 is SkipParser -> lift(it.innerParser)

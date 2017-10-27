@@ -1,6 +1,7 @@
 
 import com.github.h0tk3y.betterParse.combinators.*
 import com.github.h0tk3y.betterParse.grammar.Grammar
+import com.github.h0tk3y.betterParse.grammar.token
 import com.github.h0tk3y.betterParse.parser.*
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -14,7 +15,7 @@ class SeparatedTest : Grammar<Nothing>() {
     val word by token("\\w+")
 
     @Test fun separate() {
-        val tokens = lexer.tokenize("one, two, three")
+        val tokens = tokenizer.tokenize("one, two, three")
         val result = separated(word use { text }, comma).tryParse(tokens).toParsedOrThrow().value
 
         assertEquals(listOf("one", "two", "three"), result.terms)
@@ -22,7 +23,7 @@ class SeparatedTest : Grammar<Nothing>() {
     }
 
     @Test fun singleSeparated() {
-        val tokens = lexer.tokenize("one")
+        val tokens = tokenizer.tokenize("one")
         val result = separated(word use { text }, comma).parseToEnd(tokens)
 
         assertEquals(listOf("one"), result.terms)
@@ -30,7 +31,7 @@ class SeparatedTest : Grammar<Nothing>() {
     }
 
     @Test fun acceptZero() {
-        val tokens = lexer.tokenize("123")
+        val tokens = tokenizer.tokenize("123")
 
         val resultRejectZero = separated(word asJust "x", comma).tryParse(tokens)
         assertTrue(resultRejectZero is MismatchedToken)
@@ -40,7 +41,7 @@ class SeparatedTest : Grammar<Nothing>() {
     }
 
     @Test fun reduceLeftRight() {
-        val tokens = lexer.tokenize("3, 4, 5, 6")
+        val tokens = tokenizer.tokenize("3, 4, 5, 6")
         val result = separated(number use { text.toInt() }, comma).parseToEnd(tokens)
 
         val minusLeft = result.reduce { a, _, b -> a - b }
@@ -51,7 +52,7 @@ class SeparatedTest : Grammar<Nothing>() {
     }
 
     @Test fun associative() {
-        val tokens = lexer.tokenize("3, 4, 5, 6")
+        val tokens = tokenizer.tokenize("3, 4, 5, 6")
         val p = (number use { text.toInt() }) as Parser<Any>
 
         val resultLeft = leftAssociative(p, comma) { a, _, b -> a to b }.parseToEnd(tokens)

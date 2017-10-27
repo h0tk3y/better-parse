@@ -2,7 +2,8 @@ package com.github.h0tk3y.betterParse.lexer
 
 import com.github.h0tk3y.betterParse.parser.*
 import com.github.h0tk3y.betterParse.utils.skipOne
-import java.util.regex.Pattern
+import org.intellij.lang.annotations.Language
+import org.intellij.lang.annotations.RegExp
 
 /**
  * Represents a basic detectable part of the input, that is detected by its [pattern] and might be [ignored].
@@ -10,15 +11,17 @@ import java.util.regex.Pattern
  * The [name] only provides additional information.
  */
 class Token(
-    val name: String,
-    val pattern: Pattern,
-    val ignored: Boolean
+    name: String?,
+    @RegExp @Language("RegExp") val pattern: String,
+    val ignored: Boolean = false
 ) : Parser<TokenMatch> {
 
-    constructor(name: String, pattern: String, ignored: Boolean = false)
-        : this(name, pattern.toPattern(), ignored)
+    var name: String? = name
+        internal set
 
-    override fun toString() = "$name ($pattern)" + if (ignored) " [ignorable]" else ""
+    override fun toString() =
+        (if (name != null) "$name ($pattern)" else pattern) +
+        if (ignored) " [ignorable]" else ""
 
     override tailrec fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<TokenMatch> {
         val token = tokens.firstOrNull()
@@ -27,7 +30,7 @@ class Token(
             token.type == noneMatched -> NoMatchingToken(token)
             token.type == this -> Parsed(token, tokens.skipOne())
             token.type.ignored -> this.tryParse(tokens.skipOne())
-            else -> if (tokens is LexerTokenSequence && this !in tokens.lexer.tokens)
+            else -> if (tokens is TokenizerMatchesSequence && this !in tokens.tokenizer.tokens)
                 throw IllegalArgumentException("Token $this not in lexer tokens") else
                 MismatchedToken(this, token)
         }
@@ -35,7 +38,7 @@ class Token(
 }
 
 /** Token type indicating that there was no [Token] found to be matched by a [Lexer]. */
-val noneMatched = Token("no token matched", "".toPattern(), false)
+val noneMatched = Token("no token matched", "", false)
 
 /**
  * Represents a [Parsed] result of a [Token], with the token [type], the [text] that matched the token in the input

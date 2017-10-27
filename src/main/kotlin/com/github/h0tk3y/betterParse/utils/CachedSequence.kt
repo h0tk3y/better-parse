@@ -1,6 +1,6 @@
 package com.github.h0tk3y.betterParse.utils
 
-import com.github.h0tk3y.betterParse.lexer.LexerTokenSequence
+import com.github.h0tk3y.betterParse.lexer.TokenizerMatchesSequence
 import com.github.h0tk3y.betterParse.lexer.TokenMatch
 import java.util.*
 
@@ -28,12 +28,16 @@ internal class CachedSequence<T> constructor(
 }
 
 internal fun Sequence<TokenMatch>.skipOne(): Sequence<TokenMatch> = when (this) {
-    is LexerTokenSequence -> LexerTokenSequence(tokens.skipOne() as CachedSequence<TokenMatch>, lexer)
+    is TokenizerMatchesSequence -> TokenizerMatchesSequence(tokens.skipOne() as CachedSequence, tokenizer)
     is CachedSequence -> CachedSequence(source, cache, startAt + 1)
     else -> drop(1)
 }
 
-internal fun <T> Sequence<T>.cached() = when (this) {
-    is CachedSequence<T> -> this
+/**
+ * Creates a sequence that caches the once-evaluated items of the original sequence, so that
+ * repeated iteration does not lead to evaluating the items again.
+ */
+fun <T> Sequence<T>.cached(): Sequence<T> = when (this) {
+    is CachedSequence -> this
     else -> CachedSequence(this)
 }

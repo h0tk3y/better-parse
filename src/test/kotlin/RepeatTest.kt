@@ -4,6 +4,7 @@ import com.github.h0tk3y.betterParse.combinators.times
 import com.github.h0tk3y.betterParse.combinators.timesOrMore
 import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 import com.github.h0tk3y.betterParse.grammar.Grammar
+import com.github.h0tk3y.betterParse.grammar.token
 import com.github.h0tk3y.betterParse.parser.*
 import org.junit.Assert
 import org.junit.Test
@@ -30,7 +31,7 @@ class RepeatTest : Grammar<Nothing>() {
 
         for (n in minN..maxN) {
             val input = String(CharArray(n) { 'a' })
-            val tokens = lexer.tokenize(input)
+            val tokens = tokenizer.tokenize(input)
 
             for ((range, parser) in rangeParsers) {
                 val result = parser.tryParseToEnd(tokens)

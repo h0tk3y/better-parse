@@ -56,17 +56,17 @@ val ws = Token("whitespace", pattern = "\\s+", ignore = true)
 another token is expected, the ignored one is just dropped from the sequence.
 
 ```kotlin
-val lexer = Lexer(listOf(id, cm, ws))
+val tokenizer = DefaultTokenizer(listOf(id, cm, ws))
 ```
     
-> Note: the tokens order matters in some cases, because the lexer tries to match them in exactly this order. For instance, if `Token("singleA", "a")` 
+> Note: the tokens order matters in some cases, because the tokenizer tries to match them in exactly this order. For instance, if `Token("singleA", "a")` 
 is listed before `Token("doubleA", "aa")`, the latter will never be matched. Be careful with keyword tokens!
 
 ```kotlin
-val tokenMatches: Sequence<TokenMatch> = lexer.tokenize("hello, world") // Support other types of input as well.
+val tokenMatches: Sequence<TokenMatch> = tokenizer.tokenize("hello, world") // Support other types of input as well.
 ```
     
-> A more convenient way of defining tokens and creating a lexer is described in the **Grammar** section.
+> A more convenient way of defining tokens and creating a tokenizer is described in the **Grammar** section.
 
 ## Parser ##
 

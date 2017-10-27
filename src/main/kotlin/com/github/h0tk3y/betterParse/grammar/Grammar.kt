@@ -1,12 +1,14 @@
 package com.github.h0tk3y.betterParse.grammar
 
-import com.github.h0tk3y.betterParse.lexer.Lexer
+import com.github.h0tk3y.betterParse.lexer.DefaultTokenizer
 import com.github.h0tk3y.betterParse.lexer.Token
 import com.github.h0tk3y.betterParse.lexer.TokenMatch
+import com.github.h0tk3y.betterParse.lexer.Tokenizer
 import com.github.h0tk3y.betterParse.parser.ParseResult
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.parseToEnd
 import com.github.h0tk3y.betterParse.parser.tryParseToEnd
+import org.intellij.lang.annotations.Language
 import org.intellij.lang.annotations.RegExp
 import java.io.InputStream
 import java.util.*
@@ -27,55 +29,42 @@ abstract class Grammar<out T> : Parser<T> {
      * added to this list during an instance construction. */
     open val tokens get(): List<Token> = _tokens
 
+    /** Set of the tokens and parsers that were declared by delegation to the parser instances (`val p by someParser`), and [rootParser] */
     open val declaredParsers get() = (_parsers + _tokens + rootParser).toSet()
 
-    /** Creates a [TokenDelegate] for simple [Token] definition within an implementation of this [Grammar]. */
-    protected fun token(@RegExp pattern: String, ignore: Boolean = false) = TokenDelegate(pattern.toPattern(), ignore, _tokens)
-
-    /** Creates a [TokenDelegate] for simple [Token] definition within an implementation of this [Grammar]. */
-    protected fun token(pattern: Pattern, ignore: Boolean = false) = TokenDelegate(pattern, ignore, _tokens)
-
-    /** Creates a [TokenDelegate] for simple [Token] definition within an implementation of this [Grammar]. */
-    protected fun token(pattern: Regex, ignore: Boolean = false) = TokenDelegate(pattern.toPattern(), ignore, _tokens)
-
+    fun token(@Language("RegExp") @RegExp pattern: String, ignore: Boolean = false) = Token(null, pattern, ignore)
+    fun token(pattern: Pattern, ignore: Boolean = false) = Token(null, pattern.toString(), ignore)
+    fun token(pattern: Regex, ignore: Boolean = false) = Token(null, pattern.toString(), ignore)
 
     /** A [Lexer] that is built with the [Token]s defined within this [Grammar], in their order of declaration */
-    val lexer by lazy { Lexer(tokens) }
+    open val tokenizer: Tokenizer by lazy { DefaultTokenizer(tokens) }
 
     /** A [Parser] that represents the root rule of this [Grammar] and is used by default for parsing. */
     abstract val rootParser: Parser<T>
 
     final override fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<T> = rootParser.tryParse(tokens)
 
-    protected operator fun <T> Parser<T>.provideDelegate(thisRef: Grammar<*>, property: KProperty<*>): Parser<T> {
-        _parsers.add(this)
-        return this
-    }
+    protected operator fun <T> Parser<T>.provideDelegate(thisRef: Grammar<*>, property: KProperty<*>): Parser<T> =
+        also { _parsers.add(it) }
 
-    protected operator fun <T> Parser<T>.getValue(thisRef: Grammar<*>, property: KProperty<*>): Parser<T> {
-        return this
-    }
+    protected operator fun <T> Parser<T>.getValue(thisRef: Grammar<*>, property: KProperty<*>): Parser<T> = this
+
+    protected operator fun Token.provideDelegate(thisRef: Grammar<*>, property: KProperty<*>) : Token =
+        also {
+            if (it.name == null) it.name = property.name
+            _tokens.add(it)
+        }
+
+    protected operator fun Token.getValue(thisRef: Grammar<*>, property: KProperty<*>) : Token = this
 }
 
-/** Constructs a [Token] and, if provided, adds it to the [addTo] collection upon the token construction. */
-class TokenDelegate (
-    val pattern: Pattern,
-    val canBeIgnored: Boolean = false,
-    val addTo: MutableCollection<in Token>? = null
-) {
-    lateinit private var token: Token
+fun token(name: String, @Language("RegExp") @RegExp pattern: String, ignore: Boolean = false) = Token(name, pattern, ignore)
+fun token(name: String, pattern: Pattern, ignore: Boolean = false) = Token(name, pattern.toString(), ignore)
+fun token(name: String, pattern: Regex, ignore: Boolean = false) = Token(name, pattern.toString(), ignore)
 
-    operator fun provideDelegate(thisRef: Any?, property: KProperty<*>): TokenDelegate {
-        token = Token(property.name, pattern, canBeIgnored).apply { addTo?.add(this) }
-        return this
-    }
-
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): Token = token
-}
-
-fun token(pattern: String, addTo: MutableCollection<in Token>? = null, ignore: Boolean = false) = TokenDelegate(pattern.toPattern(), ignore, addTo)
-fun token(pattern: Pattern, addTo: MutableCollection<in Token>? = null, ignore: Boolean = false) = TokenDelegate(pattern, ignore, addTo)
-fun token(pattern: Regex, addTo: MutableCollection<in Token>? = null, ignore: Boolean = false) = TokenDelegate(pattern.toPattern(), ignore, addTo)
+fun token(@Language("RegExp") @RegExp pattern: String, ignore: Boolean = false) = Token(null, pattern, ignore)
+fun token(pattern: Pattern, ignore: Boolean = false) = Token(null, pattern.toString(), ignore)
+fun token(pattern: Regex, ignore: Boolean = false) = Token(null, pattern.toString(), ignore)
 
 /** A convenience function to use for referencing a parser that is not initialized up to this moment. */
 fun <T> parser(block: () -> Parser<T>): Parser<T> = ParserReference(block)
@@ -85,12 +74,12 @@ class ParserReference<out T> internal constructor(parserProvider: () -> Parser<T
     override fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<T> = parser.tryParse(tokens)
 }
 
-fun <T> Grammar<T>.tryParseToEnd(input: String) = rootParser.tryParseToEnd(lexer.tokenize(input))
-fun <T> Grammar<T>.tryParseToEnd(input: InputStream) = rootParser.tryParseToEnd(lexer.tokenize(input))
-fun <T> Grammar<T>.tryParseToEnd(input: Readable) = rootParser.tryParseToEnd(lexer.tokenize(input))
-fun <T> Grammar<T>.tryParseToEnd(input: Scanner) = rootParser.tryParseToEnd(lexer.tokenize(input))
+fun <T> Grammar<T>.tryParseToEnd(input: String) = rootParser.tryParseToEnd(tokenizer.tokenize(input))
+fun <T> Grammar<T>.tryParseToEnd(input: InputStream) = rootParser.tryParseToEnd(tokenizer.tokenize(input))
+fun <T> Grammar<T>.tryParseToEnd(input: Readable) = rootParser.tryParseToEnd(tokenizer.tokenize(input))
+fun <T> Grammar<T>.tryParseToEnd(input: Scanner) = rootParser.tryParseToEnd(tokenizer.tokenize(input))
 
-fun <T> Grammar<T>.parseToEnd(input: String): T = rootParser.parseToEnd(lexer.tokenize(input))
-fun <T> Grammar<T>.parseToEnd(input: InputStream): T = rootParser.parseToEnd(lexer.tokenize(input))
-fun <T> Grammar<T>.parseToEnd(input: Readable): T = rootParser.parseToEnd(lexer.tokenize(input))
-fun <T> Grammar<T>.parseToEnd(input: Scanner): T = rootParser.parseToEnd(lexer.tokenize(input))
+fun <T> Grammar<T>.parseToEnd(input: String): T = rootParser.parseToEnd(tokenizer.tokenize(input))
+fun <T> Grammar<T>.parseToEnd(input: InputStream): T = rootParser.parseToEnd(tokenizer.tokenize(input))
+fun <T> Grammar<T>.parseToEnd(input: Readable): T = rootParser.parseToEnd(tokenizer.tokenize(input))
+fun <T> Grammar<T>.parseToEnd(input: Scanner): T = rootParser.parseToEnd(tokenizer.tokenize(input))

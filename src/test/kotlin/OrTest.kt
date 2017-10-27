@@ -1,5 +1,6 @@
 import com.github.h0tk3y.betterParse.combinators.*
 import com.github.h0tk3y.betterParse.grammar.Grammar
+import com.github.h0tk3y.betterParse.grammar.token
 import com.github.h0tk3y.betterParse.parser.*
 import org.junit.Assert
 import org.junit.Test
@@ -11,7 +12,7 @@ class OrTest : Grammar<Nothing>() {
     val b by token("b")
 
     @Test fun aOrB() {
-        val tokens = lexer.tokenize("abababa")
+        val tokens = tokenizer.tokenize("abababa")
         val abOrA = zeroOrMore((a and b use { t2 }) or a) use { map { it.type } }
         val result = abOrA.parseToEnd(tokens)
 
@@ -19,7 +20,7 @@ class OrTest : Grammar<Nothing>() {
     }
 
     @Test fun alternativesError() {
-        val tokens = lexer.tokenize("ab")
+        val tokens = tokenizer.tokenize("ab")
         val parser = (a and a) or (a and b and a)
         val result = parser.tryParse(tokens) as AlternativesFailure
 

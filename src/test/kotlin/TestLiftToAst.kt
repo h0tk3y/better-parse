@@ -2,6 +2,7 @@ import com.github.h0tk3y.betterParse.combinators.*
 import com.github.h0tk3y.betterParse.grammar.Grammar
 import com.github.h0tk3y.betterParse.grammar.parseToEnd
 import com.github.h0tk3y.betterParse.grammar.parser
+import com.github.h0tk3y.betterParse.grammar.token
 import com.github.h0tk3y.betterParse.lexer.TokenMatch
 import com.github.h0tk3y.betterParse.parser.*
 import com.github.h0tk3y.betterParse.st.*
@@ -146,13 +147,13 @@ class TestLiftToAst {
 
         val transformer = object : LiftToSyntaxTreeTransformer {
             @Suppress("UNCHECKED_CAST")
-            override fun <T> liftToAst(
+            override fun <T> liftToSyntaxTree(
                 parser: Parser<T>,
-                recurse: LiftToSyntaxTreeTransformer.DefaultTransformerReference
+                default: LiftToSyntaxTreeTransformer.DefaultTransformerReference
             ): Parser<SyntaxTree<T>> {
                 if (parser is ForcedDuplicate<*>)
                     return object : Parser<SyntaxTree<T>> {
-                        val parsers = parser.alternatives.map { recurse.transform(it) }
+                        val parsers = parser.alternatives.map { default.transform(it) }
 
                         override fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<SyntaxTree<T>> {
                             val res = parsers.asSequence().map { it to it.tryParse(tokens) }.firstOrNull { it.second is Parsed<*> }
@@ -184,7 +185,7 @@ class TestLiftToAst {
             structureParsers = booleanGrammar.declaredParsers
         )
 
-        val result = lifted.tryParse(booleanGrammar.lexer.tokenize("||"))
+        val result = lifted.tryParse(booleanGrammar.tokenizer.tokenize("||"))
         val value = result.toParsedOrThrow().value
 
         @Suppress("USELESS_IS_CHECK")

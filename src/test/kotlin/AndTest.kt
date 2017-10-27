@@ -1,5 +1,6 @@
 import com.github.h0tk3y.betterParse.combinators.*
 import com.github.h0tk3y.betterParse.grammar.Grammar
+import com.github.h0tk3y.betterParse.grammar.token
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.parseToEnd
 import com.github.h0tk3y.betterParse.utils.components
@@ -13,7 +14,7 @@ class AndTest : Grammar<Nothing>() {
     val b by token("b")
 
     @Test fun simpleAnd() {
-        val tokens = lexer.tokenize("aba")
+        val tokens = tokenizer.tokenize("aba")
         val parser = a and b and a use { components.map { it.type } }
         val result = parser.parseToEnd(tokens)
 
@@ -21,7 +22,7 @@ class AndTest : Grammar<Nothing>() {
     }
 
     @Test fun skip() {
-        val tokens = lexer.tokenize("abab")
+        val tokens = tokenizer.tokenize("abab")
         val parserA = a and skip(b) and a and skip(b) use { components.map { it.type } }
         val parserB = skip(a) and b and skip(a) and b use { components.map { it.type } }
 
@@ -30,7 +31,7 @@ class AndTest : Grammar<Nothing>() {
     }
 
     @Test fun leftmostSeveralSkips() {
-        val tokens = lexer.tokenize("ababab")
+        val tokens = tokenizer.tokenize("ababab")
         val parser = -a * -b * a * -b * -a * b use { t1.type to t2.type }
         val result = parser.parseToEnd(tokens)
 
@@ -38,7 +39,7 @@ class AndTest : Grammar<Nothing>() {
     }
 
     @Test fun singleParserInSkipChain() {
-        val tokens = lexer.tokenize("ababa")
+        val tokens = tokenizer.tokenize("ababa")
         val parser = -a * -b * a * -b * -a use { position }
         val result = parser.parseToEnd(tokens)
 
@@ -46,7 +47,7 @@ class AndTest : Grammar<Nothing>() {
     }
 
     @Test fun longAndOperatorChain() {
-        val tokens = lexer.tokenize("aaabbb")
+        val tokens = tokenizer.tokenize("aaabbb")
         val parser = a * a * a * b * b * b use { listOf(t6, t5, t4, t3, t2, t1).map { it.type } }
         val result = parser.parseToEnd(tokens)
 
