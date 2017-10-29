@@ -15,10 +15,10 @@ data class SyntaxTree<out T>(
     val range: IntRange
 )
 
-/** Returns an SyntaxTree that contains only parsers from [structureParsers] in its nodes. The nodes that have other parsers
+/** Returns a [SyntaxTree] that contains only parsers from [structureParsers] in its nodes. The nodes that have other parsers
  * are replaced in their parents by their children that are also flattened in the same way. If the root node is to be
- * replaced, another SyntaxTree is created that contains its children. */
-fun <T> SyntaxTree<T>.flatten(structureParsers: Set<Parser<*>> = emptySet()): SyntaxTree<T> {
+ * replaced, another SyntaxTree is created that contains the resulting nodes as children and the same parser. */
+fun <T> SyntaxTree<T>.flatten(structureParsers: Set<Parser<*>>): SyntaxTree<T> {
     val list = flattenToList(this, structureParsers)
     @Suppress("UNCHECKED_CAST")
     return if (parser == list.singleOrNull()?.parser)
