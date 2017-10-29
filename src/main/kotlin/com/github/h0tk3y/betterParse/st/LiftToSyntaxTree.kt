@@ -47,7 +47,7 @@ fun <T> Parser<T>.liftToSyntaxTreeParser(
 /** Converts a [Grammar] so that its [Grammar.rootParser] parses a [SyntaxTree]. See: [liftToSyntaxTreeParser]. */
 fun <T> Grammar<T>.liftToSyntaxTreeGrammar(
     liftOptions: LiftToSyntaxTreeOptions = LiftToSyntaxTreeOptions(),
-    structureParsers: Set<Parser<*>> = declaredParsers,
+    structureParsers: Set<Parser<*>>? = declaredParsers,
     transformer: LiftToSyntaxTreeTransformer? = null
 ) = object : Grammar<SyntaxTree<T>>() {
     override val rootParser: Parser<SyntaxTree<T>> = this@liftToSyntaxTreeGrammar.rootParser

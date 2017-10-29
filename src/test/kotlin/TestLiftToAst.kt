@@ -66,14 +66,14 @@ private fun SyntaxTree<*>.toTopDownStrings() = topDownNodesSequence()
 class TestLiftToAst {
     @Test
     fun continuousRange() {
-        val astParser = booleanGrammar.liftToSyntaxTreeGrammar(LiftToSyntaxTreeOptions(retainSkipped = true), structureParsers = emptySet())
+        val astParser = booleanGrammar.liftToSyntaxTreeGrammar(LiftToSyntaxTreeOptions(retainSkipped = true), structureParsers = null)
         val ast = astParser.parseToEnd("a&(b1->c1)|a1&!b|!(a1->a2)->a")
         checkAstContinuousRange(ast)
     }
 
     @Test
     fun astStructure() {
-        val astParser = booleanGrammar.liftToSyntaxTreeGrammar(LiftToSyntaxTreeOptions(retainSkipped = true), structureParsers = emptySet())
+        val astParser = booleanGrammar.liftToSyntaxTreeGrammar(LiftToSyntaxTreeOptions(retainSkipped = true), structureParsers = null)
         val ast = astParser.parseToEnd("(!(a)->((b)|(!c))->!(!a)&!(d))")
         val types = ast.toTopDownStrings()
 
@@ -86,7 +86,7 @@ class TestLiftToAst {
 
     @Test
     fun testDropSkipped() {
-        val astParser = booleanGrammar.liftToSyntaxTreeGrammar(LiftToSyntaxTreeOptions(retainSkipped = false), structureParsers = emptySet())
+        val astParser = booleanGrammar.liftToSyntaxTreeGrammar(LiftToSyntaxTreeOptions(retainSkipped = false), structureParsers = null)
         val ast = astParser.parseToEnd("(!(a)->((b)|(!c))->!(!a)&!(d))")
         val types = ast.toTopDownStrings()
 
