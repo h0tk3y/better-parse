@@ -16,7 +16,7 @@ data class And(val left: BooleanExpression, val right: BooleanExpression) : Bool
 data class Or(val left: BooleanExpression, val right: BooleanExpression) : BooleanExpression()
 data class Impl(val left: BooleanExpression, val right: BooleanExpression) : BooleanExpression()
 
-val booleanGrammar = object : Grammar<BooleanExpression>() {
+object BooleanGrammar : Grammar<BooleanExpression>() {
     val tru by token("true")
     val fal by token("false")
     val id by token("\\w+")
@@ -28,12 +28,15 @@ val booleanGrammar = object : Grammar<BooleanExpression>() {
     val impl by token("->")
     val ws by token("\\s+", ignore = true)
 
+    val negation by -not * parser(this::term) map { Not(it) }
+    val bracedExpression by -lpar * parser(this::implChain) * -rpar
+
     val term: Parser<BooleanExpression> by
         (tru asJust TRUE) or
         (fal asJust FALSE) or
         (id map { Variable(it.text) }) or
-        (-not * parser(this::term) map { Not(it) }) or
-        (-lpar * parser(this::implChain) * -rpar)
+        negation or
+        bracedExpression
 
     val andChain by leftAssociative(term, and) { a, _, b -> And(a, b) }
     val orChain by leftAssociative(andChain, or) { a, _, b -> Or(a, b) }
@@ -44,5 +47,5 @@ val booleanGrammar = object : Grammar<BooleanExpression>() {
 
 fun main(args: Array<String>) {
     val expr = "a & (b1 -> c1) | a1 & !b | !(a1 -> a2) -> a"
-    println(booleanGrammar.parseToEnd(expr))
+    println(BooleanGrammar.parseToEnd(expr))
 }

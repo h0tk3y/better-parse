@@ -1,6 +1,6 @@
 package com.github.h0tk3y.betterParse.combinators
+import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.utils.*
-import com.github.h0tk3y.betterParse.parser.*
 
 @JvmName("and2") inline infix fun <reified T1, reified T2, reified T3>
     AndCombinator<Tuple2<T1, T2>>.and(p3: Parser<T3>) =
