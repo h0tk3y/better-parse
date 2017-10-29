@@ -35,11 +35,11 @@ data class LiftToSyntaxTreeOptions(
  * empty set to retain all nodes. */
 fun <T> Parser<T>.liftToSyntaxTreeParser(
     liftOptions: LiftToSyntaxTreeOptions = LiftToSyntaxTreeOptions(),
-    transformer: LiftToSyntaxTreeTransformer? = null,
-    structureParsers: Set<Parser<*>> = emptySet()
+    structureParsers: Set<Parser<*>>? = null,
+    transformer: LiftToSyntaxTreeTransformer? = null
 ): Parser<SyntaxTree<T>> {
     val astParser = ParserToSyntaxTreeLifter(liftOptions, transformer).lift(this)
-    return if (structureParsers.isEmpty())
+    return if (structureParsers == null)
         astParser else
         astParser.flattened(structureParsers)
 }
@@ -47,11 +47,11 @@ fun <T> Parser<T>.liftToSyntaxTreeParser(
 /** Converts a [Grammar] so that its [Grammar.rootParser] parses a [SyntaxTree]. See: [liftToSyntaxTreeParser]. */
 fun <T> Grammar<T>.liftToSyntaxTreeGrammar(
     liftOptions: LiftToSyntaxTreeOptions = LiftToSyntaxTreeOptions(),
-    tranformer: LiftToSyntaxTreeTransformer? = null,
-    structureParsers: Set<Parser<*>> = declaredParsers
+    structureParsers: Set<Parser<*>> = declaredParsers,
+    transformer: LiftToSyntaxTreeTransformer? = null
 ) = object : Grammar<SyntaxTree<T>>() {
     override val rootParser: Parser<SyntaxTree<T>> = this@liftToSyntaxTreeGrammar.rootParser
-        .liftToSyntaxTreeParser(liftOptions, tranformer, structureParsers)
+        .liftToSyntaxTreeParser(liftOptions, structureParsers, transformer)
 
     override val tokens: List<Token> get() = this@liftToSyntaxTreeGrammar.tokens
     override val declaredParsers: Set<Parser<Any?>> = this@liftToSyntaxTreeGrammar.declaredParsers

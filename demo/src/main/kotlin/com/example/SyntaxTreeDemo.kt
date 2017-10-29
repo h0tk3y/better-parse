@@ -17,29 +17,30 @@ fun main(args: Array<String>) {
         if (result.isNullOrBlank()) null else result
     }
 
-    (exprs.asSequence() + readExprSequence).forEach { printParseTree(it); println("\n") }
+    (exprs.asSequence() + readExprSequence).forEach { parseAndPrintTree(it); println("\n") }
 }
 
 val booleanSyntaxTreeGrammar = BooleanGrammar.liftToSyntaxTreeGrammar()
 
-fun printParseTree(expr: String) {
+fun parseAndPrintTree(expr: String) {
     println(expr)
 
     val result = booleanSyntaxTreeGrammar.tryParseToEnd(expr)
 
     when (result) {
         is ErrorResult -> println("Could not parse expression: $result")
-        is Parsed<SyntaxTree<BooleanExpression>> -> {
-            val tree = result.value
-            var currentLayer: List<SyntaxTree<*>> = listOf(tree)
-            while (currentLayer.isNotEmpty()) {
-                val underscores = currentLayer.flatMap { t -> t.range.map { index -> index to charByTree(t) } }.toMap()
-                val underscoreStr = expr.indices.map { underscores[it] ?: ' ' }.joinToString("")
-                println(underscoreStr)
+        is Parsed<SyntaxTree<BooleanExpression>> -> printSyntaxTree(expr, result.value)
+    }
+}
 
-                currentLayer = currentLayer.flatMap { it.children }
-            }
-        }
+fun printSyntaxTree(expr: String, syntaxTree: SyntaxTree<*>) {
+    var currentLayer: List<SyntaxTree<*>> = listOf(syntaxTree)
+    while (currentLayer.isNotEmpty()) {
+        val underscores = currentLayer.flatMap { t -> t.range.map { index -> index to charByTree(t) } }.toMap()
+        val underscoreStr = expr.indices.map { underscores[it] ?: ' ' }.joinToString("")
+        println(underscoreStr)
+
+        currentLayer = currentLayer.flatMap { it.children }
     }
 }
 

@@ -2,7 +2,6 @@ import com.github.h0tk3y.betterParse.combinators.*
 import com.github.h0tk3y.betterParse.grammar.Grammar
 import com.github.h0tk3y.betterParse.grammar.parseToEnd
 import com.github.h0tk3y.betterParse.grammar.parser
-import com.github.h0tk3y.betterParse.grammar.token
 import com.github.h0tk3y.betterParse.lexer.TokenMatch
 import com.github.h0tk3y.betterParse.parser.*
 import com.github.h0tk3y.betterParse.st.*
@@ -181,8 +180,8 @@ class TestLiftToAst {
         val parser = ForcedDuplicate(listOf(booleanGrammar.and, booleanGrammar.or, booleanGrammar.impl))
 
         val lifted = parser.liftToSyntaxTreeParser(
-            transformer = transformer,
-            structureParsers = booleanGrammar.declaredParsers
+            structureParsers = booleanGrammar.declaredParsers,
+            transformer = transformer
         )
 
         val result = lifted.tryParse(booleanGrammar.tokenizer.tokenize("||"))

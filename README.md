@@ -34,22 +34,22 @@ repositories {
 }
 
 dependencies {
-    compile 'com.github.h0tk3y.betterParse:better-parse:0.2.1'
+    compile 'com.github.h0tk3y.betterParse:better-parse:0.3.0'
 }
 ```
 
-## Lexer & tokens ##
+## Tokens ##
 As many other language recognition tools, `better-parse` abstracts away from raw character input by 
-pre-processing it with a `Lexer`, that can match `Token`s by their patterns (regular expressions) against an input sequence.
+pre-processing it with a `Tokenizer`, that can match `Token`s by their patterns (regular expressions) against an input sequence.
 
-A `Lexer` tokenizes an input sequence such as `InputStream` or a `String` into a `Sequence<TokenMatch>`, providing each with a position in the input.
+A `Tokenizer` tokenizes an input sequence such as `InputStream` or a `String` into a `Sequence<TokenMatch>`, providing each with a position in the input.
 
-One way to create a `Lexer` is to first define the `Tokens` to be matched:
+One way to create a `Tokenizer` is to first define the `Tokens` to be matched:
 
 ```kotlin
-val id = Token("identifier", pattern = "\\w+")
-val cm = Token("comma", pattern = ",")
-val ws = Token("whitespace", pattern = "\\s+", ignore = true)
+val id = Token("\\w+")
+val cm = Token(",")
+val ws = Token("\\s+", ignore = true)
 ```
 
 > A `Token` can be ignored by setting its `ignore = true`. An ignored token can still be matched explicitly, but if 
@@ -59,14 +59,16 @@ another token is expected, the ignored one is just dropped from the sequence.
 val tokenizer = DefaultTokenizer(listOf(id, cm, ws))
 ```
     
-> Note: the tokens order matters in some cases, because the tokenizer tries to match them in exactly this order. For instance, if `Token("singleA", "a")` 
-is listed before `Token("doubleA", "aa")`, the latter will never be matched. Be careful with keyword tokens!
+> Note: the tokens order matters in some cases, because the tokenizer tries to match them in exactly this order. For instance, if `Token("a")` 
+is listed before `Token("aa")`, the latter will never be matched. Be careful with keyword tokens!
 
 ```kotlin
 val tokenMatches: Sequence<TokenMatch> = tokenizer.tokenize("hello, world") // Support other types of input as well.
 ```
     
-> A more convenient way of defining tokens and creating a tokenizer is described in the **Grammar** section.
+> A more convenient way of defining tokens is described in the [**Grammar**](#grammar) section.
+
+It is possible to provide a custom implementation of a `Tokenizer`.
 
 ## Parser ##
 
@@ -86,8 +88,8 @@ with the match of this token itself _(possibly, skipping some **ignored** tokens
 _(and, possibly, some ignored tokens)_ from the remainder.
 
 ```kotlin
-val a = Token(name = "a", pattern = "a+")
-val b = Token(name = "b", pattern = "b+")
+val a = Token("a+")
+val b = Token("b+")
 val tokenMatches = Lexer(listOf(a, b)).tokenize("aabbaaa")
 val result = a.tryParse(tokenMatches) // contains the match for "aa" and the remainder with "bbaaa" in it
 ```
@@ -103,7 +105,7 @@ There are several kinds of combinators included in `better-parse`:
     The error results are returned unchanged.
     
     ```kotlin
-    val id = Token("identifier", pattern = "\\w+")
+    val id = Token("\\w+")
     val aText = a map { it.text } // Parser<String>, returns the matched text from the input sequence
     ```
       
@@ -156,6 +158,8 @@ There are several kinds of combinators included in `better-parse`:
       
      * ```val fCall = id and lpar and id and rpar use { FunctionCall(t1, t3) }```
      
+     * ```val fCall = id * -lpar * id * -rpar use { FunctionCall(t1, t2) }``` (see operators below)
+     
      > There are `Tuple` classes up to `Tuple16` and the corresponding `and` overloads.
      
      ##### Operators
@@ -177,7 +181,7 @@ There are several kinds of combinators included in `better-parse`:
      The result type for the combined parsers is the least common supertype (which is possibly `Any`).
      
      ```kotlin
-     val expr = const or var or fCall
+     val expr = const or variable or fCall
      ```
      
   * `zeroOrMore(...)`, `oneOrMore(...)`, `N times`, `N timesOrMore`, `N..M times`
@@ -211,8 +215,11 @@ There are several kinds of combinators included in `better-parse`:
         
 # Grammar
 
-As a convenient way of defining a grammar of a language, there is an abstract class `Grammar`, that collects the `by token(...)`-delegated 
-properties into a `Lexer` automatically, and also behaves as a composition of the `Lexer` and the `rootParser`.
+As a convenient way of defining a grammar of a language, there is an abstract class `Grammar`, that collects the `by`-delegated 
+properties into a `Tokenizer` automatically, and also behaves as a composition of the `Lexer` and the `rootParser`.
+
+*Note:* a `Grammar` also collects `by`-delegated `Parser<T>` properties so that they can be accessed as 
+`declaredParsers` along with the tokens. As a good style, declare the parsers inside a `Grammar` by delegation as well.
 
 ```kotlin
 interface Item
@@ -241,7 +248,48 @@ val term by
     variableParser or 
     (-lpar and parser(this::term) and -rpar)
 ```
-        
+
+A `Grammar` implementation can override the `tokenizer` property to provide a custom implementation of `Tokenizer`.
+
+# Syntax trees
+
+A `Parser<T>` can be converted to another `Parser<SyntaxTree<T>>`, where a `SyntaxTree<T>`, along with the parsed `T` 
+contains the children syntax trees, the reference to the parser and the positions in the input sequence. 
+This can be done with `parser.liftToSyntaxTreeParser()`.
+
+This can be used for syntax highlighting and inspecting the resulting tree in case the parsed result
+does not contain the full syntactic structure.
+
+For convenience, a `Grammar` can also be lifted to that parsing a `SyntaxTree` with 
+`grammar.liftToSyntaxTreeGrammar()`. 
+
+```kotlin
+val treeGrammar = booleanGrammar.liftToSyntaxTreeGrammar()
+val tree = treeGrammar.parseToEnd("a & !b | c -> d")
+assertTrue(tree.parser == booleanGrammar.implChain)
+val firstChild = tree.children.first()
+assertTrue(firstChild.parser == booleanGrammar.orChain)
+assertTrue(firstChild.range == 0..9)
+```
+
+There are optional arguments for customizing the transformation:
+
+* `LiftToSyntaxTreeOptions`
+  * `retainSkipped` -- whether the resulting syntax tree should include skipped `and` components;
+  * `retainSeparators` -- whether the `Separated` combinator parsed separators should be included;
+* `structureParsers` -- defines the parsers that are retained in the syntax tree; the nodes with parsers that are
+  not in this set are flattened so that their children are attached to their parents in their place. 
+  
+  For `Parser<T>`, the default is `null`, which means no nodes are flattened.
+  
+  In case of `Grammar<T>`, `structureParsers` defaults to the grammar's `declaredParsers`.
+   
+* `transformer` -- a strategy to transform non-built-in parsers. If you define your own combinators and want them
+  to be lifted to syntax tree parsers, pass a `LiftToSyntaxTreeTransformer` that will be called on the parsers. When
+  a custom combinator nests another parser, a trnsformer implementation should call `default.transform(...)` on that parser.
+
+See [`SyntaxTreeDemo.kt`](https://github.com/h0tk3y/better-parse/blob/master/demo/src/main/kotlin/com/example/SyntaxTreeDemo.kt) for an example of working with syntax trees.   
+
 # Examples
 
 * A boolean expressions parser that constructs a simple AST: [`BooleanExpression.kt`](https://github.com/h0tk3y/better-parse/blob/master/demo/src/main/kotlin/com/example/BooleanExpression.kt)
