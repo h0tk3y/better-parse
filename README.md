@@ -213,7 +213,7 @@ There are several kinds of combinators included in `better-parse`:
       val andChain = leftAssociative(term, andOperator) { l, _, r -> And(l, r) }
       ```
         
-# Grammar
+## Grammar
 
 As a convenient way of defining a grammar of a language, there is an abstract class `Grammar`, that collects the `by`-delegated 
 properties into a `Tokenizer` automatically, and also behaves as a composition of the `Lexer` and the `rootParser`.
@@ -251,7 +251,7 @@ val term by
 
 A `Grammar` implementation can override the `tokenizer` property to provide a custom implementation of `Tokenizer`.
 
-# Syntax trees
+## Syntax trees
 
 A `Parser<T>` can be converted to another `Parser<SyntaxTree<T>>`, where a `SyntaxTree<T>`, along with the parsed `T` 
 contains the children syntax trees, the reference to the parser and the positions in the input sequence. 
@@ -290,9 +290,9 @@ There are optional arguments for customizing the transformation:
 
 See [`SyntaxTreeDemo.kt`](https://github.com/h0tk3y/better-parse/blob/master/demo/src/main/kotlin/com/example/SyntaxTreeDemo.kt) for an example of working with syntax trees.   
 
-# Examples
+## Examples
 
 * A boolean expressions parser that constructs a simple AST: [`BooleanExpression.kt`](https://github.com/h0tk3y/better-parse/blob/master/demo/src/main/kotlin/com/example/BooleanExpression.kt)
 * An integer arithmetic expressions evaluator: [`ArithmeticsEvaluator.kt`](https://github.com/h0tk3y/better-parse/blob/master/demo/src/main/kotlin/com/example/ArithmeticsEvaluator.kt)
 * A toy programming language parser: [(link)](https://github.com/h0tk3y/compilers-course/blob/master/src/main/kotlin/com/github/h0tk3y/compilersCourse/parsing/Parser.kt)
-      
+* A sample JSON parser by [silmeth](https://github.com/silmeth): [(link)](https://github.com/silmeth/jsonParser)
