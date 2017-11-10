@@ -18,13 +18,15 @@ class BindCombinator<T, R>(
         val innerResult = innerParser.tryParse(tokens)
         return when (innerResult) {
             is ErrorResult -> innerResult
-            is Parsed -> transform(innerResult.value).tryParse(innerResult.remainder)
+            is Parsed -> { transform(innerResult.value).tryParse(innerResult.remainder) }
         }
     }
 }
 
-/** Applies the [transform] function to the successful results of the receiver parser. See [MapCombinator]. */
+/** Applies the [transform] function to the successful results of the receiver parser and then runs
+ *  the new parser on any remaining input. See [BindCombinator]. */
 infix fun <A, T> Parser<A>.bind(transform: (A) -> Parser<T>): Parser<T> = BindCombinator(this, transform)
 
-/** Applies the [transform] extension to the successful results of the receiver parser. See [MapCombinator]. */
+/** Applies the [transform] receiver to the successful results of the receiver parser and then runs
+ *  the new parser on any remaining input. See [BindCombinator]. */
 infix fun <A, T> Parser<A>.useBind(transform: A.() -> Parser<T>): Parser<T> = BindCombinator(this, transform)
