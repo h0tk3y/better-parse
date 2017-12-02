@@ -33,8 +33,8 @@ abstract class Grammar<out T> : Parser<T> {
     open val declaredParsers get() = (_parsers + _tokens + rootParser).toSet()
 
     fun token(@Language("RegExp") @RegExp pattern: String, ignore: Boolean = false) = Token(null, pattern, ignore)
-    fun token(pattern: Pattern, ignore: Boolean = false) = Token(null, pattern.toString(), ignore)
-    fun token(pattern: Regex, ignore: Boolean = false) = Token(null, pattern.toString(), ignore)
+    fun token(pattern: Pattern, ignore: Boolean = false) = Token(null, pattern.toRegex(), ignore)
+    fun token(pattern: Regex, ignore: Boolean = false) = Token(null, pattern, ignore)
 
     /** A [Lexer] that is built with the [Token]s defined within this [Grammar], in their order of declaration */
     open val tokenizer: Tokenizer by lazy { DefaultTokenizer(tokens) }
@@ -59,12 +59,12 @@ abstract class Grammar<out T> : Parser<T> {
 }
 
 fun token(name: String, @Language("RegExp") @RegExp pattern: String, ignore: Boolean = false) = Token(name, pattern, ignore)
-fun token(name: String, pattern: Pattern, ignore: Boolean = false) = Token(name, pattern.toString(), ignore)
-fun token(name: String, pattern: Regex, ignore: Boolean = false) = Token(name, pattern.toString(), ignore)
+fun token(name: String, pattern: Pattern, ignore: Boolean = false) = Token(name, pattern.toRegex(), ignore)
+fun token(name: String, pattern: Regex, ignore: Boolean = false) = Token(name, pattern, ignore)
 
 fun token(@Language("RegExp") @RegExp pattern: String, ignore: Boolean = false) = Token(null, pattern, ignore)
-fun token(pattern: Pattern, ignore: Boolean = false) = Token(null, pattern.toString(), ignore)
-fun token(pattern: Regex, ignore: Boolean = false) = Token(null, pattern.toString(), ignore)
+fun token(pattern: Pattern, ignore: Boolean = false) = Token(null, pattern.toRegex(), ignore)
+fun token(pattern: Regex, ignore: Boolean = false) = Token(null, pattern, ignore)
 
 /** A convenience function to use for referencing a parser that is not initialized up to this moment. */
 fun <T> parser(block: () -> Parser<T>): Parser<T> = ParserReference(block)

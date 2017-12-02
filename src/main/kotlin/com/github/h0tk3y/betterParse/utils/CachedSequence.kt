@@ -1,10 +1,10 @@
 package com.github.h0tk3y.betterParse.utils
 
-import com.github.h0tk3y.betterParse.lexer.TokenizerMatchesSequence
 import com.github.h0tk3y.betterParse.lexer.TokenMatch
+import com.github.h0tk3y.betterParse.lexer.TokenizerMatchesSequence
 import java.util.*
 
-internal class CachedSequence<T> constructor(
+internal open class CachedSequence<T> constructor(
         val source: Iterator<T>,
         val cache: ArrayList<T>,
         val startAt: Int
@@ -28,7 +28,7 @@ internal class CachedSequence<T> constructor(
 }
 
 internal fun Sequence<TokenMatch>.skipOne(): Sequence<TokenMatch> = when (this) {
-    is TokenizerMatchesSequence -> TokenizerMatchesSequence(tokens.skipOne() as CachedSequence, tokenizer)
+    is TokenizerMatchesSequence -> TokenizerMatchesSequence(source, tokenizer, cache, startAt + 1)
     is CachedSequence -> CachedSequence(source, cache, startAt + 1)
     else -> drop(1)
 }

@@ -10,14 +10,27 @@ import org.intellij.lang.annotations.RegExp
  * Parses to [TokenMatch].
  * The [name] only provides additional information.
  */
-class Token(
-    name: String?,
-    @RegExp @Language("RegExp") val pattern: String,
-    val ignored: Boolean = false
-) : Parser<TokenMatch> {
+class Token : Parser<TokenMatch> {
+    val pattern: String
+    val regex: Regex?
+    val ignored: Boolean
 
-    var name: String? = name
+    var name: String? = null
         internal set
+
+    constructor(name: String?, @RegExp @Language("RegExp") patternString: String, ignored: Boolean = false) {
+        this.name = name
+        this.ignored = ignored
+        pattern = patternString
+        regex = null
+    }
+
+    constructor(name: String?, regex: Regex, ignored: Boolean = false) {
+        this.name = name
+        this.ignored = ignored
+        pattern = regex.pattern
+        this.regex = regex
+    }
 
     override fun toString() =
         (if (name != null) "$name ($pattern)" else pattern) +

@@ -1,15 +1,16 @@
 package com.github.h0tk3y.betterParse.lexer
 
 import com.github.h0tk3y.betterParse.utils.CachedSequence
-import com.github.h0tk3y.betterParse.utils.cached
 import java.io.InputStream
 import java.util.*
 import kotlin.coroutines.experimental.buildSequence
 
 internal class TokenizerMatchesSequence(
-    val tokens: CachedSequence<TokenMatch>,
-    val tokenizer: Tokenizer
-) : Sequence<TokenMatch> by tokens
+    iterator: Iterator<TokenMatch>,
+    val tokenizer: Tokenizer,
+    cache: ArrayList<TokenMatch> = arrayListOf(),
+    startAt: Int = 0
+) : CachedSequence<TokenMatch>(iterator, cache, startAt)
 
 interface Tokenizer {
     val tokens: List<Token>
@@ -34,7 +35,7 @@ class DefaultTokenizer(override val tokens: List<Token>) : Tokenizer {
         require(tokens.isNotEmpty()) { "The tokens list should not be empty" }
     }
 
-    val patterns = tokens.map { it to it.pattern.toPattern() }
+    val patterns = tokens.map { it to (it.regex?.toPattern() ?: it.pattern.toPattern()) }
 
     /** Tokenizes the [input] from a [String] into a [TokenizerMatchesSequence]. */
     override fun tokenize(input: String) = tokenize(Scanner(input))
@@ -81,5 +82,5 @@ class DefaultTokenizer(override val tokens: List<Token>) : Tokenizer {
 
             yield(result)
         }
-    }.constrainOnce().cached().let { TokenizerMatchesSequence(it as CachedSequence, this) }
+    }.constrainOnce().iterator().let { TokenizerMatchesSequence(it, this) }
 }

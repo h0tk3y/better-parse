@@ -32,7 +32,7 @@ sealed class ParseResult<out T>
 
 /** Represents a successful parsing result of a [Parser] that produced [value] and left a
  * possibly empty input sequence [remainder] unprocessed.*/
-data class Parsed<out T>(val value: T, internal val remainder: Sequence<TokenMatch>) : ParseResult<T>() {
+data class Parsed<out T>(val value: T, val remainder: Sequence<TokenMatch>) : ParseResult<T>() {
     override fun toString(): String = "Parsed($value)"
 }
 
