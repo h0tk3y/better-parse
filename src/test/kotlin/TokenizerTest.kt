@@ -1,4 +1,5 @@
 
+import com.github.h0tk3y.betterParse.grammar.token
 import com.github.h0tk3y.betterParse.lexer.DefaultTokenizer
 import com.github.h0tk3y.betterParse.lexer.Token
 import com.github.h0tk3y.betterParse.lexer.noneMatched
@@ -59,7 +60,7 @@ class TokenizerTest {
 
         assertEquals(5, result.size)
         assertEquals(noneMatched, result.last().type)
-        assertEquals("x", result.last().text)
+        assertEquals("xxaa", result.last().text)
         assertEquals(4, result.last().position)
     }
 
@@ -78,5 +79,16 @@ class TokenizerTest {
         val resultAaFirst = lexAaFirst.tokenize(input).toList().map { it.type }
         assertEquals(3, resultAaFirst.size)
         assertEquals(aa, resultAaFirst.distinct().single())
+    }
+
+    @Test fun tokensWithGroups() {
+        val a = token("a(b)c")
+        val b = token("d(e)f")
+        val c = token("g(h)i")
+        val input = "abcdefghi"
+        val lex = DefaultTokenizer(listOf(a, b, c))
+        val result = lex.tokenize(input)
+
+        assertEquals(listOf(a, b, c), result.toList().map { it.type })
     }
 }

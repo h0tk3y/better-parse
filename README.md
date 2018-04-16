@@ -34,7 +34,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.github.h0tk3y.betterParse:better-parse:0.3.2'
+    compile 'com.github.h0tk3y.betterParse:better-parse:0.3.3'
 }
 ```
 
@@ -90,7 +90,7 @@ _(and, possibly, some ignored tokens)_ from the remainder.
 ```kotlin
 val a = Token("a+")
 val b = Token("b+")
-val tokenMatches = Lexer(listOf(a, b)).tokenize("aabbaaa")
+val tokenMatches = DefaultTokenizer(listOf(a, b)).tokenize("aabbaaa")
 val result = a.tryParse(tokenMatches) // contains the match for "aa" and the remainder with "bbaaa" in it
 ```
     
@@ -99,7 +99,7 @@ val result = a.tryParse(tokenMatches) // contains the match for "aa" and the rem
 Simpler parsers can be combined to build a more complex parser, from tokens to terms and to the whole language. 
 There are several kinds of combinators included in `better-parse`:
 
-* `map`, `use`, `justAs`
+* `map`, `use`, `asJust`
  
     The map combinator takes a successful input of another parser and applies a transforming function to it. 
     The error results are returned unchanged.
@@ -216,7 +216,7 @@ There are several kinds of combinators included in `better-parse`:
 ## Grammar
 
 As a convenient way of defining a grammar of a language, there is an abstract class `Grammar`, that collects the `by`-delegated 
-properties into a `Tokenizer` automatically, and also behaves as a composition of the `Lexer` and the `rootParser`.
+properties into a `Tokenizer` automatically, and also behaves as a composition of the `Tokenizer` and the `rootParser`.
 
 *Note:* a `Grammar` also collects `by`-delegated `Parser<T>` properties so that they can be accessed as 
 `declaredParsers` along with the tokens. As a good style, declare the parsers inside a `Grammar` by delegation as well.
@@ -286,7 +286,7 @@ There are optional arguments for customizing the transformation:
    
 * `transformer` -- a strategy to transform non-built-in parsers. If you define your own combinators and want them
   to be lifted to syntax tree parsers, pass a `LiftToSyntaxTreeTransformer` that will be called on the parsers. When
-  a custom combinator nests another parser, a trnsformer implementation should call `default.transform(...)` on that parser.
+  a custom combinator nests another parser, a transformer implementation should call `default.transform(...)` on that parser.
 
 See [`SyntaxTreeDemo.kt`](https://github.com/h0tk3y/better-parse/blob/master/demo/src/main/kotlin/com/example/SyntaxTreeDemo.kt) for an example of working with syntax trees.   
 

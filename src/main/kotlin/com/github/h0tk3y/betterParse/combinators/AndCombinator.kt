@@ -26,35 +26,40 @@ operator inline fun <reified A, reified B> AndCombinator<A>.times(other: Parser<
 
 class AndCombinator<out R> internal @PublishedApi constructor(
     val consumers: List<Any>,
-    val transform: (List<*>) -> R
+    val transform: (List<Any?>) -> R
 ) : Parser<R> {
 
     internal val nonSkippedIndices = consumers.indices.filter { consumers[it] !is SkipParser }
 
-    private fun process(tokens: Sequence<TokenMatch>): Pair<List<ParseResult<*>>, Sequence<TokenMatch>> {
-        var lastTokens = tokens
-        return consumers.map { consumer ->
+    override fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<R> {
+        var remainder = tokens
+
+        val results = arrayListOf<Any>()
+        loop@for (consumer in consumers) {
             val parser = when (consumer) {
                 is Parser<*> -> consumer
                 is SkipParser -> consumer.innerParser
                 else -> throw IllegalArgumentException()
             }
-            val result = parser.tryParse(lastTokens)
+            val result = parser.tryParse(remainder)
             when (result) {
-                is ErrorResult -> return@process listOf(result) to lastTokens
-                is Parsed<*> -> lastTokens = result.remainder
+                is ErrorResult -> {
+                    results.clear()
+                    results.add(result)
+                    break@loop
+                }
+                is Parsed<*> -> {
+                    results.add(result)
+                    remainder = result.remainder
+                }
             }
-            result
-        } to lastTokens
-    }
+        }
 
-    override fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<R> {
-        val (results, remainder) = process(tokens)
         val errorResult = results.singleOrNull() as? ErrorResult
         if (errorResult != null)
             return errorResult
 
-        val values = nonSkippedIndices.map { (results[it] as Parsed).value }
+        val values = nonSkippedIndices.map { (results[it] as Parsed<*>).value }
 
         return Parsed(transform(values), remainder)
     }

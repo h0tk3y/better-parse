@@ -36,6 +36,15 @@ class DefaultTokenizer(override val tokens: List<Token>) : Tokenizer {
     }
 
     val patterns = tokens.map { it to (it.regex?.toPattern() ?: it.pattern.toPattern()) }
+    private val allInOnePattern = patterns.joinToString("|", prefix = "\\G") { "(${it.second.pattern()})" }.toPattern()
+    private val patternGroupIndices =
+        buildSequence {
+            var groupId = 1 // the zero group is the whole match
+            for (p in patterns) {
+                yield(groupId) // the group for the current pattern
+                groupId += p.second.matcher("").groupCount() + 1 // skip all the nested groups in p
+            }
+        }.toList()
 
     /** Tokenizes the [input] from a [String] into a [TokenizerMatchesSequence]. */
     override fun tokenize(input: String) = tokenize(Scanner(input))
@@ -47,40 +56,44 @@ class DefaultTokenizer(override val tokens: List<Token>) : Tokenizer {
     override fun tokenize(input: Readable) = tokenize(Scanner(input))
 
     /** Tokenizes the [input] from a [Scanner] into a [TokenizerMatchesSequence]. */
-    override fun tokenize(input: Scanner): Sequence<TokenMatch> = buildSequence {
-        input.useDelimiter("")
-        var pos = 0
-        var row = 1
-        var col = 1
+    override fun tokenize(input: Scanner): Sequence<TokenMatch> =
+        TokenizerMatchesSequence(object : AbstractIterator<TokenMatch>() {
+            var pos = 0
+            var row = 1
+            var col = 1
 
-        while (input.hasNext()) {
-            val matchedToken = patterns.firstOrNull { (_, pattern) ->
-                try {
-                    input.skip(pattern)
-                    true
-                } catch (_: NoSuchElementException) {
-                    false
+            var errorState = false
+
+            override fun computeNext() {
+                if (!input.hasNext() || errorState) {
+                    done()
+                    return
                 }
+
+                val matchResult: java.util.regex.MatchResult
+                val matchedToken: Token =
+                    if (input.findWithinHorizon(allInOnePattern, 0) != null) {
+                        matchResult = input.match()
+                        tokens[patternGroupIndices.indexOfFirst { matchResult.group(it) != null }]
+                    } else {
+                        setNext(TokenMatch(noneMatched, input.next(), pos, row, col))
+                        errorState = true
+                        return
+                    }
+
+                val match = matchResult.group()
+                val result = TokenMatch(matchedToken, match, pos, row, col)
+
+                pos += match.length
+                col += match.length
+
+                val addRows = match.count { it == '\n' }
+                row += addRows
+                if (addRows > 0) {
+                    col = match.length - match.lastIndexOf('\n')
+                }
+
+                setNext(result)
             }
-
-            if (matchedToken == null) {
-                yield(TokenMatch(noneMatched, input.next(), pos, row, col))
-                break
-            }
-
-            val match = input.match().group()
-            val result = TokenMatch(matchedToken.first, match, pos, row, col)
-
-            pos += match.length
-            col += match.length
-
-            val addRows = match.count { it == '\n' }
-            row += addRows
-            if (addRows > 0) {
-                col = match.length - match.lastIndexOf('\n')
-            }
-
-            yield(result)
-        }
-    }.constrainOnce().iterator().let { TokenizerMatchesSequence(it, this) }
+        }, this)
 }

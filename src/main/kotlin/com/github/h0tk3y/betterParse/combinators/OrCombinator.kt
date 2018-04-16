@@ -1,6 +1,5 @@
 package com.github.h0tk3y.betterParse.combinators
 
-import com.github.h0tk3y.betterParse.utils.cached
 import com.github.h0tk3y.betterParse.lexer.TokenMatch
 import com.github.h0tk3y.betterParse.parser.*
 
@@ -8,9 +7,19 @@ import com.github.h0tk3y.betterParse.parser.*
  * If none succeeds, returns the [AlternativesFailure] with all the [ErrorResult]s. */
 class OrCombinator<T>(val parsers: List<Parser<T>>) : Parser<T> {
     override fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<T> {
-        val results = parsers.asSequence().map { it.tryParse(tokens) }.cached()
-        val firstValid = results.firstOrNull { it is Parsed }
-        return firstValid ?: AlternativesFailure(results.toList().filterIsInstance<ErrorResult>())
+        var failures: ArrayList<ErrorResult>? = null
+        for (parser in parsers) {
+            val result = parser.tryParse(tokens)
+            when (result) {
+                is Parsed -> return result
+                is ErrorResult -> {
+                    if (failures == null)
+                        failures = ArrayList()
+                    failures.add(result)
+                }
+            }
+        }
+        return AlternativesFailure(failures.orEmpty())
     }
 }
 
