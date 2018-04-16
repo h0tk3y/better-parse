@@ -275,16 +275,16 @@ assertTrue(firstChild.range == 0..9)
 There are optional arguments for customizing the transformation:
 
 * `LiftToSyntaxTreeOptions`
-  * `retainSkipped` -- whether the resulting syntax tree should include skipped `and` components;
-  * `retainSeparators` -- whether the `Separated` combinator parsed separators should be included;
-* `structureParsers` -- defines the parsers that are retained in the syntax tree; the nodes with parsers that are
+  * `retainSkipped` — whether the resulting syntax tree should include skipped `and` components;
+  * `retainSeparators` — whether the `Separated` combinator parsed separators should be included;
+* `structureParsers` — defines the parsers that are retained in the syntax tree; the nodes with parsers that are
   not in this set are flattened so that their children are attached to their parents in their place. 
   
   For `Parser<T>`, the default is `null`, which means no nodes are flattened.
   
   In case of `Grammar<T>`, `structureParsers` defaults to the grammar's `declaredParsers`.
    
-* `transformer` -- a strategy to transform non-built-in parsers. If you define your own combinators and want them
+* `transformer` — a strategy to transform non-built-in parsers. If you define your own combinators and want them
   to be lifted to syntax tree parsers, pass a `LiftToSyntaxTreeTransformer` that will be called on the parsers. When
   a custom combinator nests another parser, a transformer implementation should call `default.transform(...)` on that parser.
 
