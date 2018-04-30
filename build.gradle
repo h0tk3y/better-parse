@@ -1,5 +1,5 @@
 group 'com.github.h0tk3y.betterParse'
-version '0.3.3'
+version '0.3.4'
 
 buildscript {
     ext.kotlin_version = '1.1.51'
