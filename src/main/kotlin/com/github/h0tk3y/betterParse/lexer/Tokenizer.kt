@@ -36,7 +36,8 @@ class DefaultTokenizer(override val tokens: List<Token>) : Tokenizer {
     }
 
     val patterns = tokens.map { it to (it.regex?.toPattern() ?: it.pattern.toPattern()) }
-    private val allInOnePattern = patterns.joinToString("|") { "(\\G${it.second.pattern()})" }.toPattern()
+    private val allInOnePattern = patterns
+        .joinToString("|", prefix = "\\G(?:", postfix = ")") { "(${it.second.pattern()})" }.toPattern()
     private val patternGroupIndices =
         buildSequence {
             var groupId = 1 // the zero group is the whole match
