@@ -3,6 +3,7 @@ package com.github.h0tk3y.betterParse.lexer
 import com.github.h0tk3y.betterParse.utils.CachedSequence
 import java.io.InputStream
 import java.util.*
+import java.util.regex.Pattern
 import kotlin.coroutines.experimental.buildSequence
 
 internal class TokenizerMatchesSequence(
@@ -35,9 +36,12 @@ class DefaultTokenizer(override val tokens: List<Token>) : Tokenizer {
         require(tokens.isNotEmpty()) { "The tokens list should not be empty" }
     }
 
-    val patterns = tokens.map { it to (it.regex?.toPattern() ?: it.pattern.toPattern()) }
+    val patterns =
+        tokens.map { it to (it.regex?.toPattern() ?: it.pattern.toPattern()) }
+
     private val allInOnePattern = patterns
-        .joinToString("|", prefix = "\\G(?:", postfix = ")") { "(${it.second.pattern()})" }.toPattern()
+        .joinToString("|", prefix = "\\G(?:", postfix = ")") { "(${it.second.patternWithEmbeddedFlags()})" }.toPattern()
+
     private val patternGroupIndices =
         buildSequence {
             var groupId = 1 // the zero group is the whole match
@@ -46,6 +50,30 @@ class DefaultTokenizer(override val tokens: List<Token>) : Tokenizer {
                 groupId += p.second.matcher("").groupCount() + 1 // skip all the nested groups in p
             }
         }.toList()
+
+    private fun Pattern.patternWithEmbeddedFlags(): String {
+        val flags = flags()
+        fun hasFlag(flag: Int): Boolean = (flags and flag) == flag
+
+        val flagsString = buildString {
+            if (hasFlag(Pattern.CANON_EQ)) throw UnsupportedOperationException(
+                "The CANON_EQ regex flag is not supported as it has no embedded form"
+            )
+
+            if (hasFlag(Pattern.CASE_INSENSITIVE)) append("i")
+            if (hasFlag(Pattern.COMMENTS)) append("x")
+            if (hasFlag(Pattern.MULTILINE)) append("m")
+            if (hasFlag(Pattern.DOTALL)) append("s")
+            if (hasFlag(Pattern.UNICODE_CASE)) append("u")
+            if (hasFlag(Pattern.UNIX_LINES)) append("d")
+        }
+
+        val flagsPrefix = if (flagsString.isNotEmpty()) "(?$flagsString)" else ""
+        val quotePrefix = if (hasFlag(Pattern.LITERAL)) "\\Q" else ""
+        val pattern = pattern().let { if (hasFlag(Pattern.COMMENTS)) "$it\n" else it }
+        val quoteSuffix = if (hasFlag(Pattern.LITERAL)) "\\E" else ""
+        return "$flagsPrefix$quotePrefix$pattern$quoteSuffix"
+    }
 
     /** Tokenizes the [input] from a [String] into a [TokenizerMatchesSequence]. */
     override fun tokenize(input: String) = tokenize(Scanner(input))
