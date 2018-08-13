@@ -1,8 +1,8 @@
 group 'com.github.h0tk3y.betterParse'
-version '0.3.4'
+version '0.3.5'
 
 buildscript {
-    ext.kotlin_version = '1.1.51'
+    ext.kotlin_version = '1.2.60'
 
     repositories {
         jcenter()
@@ -26,11 +26,10 @@ dependencies {
 }
 
 compileKotlin {
-    kotlinOptions.jvmTarget = "1.6"
-}
-
-compileTestKotlin {
-    kotlinOptions.jvmTarget = "1.6"
+    kotlinOptions {
+        jvmTarget = "1.6"
+        apiVersion = '1.1' // stay compatible with 1.1 stdlib
+    }
 }
 
 kotlin.experimental.coroutines "enable"
