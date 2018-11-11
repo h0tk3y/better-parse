@@ -1,78 +1,130 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
 group 'com.github.h0tk3y.betterParse'
-version '0.3.5'
+version '0.4.0-alpha-1'
 
 buildscript {
-    ext.kotlin_version = '1.2.60'
+    ext.kotlin_version = '1.3.0'
+    ext.kotlin_plugin_version = '1.3.0'
 
     repositories {
+        maven { url 'https://kotlin.bintray.com/kotlin-dev' }
+        maven { url "https://dl.bintray.com/salomonbrys/gradle-plugins" }
+        gradlePluginPortal()
         jcenter()
     }
     dependencies {
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_plugin_version"
+        classpath "com.github.salomonbrys.gradle.kotlin.js:kotlin-js-gradle-utils:1.0.0"
     }
 }
 
-apply plugin: 'kotlin'
+apply plugin: 'kotlin-multiplatform'
 apply plugin: 'maven'
+apply plugin: 'com.github.salomonbrys.gradle.kotlin.js.mpp-tests.node'
+
+kotlin {
+    targets {
+        fromPreset(presets.jvm, 'jvm')
+        fromPreset(presets.js, 'js') {
+            tasks[compilations.main.compileKotlinTaskName].kotlinOptions.moduleKind = "umd"
+
+            kotlinJsNodeTests {
+                thisTarget(js)
+            }
+        }
+
+        presets.withType(org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetPreset).each {
+            fromPreset(it, it.name)
+        }
+    }
+
+    sourceSets {
+        nativeMain {
+            dependsOn commonMain
+        }
+
+        def defaultNativeSourceSets = kotlin.targets
+                .withType(org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget)
+                .collect { getByName(it.name + 'Main') }
+
+        configure(defaultNativeSourceSets) {
+            dependsOn nativeMain
+        }
+    }
+}
+
 
 repositories {
+    maven { url 'https://kotlin.bintray.com/kotlin-dev' }
     jcenter()
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    testCompile "junit:junit:4.12"
+    commonMainApi "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
+    jvmMainApi "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    jsMainApi "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
+
+    commonTestImplementation "org.jetbrains.kotlin:kotlin-test-common:$kotlin_version"
+    commonTestImplementation "org.jetbrains.kotlin:kotlin-test-annotations-common:$kotlin_version"
+    jvmTestImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+    jsTestImplementation "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
 }
 
-compileKotlin {
+compileKotlinJvm {
     kotlinOptions {
         jvmTarget = "1.6"
         apiVersion = '1.1' // stay compatible with 1.1 stdlib
     }
 }
 
-kotlin.experimental.coroutines "enable"
+kotlin.sourceSets.all {
+    languageSettings.useExperimentalAnnotation 'kotlin.ExperimentalMultiplatform'
+}
 
 // Code generation
 
 def maxTupleSize = 16
 
 task('codegen').doFirst {
-    AndCodegenKt.andCodegen(maxTupleSize, sourceSets.main.kotlin.srcDirs.first().absolutePath + "/generated/andFunctions.kt")
-    TupleCodegenKt.tupleCodegen(maxTupleSize, sourceSets.main.kotlin.srcDirs.first().absolutePath + "/generated/tuples.kt")
+    AndCodegenKt.andCodegen(maxTupleSize, kotlin.sourceSets.commonMain.kotlin.srcDirs.first().absolutePath + "/generated/andFunctions.kt")
+    TupleCodegenKt.tupleCodegen(maxTupleSize, kotlin.sourceSets.commonMain.kotlin.srcDirs.first().absolutePath + "/generated/tuples.kt")
 }
 
-compileKotlin.dependsOn codegen
+kotlin.targets.all {
+    compilations.all {
+        tasks[compileKotlinTaskName].dependsOn codegen
+    }
+}
 
 // Publication
 
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
+def publicationsFromLinux =
+        kotlin.targets.withType(org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget).names.findAll {
+            !it.startsWith('mingw') && !it.startsWith('macos') && !it.startsWith('ios')
+        } + ['kotlinMultiplatform', 'metadata', 'js', 'jvm']
 
-artifacts {
-    archives sourcesJar
-}
+def publicationsFromWindows = ['mingwX64']
 
-publishing {
-    publications {
-        publishToBintray(MavenPublication) {
-            from components.java
-            artifact sourcesJar
+def publicationsFromMacos =
+        kotlin.targets.withType(org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget).names.findAll {
+            it.startsWith('macos') || it.startsWith('ios')
         }
-    }
-}
+
+def publicationsFromThisPlatform = 
+        Os.isFamily(Os.FAMILY_UNIX) ? publicationsFromLinux :
+                Os.isFamily(Os.FAMILY_WINDOWS) ? publicationsFromWindows :
+                        Os.isFamily(Os.FAMILY_MAC) ? publicationsFromMacos : null
 
 bintray {
     user = findProperty('bintray_user')
     key = findProperty('bintray_api_key')
 
-    publications = ['publishToBintray']
+    publications = publicationsFromThisPlatform
     publish = true
     pkg {
         repo = 'maven'

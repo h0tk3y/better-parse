@@ -1,0 +1,38 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.0'
+    }
+}
+
+repositories {
+    jcenter()
+}
+
+apply plugin: 'kotlin2js'
+
+dependencies {
+    compile rootProject
+    compile 'org.jetbrains.kotlin:kotlin-stdlib-js'
+}
+
+task assembleWeb(type: Sync) {
+    configurations.compile.each { File file ->
+        from(zipTree(file.absolutePath), {
+            includeEmptyDirs = false
+            include { fileTreeElement ->
+                def path = fileTreeElement.path
+                path.endsWith(".js") && (path.startsWith("META-INF/resources/") || !path.startsWith("META-INF/"))
+            }
+        })
+    }
+    from compileKotlin2Js.destinationDir
+    from(kotlin.sourceSets.getByName('main').resources) { include '*.html' }
+    into "${buildDir}/web"
+
+    dependsOn classes
+}
+
+assemble.dependsOn assembleWeb

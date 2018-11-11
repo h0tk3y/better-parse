@@ -7,6 +7,7 @@ fun andCodegen(maxN: Int, outputFile: String) {
         appendln("package com.github.h0tk3y.betterParse.combinators")
         appendln("import com.github.h0tk3y.betterParse.utils.*")
         appendln("import com.github.h0tk3y.betterParse.parser.*")
+        appendln("import kotlin.jvm.JvmName")
         appendln()
 
         for (i in 2 until maxN) {
