@@ -32,7 +32,12 @@ kotlin.sourceSets {
     }
     linuxMain {
         dependencies {
-            api 'com.github.h0tk3y.betterParse:better-parse-multiplatform-linuxx64:0.4.0-alpha-1'
+            api rootProject
         }
     }
+}
+
+// Require the root project to publish to mavenLocal() to make the dependency available:
+tasks.withType(compileKotlinLinux.class).all {
+    dependsOn rootProject.tasks.getByName('publishToMavenLocal')
 }

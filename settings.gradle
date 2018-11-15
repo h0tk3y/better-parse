@@ -1,5 +1,5 @@
 include ':demo:demo-jvm', ':demo:demo-js', ':demo:demo-native'
 
-rootProject.name = 'better-parse-multiplatform'
+rootProject.name = 'better-parse'
 
 //enableFeaturePreview 'GRADLE_METADATA'

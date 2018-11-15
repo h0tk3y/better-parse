@@ -27,7 +27,7 @@ abstract class Grammar<out T> : Parser<T> {
     fun token(@Language("RegExp", "", "") pattern: String, ignore: Boolean = false) = Token(null, pattern, ignore)
     fun token(pattern: Regex, ignore: Boolean = false) = Token(null, pattern, ignore)
 
-    /** A [Lexer] that is built with the [Token]s defined within this [Grammar], in their order of declaration */
+    /** A [Tokenizer] that is built with the [Token]s defined within this [Grammar], in their order of declaration */
     open val tokenizer: Tokenizer by lazy { DefaultTokenizer(tokens) }
 
     /** A [Parser] that represents the root rule of this [Grammar] and is used by default for parsing. */

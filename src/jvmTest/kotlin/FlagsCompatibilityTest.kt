@@ -31,8 +31,6 @@ class FlagsCompatibilityTest {
 
             val multiline by token(Regex("eol$\n^multiline", MULTILINE))
 
-//            val unicodeCase by token(compile("абвгд", Pattern.UNICODE_CASE or Pattern.CASE_INSENSITIVE))
-
             val unixLines by token(Regex(". x", UNIX_LINES))
 
             override val rootParser: Parser<String>
@@ -40,12 +38,6 @@ class FlagsCompatibilityTest {
                     components.joinToString("") { it.text }
                 }
         }
-
-//        val input = """
-//            AbCdefeol
-//            dotall.*.*.*eol
-//            multilineАбВгД
-//        """.trimIndent() + "\r x"
 
         val input = """
             AbCdefeol
