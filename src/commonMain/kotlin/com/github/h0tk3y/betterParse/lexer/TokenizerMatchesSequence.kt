@@ -3,7 +3,7 @@ package com.github.h0tk3y.betterParse.lexer
 import com.github.h0tk3y.betterParse.lexer.TokenMatch
 import com.github.h0tk3y.betterParse.utils.CachedSequence
 
-internal class TokenizerMatchesSequence(
+class TokenizerMatchesSequence(
     iterator: Iterator<TokenMatch>,
     val tokenizer: Tokenizer,
     cache: ArrayList<TokenMatch> = arrayListOf(),
