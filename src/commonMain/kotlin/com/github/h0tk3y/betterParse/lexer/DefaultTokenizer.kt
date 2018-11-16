@@ -60,15 +60,23 @@ class DefaultTokenizer(override val tokens: List<Token>) : Tokenizer {
                 val result = TokenMatch(matchedToken, match, pos, row, col)
 
                 pos += match.length
-                col += match.length
-
-                val addRows = match.count { it == '\n' }
-                row += addRows
-                if (addRows > 0) {
-                    col = match.length - match.lastIndexOf('\n')
-                }
-
+                updateRowAndCol(match)
                 setNext(result)
             }
+
+            private fun updateRowAndCol(match: String) {
+                var newLine = 0
+                while (true) {
+                    val nextLine = match.indexOf('\n', newLine)
+                    if (nextLine == -1) {
+                        col += match.length - newLine
+                        break
+                    }
+                    newLine = nextLine + 1
+                    row++
+                    col = 1
+                }
+            }
+
         }, this)
 }
