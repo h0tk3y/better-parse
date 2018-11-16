@@ -13,7 +13,7 @@ expect annotation class Language(val value: String, val prefix: String, val suff
  */
 class Token : Parser<TokenMatch> {
     val pattern: String
-    val regex: Regex?
+    val regex: Regex
     val ignored: Boolean
 
     var name: String? = null
@@ -23,7 +23,10 @@ class Token : Parser<TokenMatch> {
         this.name = name
         this.ignored = ignored
         pattern = patternString
-        regex = null
+        regex = if (patternString.startsWith('^'))
+            patternString.toRegex()
+        else
+            ("\\A" + patternString).toRegex()
     }
 
     constructor(name: String?, regex: Regex, ignored: Boolean = false) {
