@@ -335,7 +335,7 @@ There are optional arguments for customizing the transformation:
   to be lifted to syntax tree parsers, pass a `LiftToSyntaxTreeTransformer` that will be called on the parsers. When
   a custom combinator nests another parser, a transformer implementation should call `default.transform(...)` on that parser.
 
-See [`SyntaxTreeDemo.kt`](https://github.com/h0tk3y/better-parse/blob/master/demo/src/main/kotlin/com/example/SyntaxTreeDemo.kt) for an example of working with syntax trees.   
+See [`SyntaxTreeDemo.kt`](https://github.com/h0tk3y/better-parse/blob/master/demo/demo-jvm/src/main/kotlin/com/example/SyntaxTreeDemo.kt) for an example of working with syntax trees.   
 
 ## Examples
 
