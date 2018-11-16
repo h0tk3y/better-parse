@@ -17,13 +17,13 @@ interface JvmTokenizer : Tokenizer {
 
 /** Tokenizes input character sequences using the [tokens], prioritized by their order in the list,
  * first matched first. */
-class DefaultjvmTokenizer(override val tokens: List<Token>) : JvmTokenizer {
+class DefaultJvmTokenizer(override val tokens: List<Token>) : JvmTokenizer {
     init {
         require(tokens.isNotEmpty()) { "The tokens list should not be empty" }
     }
 
     private val patterns =
-        tokens.map { it to (it.regex?.toPattern() ?: it.pattern.toPattern()) }
+        tokens.filterIsInstance<TokenRegex>().map { it to it.regex.toPattern() }
 
     private val allInOnePattern = patterns
         .joinToString("|", prefix = "\\G(?:", postfix = ")") { "(${it.second.patternWithEmbeddedFlags()})" }.toPattern()

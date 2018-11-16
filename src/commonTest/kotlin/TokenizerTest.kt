@@ -1,16 +1,12 @@
 
-import com.github.h0tk3y.betterParse.grammar.token
-import com.github.h0tk3y.betterParse.lexer.DefaultTokenizer
-import com.github.h0tk3y.betterParse.lexer.Token
-import com.github.h0tk3y.betterParse.lexer.noneMatched
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import com.github.h0tk3y.betterParse.lexer.*
+import kotlin.test.*
 
 class TokenizerTest {
     @Test fun simpleInput() {
-        val aPlus = Token("aPlus", "a+", false)
-        val bPlus = Token("bPlus", "b+", false)
-        val justX = Token("justX", "x", false)
+        val aPlus = tokenRegex("aPlus", "a+", false)
+        val bPlus = tokenRegex("bPlus", "b+", false)
+        val justX = tokenText("justX", "x", false)
         val lexer = DefaultTokenizer(listOf(aPlus, bPlus, justX))
 
         val input = "aaaxxxbbbaaa"
@@ -20,8 +16,8 @@ class TokenizerTest {
     }
 
     @Test fun position() {
-        val aPlus = Token("aPlus", "a+")
-        val bPlus = Token("bPlus", "b+")
+        val aPlus = TokenRegex("aPlus", "a+")
+        val bPlus = TokenRegex("bPlus", "b+")
         val lexer = DefaultTokenizer(listOf(aPlus, bPlus))
 
         val input = "abaaabbbaaaabbbb"
@@ -31,9 +27,9 @@ class TokenizerTest {
     }
 
     @Test fun rowAndColumn() {
-        val aPlus = Token("aPlus", "a+")
-        val bPlus = Token("bPlus", "b+")
-        val br = Token("break", "\n")
+        val aPlus = tokenRegex("aPlus", "a+")
+        val bPlus = tokenRegex("bPlus", "b+")
+        val br = tokenText("break", "\n")
         val lexer = DefaultTokenizer(listOf(aPlus, bPlus, br))
 
         val input = """
@@ -50,8 +46,8 @@ class TokenizerTest {
     }
 
     @Test fun mismatchedToken() {
-        val a = Token("a", "a")
-        val b = Token("b", "b")
+        val a = TokenRegex("a", "a")
+        val b = TokenRegex("b", "b")
         val lexer = DefaultTokenizer(listOf(a, b))
 
         val input = "aabbxxaa"
@@ -65,8 +61,8 @@ class TokenizerTest {
     }
 
     @Test fun priority() {
-        val a = Token("a", "a")
-        val aa = Token("aa", "aa")
+        val a = tokenRegex("a", "a")
+        val aa = tokenText("aa", "aa")
 
         val input = "aaaaaa"
 
@@ -82,9 +78,9 @@ class TokenizerTest {
     }
 
     @Test fun tokensWithGroups() {
-        val a = token("a(b)c")
-        val b = token("d(e)f")
-        val c = token("g(h)i")
+        val a = tokenRegex("a(b)c")
+        val b = tokenRegex("d(e)f")
+        val c = tokenRegex("g(h)i")
         val input = "abcdefghi"
         val lex = DefaultTokenizer(listOf(a, b, c))
         val result = lex.tokenize(input)

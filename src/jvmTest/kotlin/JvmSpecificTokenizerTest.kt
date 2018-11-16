@@ -1,19 +1,16 @@
 
-import com.github.h0tk3y.betterParse.grammar.token
-import com.github.h0tk3y.betterParse.lexer.DefaultTokenizer
-import com.github.h0tk3y.betterParse.lexer.DefaultjvmTokenizer
+import com.github.h0tk3y.betterParse.lexer.*
 import java.util.*
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class JvmSpecificTokenizerTest {
     @Test
     fun testInputStreamTokenier() {
-        val a = token("a")
-        val b = token("b")
+        val a = tokenRegex("a")
+        val b = tokenRegex("b")
         val text = "aaabbabbba"
         val defaultTokenizer = DefaultTokenizer(listOf(a, b))
-        val jvmTokenizer = DefaultjvmTokenizer(listOf(a, b))
+        val jvmTokenizer = DefaultJvmTokenizer(listOf(a, b))
 
         val expected = defaultTokenizer.tokenize(text).toList()
         val actualWithInputStream = jvmTokenizer.tokenize(text.byteInputStream()).toList()

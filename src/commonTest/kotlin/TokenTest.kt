@@ -1,17 +1,13 @@
 
-import com.github.h0tk3y.betterParse.lexer.DefaultTokenizer
-import com.github.h0tk3y.betterParse.lexer.Token
-import com.github.h0tk3y.betterParse.lexer.TokenMatch
-import com.github.h0tk3y.betterParse.lexer.noneMatched
+import com.github.h0tk3y.betterParse.lexer.*
 import com.github.h0tk3y.betterParse.parser.*
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
+import kotlin.test.*
 
 class TokenTest {
-    val a = Token("a", "a")
-    val b = Token("b", "b")
-    val ignoredX = Token("ignoredX", "x", ignored = true)
+    val a = tokenRegex("a", "a")
+    val b = tokenText("b", "b")
+    val ignoredX = TokenRegex("ignoredX", "x", ignored = true)
+    val num = tokenRegex("-?[0-9]*(?:\\.[0-9]*)?")
 
     @Test fun successfulParse() {
         val tokens = DefaultTokenizer(listOf(a)).tokenize("aaa")
@@ -47,6 +43,13 @@ class TokenTest {
         val result = a.tryParse(tokens)
 
         assertEquals(MismatchedToken(a, TokenMatch(b, "b", 0, 1, 1)), result)
+    }
+    
+    @Test fun mismatchedRegex() {
+        val tokens = DefaultTokenizer(listOf(num)).tokenize("b")
+        val result = num.tryParse(tokens)
+
+        assertEquals(NoMatchingToken(TokenMatch(noneMatched, "b", 0, 1, 1)), result)
     }
 
     @Test

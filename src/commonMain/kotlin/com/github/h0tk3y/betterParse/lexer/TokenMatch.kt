@@ -11,5 +11,6 @@ data class TokenMatch(
     val row: Int,
     val column: Int
 ) {
+    val length: Int get() = text.length
     override fun toString(): String = "${type.name} for \"$text\" at $position ($row:$column)"
 }

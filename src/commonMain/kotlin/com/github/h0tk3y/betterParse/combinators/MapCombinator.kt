@@ -1,10 +1,7 @@
 package com.github.h0tk3y.betterParse.combinators
 
-import com.github.h0tk3y.betterParse.lexer.TokenMatch
-import com.github.h0tk3y.betterParse.parser.ErrorResult
-import com.github.h0tk3y.betterParse.parser.ParseResult
-import com.github.h0tk3y.betterParse.parser.Parsed
-import com.github.h0tk3y.betterParse.parser.Parser
+import com.github.h0tk3y.betterParse.lexer.*
+import com.github.h0tk3y.betterParse.parser.*
 
 /** Parses the sequence with [innerParser], and if that succeeds, maps its [Parsed] result with [transform].
  * Returns the [ErrorResult] of the `innerParser` otherwise.
@@ -17,11 +14,7 @@ class MapCombinator<T, R>(
         val innerResult = innerParser.tryParse(tokens)
         return when (innerResult) {
             is ErrorResult -> innerResult
-            is Parsed -> Parsed(
-                transform(
-                    innerResult.value
-                ), innerResult.remainder
-            )
+            is Parsed -> Parsed(transform(innerResult.value), innerResult.remainder)
         }
     }
 }

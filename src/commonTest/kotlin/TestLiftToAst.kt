@@ -1,14 +1,10 @@
 
 import com.github.h0tk3y.betterParse.combinators.*
-import com.github.h0tk3y.betterParse.grammar.Grammar
-import com.github.h0tk3y.betterParse.grammar.parseToEnd
-import com.github.h0tk3y.betterParse.grammar.parser
-import com.github.h0tk3y.betterParse.lexer.TokenMatch
+import com.github.h0tk3y.betterParse.grammar.*
+import com.github.h0tk3y.betterParse.lexer.*
 import com.github.h0tk3y.betterParse.parser.*
 import com.github.h0tk3y.betterParse.st.*
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 private sealed class BooleanExpression
 
@@ -33,16 +29,16 @@ private data class Or(val left: BooleanExpression, val right: BooleanExpression)
 private data class Impl(val left: BooleanExpression, val right: BooleanExpression) : BooleanExpression()
 
 private val booleanGrammar = object : Grammar<BooleanExpression>() {
-    val tru by token("true")
-    val fal by token("false")
-    val id by token("\\w+")
-    val lpar by token("\\(")
-    val rpar by token("\\)")
-    val not by token("!")
-    val and by token("&")
-    val or by token("\\|")
-    val impl by token("->")
-    val ws by token("\\s+", ignore = true)
+    val tru by tokenRegex("true")
+    val fal by tokenRegex("false")
+    val id by tokenRegex("\\w+")
+    val lpar by tokenRegex("\\(")
+    val rpar by tokenRegex("\\)")
+    val not by tokenRegex("!")
+    val and by tokenRegex("&")
+    val or by tokenRegex("\\|")
+    val impl by tokenRegex("->")
+    val ws by tokenRegex("\\s+", ignore = true)
 
     val term: Parser<BooleanExpression> by
     (tru asJust TRUE) or

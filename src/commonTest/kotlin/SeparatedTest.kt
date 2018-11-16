@@ -1,17 +1,16 @@
 
 import com.github.h0tk3y.betterParse.combinators.*
-import com.github.h0tk3y.betterParse.grammar.Grammar
+import com.github.h0tk3y.betterParse.grammar.*
+import com.github.h0tk3y.betterParse.lexer.*
 import com.github.h0tk3y.betterParse.parser.*
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class SeparatedTest : Grammar<Nothing>() {
     override val rootParser: Parser<Nothing> get() = throw NoSuchElementException()
 
-    val number by token("\\d+")
-    val comma by token(",\\s+")
-    val word by token("\\w+")
+    val number by tokenRegex("\\d+")
+    val comma by tokenRegex(",\\s+")
+    val word by tokenRegex("\\w+")
 
     @Test fun separate() {
         val tokens = tokenizer.tokenize("one, two, three")

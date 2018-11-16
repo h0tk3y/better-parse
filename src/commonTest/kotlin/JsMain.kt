@@ -1,9 +1,8 @@
 
-import com.github.h0tk3y.betterParse.lexer.DefaultTokenizer
-import com.github.h0tk3y.betterParse.lexer.Token
+import com.github.h0tk3y.betterParse.lexer.*
 
 fun main(args: Array<String>) {
-    val a = Token("aa", Regex("aa"))
+    val a = TokenRegex("aa", Regex("aa"))
     val tokenizer = DefaultTokenizer(listOf(a))
     val tokens = tokenizer.tokenize("aaaaaa").toList()
     println(tokens)

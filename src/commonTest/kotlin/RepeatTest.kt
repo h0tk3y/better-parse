@@ -1,16 +1,14 @@
 
-import com.github.h0tk3y.betterParse.combinators.oneOrMore
-import com.github.h0tk3y.betterParse.combinators.times
-import com.github.h0tk3y.betterParse.combinators.timesOrMore
-import com.github.h0tk3y.betterParse.combinators.zeroOrMore
-import com.github.h0tk3y.betterParse.grammar.Grammar
+import com.github.h0tk3y.betterParse.combinators.*
+import com.github.h0tk3y.betterParse.grammar.*
+import com.github.h0tk3y.betterParse.lexer.*
 import com.github.h0tk3y.betterParse.parser.*
 import kotlin.test.*
 
 class RepeatTest : Grammar<Nothing>() {
     override val rootParser: Parser<Nothing> get() = throw NoSuchElementException()
 
-    val a by token("a")
+    val a by tokenRegex("a")
 
     @Test fun repeat() {
         val minN = 0
