@@ -1,7 +1,7 @@
 import org.apache.tools.ant.taskdefs.condition.Os
 
 group 'com.github.h0tk3y.betterParse'
-version '0.4.0-alpha-2'
+version '0.4.0-alpha-3'
 
 buildscript {
     ext.kotlin_version = '1.3.0'
@@ -130,10 +130,10 @@ publishing {
             def bintrayUsername = 'hotkeytlt'
             def bintrayRepoName = 'maven'
             def bintrayPackageName = 'better-parse'
-            url = "https://api.bintray.com/maven/$bintrayUsername/$bintrayRepoName/$bintrayPackageName/;publish=1"
+            url = "https://api.bintray.com/maven/$bintrayUsername/$bintrayRepoName/$bintrayPackageName/;publish=0"
             credentials {
-                username = findProperty('bintray_username')
-                password = findProperty('bintray_password')
+                username = findProperty('bintray_user')
+                password = findProperty('bintray_api_key')
             }
         }
     }

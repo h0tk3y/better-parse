@@ -2,7 +2,7 @@
 
 [ ![Download](https://api.bintray.com/packages/hotkeytlt/maven/better-parse/images/download.svg) ](https://bintray.com/hotkeytlt/maven/better-parse/_latestVersion) [![Build Status](https://travis-ci.org/h0tk3y/better-parse.svg?branch=master)](https://travis-ci.org/h0tk3y/better-parse) 
 
-A nice parser combinator library for Kotlin
+A nice parser combinator library for Kotlin JVM, JS, and Multiplatform projects
 
 ```kotlin
 val booleanGrammar = object : Grammar<BooleanExpression>() {
@@ -28,15 +28,65 @@ val ast = booleanGrammar.parseToEnd("a & !b | b & (!a | c)")
     
 ### Using with Gradle
 
+Add the JCenter repository:
+
 ```groovy
 repositories {
     jcenter()
 }
+```
 
+Then, in Kotlin/JVM projects:
+
+```groovy
 dependencies {
-    compile 'com.github.h0tk3y.betterParse:better-parse:0.3.4'
+   compile 'com.github.h0tk3y.betterParse:better-parse-jvm:0.4.0-alpha-3'
 }
 ```
+
+Note: for version 0.3.5 and below, use `better-parse` instead of `better-parse-jvm`.
+
+In Kotlin/JS projects:
+
+```groovy
+dependencies {
+   compile 'com.github.h0tk3y.betterParse:better-parse-js:0.4.0-alpha-3'
+}
+```
+
+In [Kotlin Multiplatform projects](http://kotlinlang.org/docs/reference/building-mpp-with-gradle.html#adding-dependencies):
+
+> Note: the artifacts for macOS or iOS targets are not yet available in 0.4.0-alpha-3, they will be published later.
+> You can build them from this repository locally and install to the `mavenLocal()` repository.
+
+```groovy
+dependencies {
+    commonMainApi 'com.github.h0tk3y.betterParse:better-parse-metadata:0.4.0-alpha-3'
+    /* Note: adjust the below examples to your targets set. You may need to:
+       * replace the prefixes: if your JVM target is `myJvm6`, use `myJvm6MainApi` instead of `jvmMainApi` 
+       * remove the dependencies for the targets you don't have: if you don't target Linux x64, remove `linuxX64MainApi`
+       * add the targets not listed below; note that the artifact IDs contain the lowercased preset name, for example, 
+         use `better-parse-androidnativeartm32` for your target from the androidNativeArtm32 preset
+    */
+    jvmMainApi 'com.github.h0tk3y.betterParse:better-parse-jvm:0.4.0-alpha-3'
+    jsMainApi 'com.github.h0tk3y.betterParse:better-parse-js:0.4.0-alpha-3'
+    mingwX64MainApi 'com.github.h0tk3y.betterParse:better-parse-mingwx64:0.4.0-alpha-3'
+    linuxX64MainApi 'com.github.h0tk3y.betterParse:better-parse-linuxx64:0.4.0-alpha-3'
+}
+```
+
+A simpler way is possible: if you 
+[enable the experimental Gradle metadata](http://kotlinlang.org/docs/reference/building-mpp-with-gradle.html#experimental-metadata-publishing-mode), 
+add just a single dependency:
+
+```groovy
+dependencies {
+    commonMainApi 'com.github.h0tk3y.betterParse:better-parse-multiplatform:0.4.0-alpha3'
+}
+```
+
+Note: this version of `better-parse-multiplatform` is published with Gradle 4.10.2. Future Gradle versions may fail to
+consume this dependency due to the metadata experimental status.
 
 ## Tokens ##
 As many other language recognition tools, `better-parse` abstracts away from raw character input by 
