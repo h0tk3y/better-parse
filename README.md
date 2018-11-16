@@ -32,7 +32,7 @@ Add the JCenter repository:
 
 ```groovy
 repositories {
-    jcenter()
+    maven { setUrl("https://dl.bintray.com/hotkeytlt/maven") }
 }
 ```
 
@@ -46,7 +46,7 @@ dependencies {
 
 Note: for version 0.3.5 and below, use `better-parse` instead of `better-parse-jvm`.
 
-In Kotlin/JS projects:
+In Kotlin/JS projects (since 0.4.0-alpha-3):
 
 ```groovy
 dependencies {
@@ -54,10 +54,7 @@ dependencies {
 }
 ```
 
-In [Kotlin Multiplatform projects](http://kotlinlang.org/docs/reference/building-mpp-with-gradle.html#adding-dependencies):
-
-> Note: the artifacts for macOS or iOS targets are not yet available in 0.4.0-alpha-3, they will be published later.
-> You can build them from this repository locally and install to the `mavenLocal()` repository.
+In [Kotlin Multiplatform projects](http://kotlinlang.org/docs/reference/building-mpp-with-gradle.html#adding-dependencies) (since 0.4.0-alpha-3):
 
 ```groovy
 dependencies {
