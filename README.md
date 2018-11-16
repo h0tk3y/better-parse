@@ -63,7 +63,7 @@ dependencies {
        * replace the prefixes: if your JVM target is `myJvm6`, use `myJvm6MainApi` instead of `jvmMainApi` 
        * remove the dependencies for the targets you don't have: if you don't target Linux x64, remove `linuxX64MainApi`
        * add the targets not listed below; note that the artifact IDs contain the lowercased preset name, for example, 
-         use `better-parse-androidnativeartm32` for your target from the androidNativeArtm32 preset
+         use `better-parse-androidnativearm32` for your target from the androidNativeArm32 preset
     */
     jvmMainApi 'com.github.h0tk3y.betterParse:better-parse-jvm:0.4.0-alpha-3'
     jsMainApi 'com.github.h0tk3y.betterParse:better-parse-js:0.4.0-alpha-3'
