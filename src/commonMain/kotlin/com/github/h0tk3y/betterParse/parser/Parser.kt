@@ -1,7 +1,6 @@
 package com.github.h0tk3y.betterParse.parser
 
-import com.github.h0tk3y.betterParse.lexer.Token
-import com.github.h0tk3y.betterParse.lexer.TokenMatch
+import com.github.h0tk3y.betterParse.lexer.*
 
 /** A common interface for parsers that can try to consume a part or the whole [TokenMatch] sequence and return one of
  * possible [ParseResult], either [Parsed] or [ErrorResult] */
@@ -67,7 +66,5 @@ class ParseException(val errorResult: ErrorResult) : Exception("Could not parse 
 /** Throws [ParseException] if the receiver [ParseResult] is a [ErrorResult]. Returns the [Parsed] result otherwise. */
 fun <T> ParseResult<T>.toParsedOrThrow() = when (this) {
     is Parsed -> this
-    is ErrorResult -> throw ParseException(
-        this
-    )
+    is ErrorResult -> throw ParseException(this)
 }

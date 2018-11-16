@@ -38,11 +38,10 @@ class DefaultTokenizer(override val tokens: List<Token>) : Tokenizer {
                     return
                 }
 
-                for (token in tokens) {
-                    val matchResult = token.regex.find(relativeInput) ?: continue
-                    val matchRange = matchResult.range
-                    if (matchRange.first > 0) continue
-                    val match = input.substring(matchRange.start + pos, matchRange.endInclusive + pos + 1)
+                for (index in 0 until tokens.size) {
+                    val token = tokens[index]
+                    val matchLength = token.match(relativeInput) ?: continue
+                    val match = input.substring(pos, pos + matchLength)
 
                     val result = TokenMatch(token, match, pos, row, col)
 

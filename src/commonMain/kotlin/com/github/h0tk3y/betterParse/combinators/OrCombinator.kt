@@ -9,8 +9,8 @@ class OrCombinator<T>(val parsers: List<Parser<T>>) :
     Parser<T> {
     override fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<T> {
         var failures: ArrayList<ErrorResult>? = null
-        for (parser in parsers) {
-            val result = parser.tryParse(tokens)
+        for (index in 0 until parsers.size) {
+            val result = parsers[index].tryParse(tokens)
             when (result) {
                 is Parsed -> return result
                 is ErrorResult -> {

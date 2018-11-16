@@ -1,7 +1,6 @@
 package com.github.h0tk3y.betterParse.lexer
 
-import com.github.h0tk3y.betterParse.lexer.TokenMatch
-import com.github.h0tk3y.betterParse.utils.CachedSequence
+import com.github.h0tk3y.betterParse.utils.*
 
 class TokenizerMatchesSequence(
     iterator: Iterator<TokenMatch>,

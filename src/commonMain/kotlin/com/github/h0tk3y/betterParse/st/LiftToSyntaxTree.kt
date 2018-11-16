@@ -97,7 +97,7 @@ private class ParserToSyntaxTreeLifter(
     private val default = DefaultTransformerReference()
 
     private fun liftTokenToAST(token: Token): Parser<SyntaxTree<TokenMatch>> {
-        return token.map { SyntaxTree(it, listOf(), token, it.position until (it.position + it.text.length)) }
+        return token.map { SyntaxTree(it, listOf(), token, it.position until (it.position + it.length)) }
     }
 
     private fun <T, R> liftMapCombinatorToAST(combinator: MapCombinator<T, R>): Parser<SyntaxTree<R>> {

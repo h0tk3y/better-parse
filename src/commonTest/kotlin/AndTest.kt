@@ -1,17 +1,16 @@
 
 import com.github.h0tk3y.betterParse.combinators.*
-import com.github.h0tk3y.betterParse.grammar.Grammar
-import com.github.h0tk3y.betterParse.parser.Parser
-import com.github.h0tk3y.betterParse.parser.parseToEnd
-import com.github.h0tk3y.betterParse.utils.components
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import com.github.h0tk3y.betterParse.grammar.*
+import com.github.h0tk3y.betterParse.lexer.*
+import com.github.h0tk3y.betterParse.parser.*
+import com.github.h0tk3y.betterParse.utils.*
+import kotlin.test.*
 
 class AndTest : Grammar<Nothing>() {
     override val rootParser: Parser<Nothing> get() = throw NoSuchElementException()
 
-    val a by token("a")
-    val b by token("b")
+    val a by tokenRegex("a")
+    val b by tokenRegex("b")
 
     @Test fun simpleAnd() {
         val tokens = tokenizer.tokenize("aba")

@@ -36,8 +36,8 @@ class AndCombinator<out R> @PublishedApi internal constructor(
         var remainder = tokens
 
         val results = arrayListOf<Any>()
-        loop@for (consumer in consumers) {
-            val parser = when (consumer) {
+        loop@for (index in 0 until consumers.size) {
+            val parser = when (val consumer = consumers[index]) {
                 is Parser<*> -> consumer
                 is SkipParser -> consumer.innerParser
                 else -> throw IllegalArgumentException()

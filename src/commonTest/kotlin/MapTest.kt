@@ -1,17 +1,12 @@
 
-import com.github.h0tk3y.betterParse.combinators.and
-import com.github.h0tk3y.betterParse.combinators.asJust
-import com.github.h0tk3y.betterParse.combinators.map
-import com.github.h0tk3y.betterParse.combinators.use
-import com.github.h0tk3y.betterParse.lexer.DefaultTokenizer
-import com.github.h0tk3y.betterParse.lexer.Token
-import com.github.h0tk3y.betterParse.parser.toParsedOrThrow
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import com.github.h0tk3y.betterParse.combinators.*
+import com.github.h0tk3y.betterParse.lexer.*
+import com.github.h0tk3y.betterParse.parser.*
+import kotlin.test.*
 
 class MapTest {
-    val aPlus = Token("aPlus", "a+")
-    val bPlus = Token("aPlus", "b+")
+    val aPlus = TokenRegex("aPlus", "a+")
+    val bPlus = TokenRegex("aPlus", "b+")
     val lexer = DefaultTokenizer(listOf(aPlus, bPlus))
 
     @Test fun testSuccessfulMap() {

@@ -1,15 +1,11 @@
 
-import com.github.h0tk3y.betterParse.lexer.DefaultTokenizer
-import com.github.h0tk3y.betterParse.lexer.Token
-import com.github.h0tk3y.betterParse.parser.UnparsedRemainder
-import com.github.h0tk3y.betterParse.parser.parseToEnd
-import com.github.h0tk3y.betterParse.parser.tryParseToEnd
-import kotlin.test.Test
-import kotlin.test.assertTrue
+import com.github.h0tk3y.betterParse.lexer.*
+import com.github.h0tk3y.betterParse.parser.*
+import kotlin.test.*
 
 class ParserTest {
-    val a = Token("a", "a")
-    val ignoredX = Token("ignoredX", "x", ignored = true)
+    val a = tokenText("a", "a")
+    val ignoredX = TokenRegex("ignoredX", "x", ignored = true)
 
     @Test fun ignoredUnparsed() {
         val tokens = DefaultTokenizer(listOf(ignoredX, a)).tokenize("axxx")
