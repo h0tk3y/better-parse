@@ -10,7 +10,7 @@ class MapCombinator<T, R>(
     val innerParser: Parser<T>,
     val transform: (T) -> R
 ) : Parser<R> {
-    override fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<R> {
+    override fun tryParse(tokens: TokenMatchesSequence): ParseResult<R> {
         val innerResult = innerParser.tryParse(tokens)
         return when (innerResult) {
             is ErrorResult -> innerResult

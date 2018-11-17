@@ -29,7 +29,7 @@ class AndCombinator<out R> @PublishedApi internal constructor(
 
     internal val nonSkippedIndices = consumers.indices.filter { consumers[it] !is SkipParser }
 
-    override fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<R> {
+    override fun tryParse(tokens: TokenMatchesSequence): ParseResult<R> {
         var remainder = tokens
 
         var results: ArrayList<Any?>? = null

@@ -17,12 +17,14 @@ class TokenTest {
         assertEquals(listOf(a, a), result.remainder.toList().map { it.type })
     }
 
+/*
     @Test fun unexpectedEof() {
         val tokens = sequenceOf<TokenMatch>()
         val result = a.tryParse(tokens)
 
         assertEquals(UnexpectedEof(a), result)
     }
+*/
 
     @Test fun noMatchingToken() {
         val input = "c"

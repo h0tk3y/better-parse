@@ -17,14 +17,14 @@ abstract class Token(name: String? = null, val ignored: Boolean) : Parser<TokenM
 
     abstract fun match(input: CharSequence): Int
 
-    override tailrec fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<TokenMatch> {
+    override tailrec fun tryParse(tokens: TokenMatchesSequence): ParseResult<TokenMatch> {
         val token = tokens.firstOrNull()
         return when {
             token == null -> UnexpectedEof(this)
             token.type == noneMatched -> NoMatchingToken(token)
             token.type == this -> Parsed(token, tokens.skipOne())
             token.type.ignored -> tryParse(tokens.skipOne())
-            else -> if (tokens is TokenizerMatchesSequence && this !in tokens.tokenizer.tokens)
+            else -> if (this !in tokens.tokenizer.tokens)
                 throw IllegalArgumentException("Token $this not in lexer tokens")
             else
                 MismatchedToken(this, token)

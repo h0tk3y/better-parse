@@ -17,7 +17,7 @@ class RepeatCombinator<T> internal constructor(
         require(atMost == -1 || atMost >= atLeast) { "atMost = $atMost is invalid, should be greater or equal than atLeast = $atLeast" }
     }
 
-    override fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<List<T>> {
+    override fun tryParse(tokens: TokenMatchesSequence): ParseResult<List<T>> {
         val resultsList = arrayListOf<T>()
         var lastTokens = tokens
         while (atMost == -1 || resultsList.size < atMost) {
