@@ -30,7 +30,7 @@ class RepeatTest : Grammar<Nothing>() {
             val tokens = tokenizer.tokenize(input)
 
             for ((range, parser) in rangeParsers) {
-                val result = parser.tryParseToEnd(tokens)
+                val result = parser.tryParseToEnd(tokens,0)
 
                 when {
                     n in range -> assertTrue(result is Parsed)

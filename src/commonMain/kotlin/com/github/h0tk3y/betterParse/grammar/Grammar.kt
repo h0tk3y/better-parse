@@ -1,11 +1,8 @@
 package com.github.h0tk3y.betterParse.grammar
 
 import com.github.h0tk3y.betterParse.lexer.*
-import com.github.h0tk3y.betterParse.parser.ParseResult
-import com.github.h0tk3y.betterParse.parser.Parser
-import com.github.h0tk3y.betterParse.parser.parseToEnd
-import com.github.h0tk3y.betterParse.parser.tryParseToEnd
-import kotlin.reflect.KProperty
+import com.github.h0tk3y.betterParse.parser.*
+import kotlin.reflect.*
 
 /**
  * A language grammar represented by a list of [Token]s and one or more [Parser]s, with one
@@ -23,21 +20,23 @@ abstract class Grammar<out T> : Parser<T> {
 
     /** Set of the tokens and parsers that were declared by delegation to the parser instances (`val p by someParser`), and [rootParser] */
     open val declaredParsers get() = (_parsers + _tokens + rootParser).toSet()
-    
+
     /** A [Tokenizer] that is built with the [Token]s defined within this [Grammar], in their order of declaration */
     open val tokenizer: Tokenizer by lazy { DefaultTokenizer(tokens) }
 
     /** A [Parser] that represents the root rule of this [Grammar] and is used by default for parsing. */
     abstract val rootParser: Parser<T>
 
-    final override fun tryParse(tokens: TokenMatchesSequence): ParseResult<T> = rootParser.tryParse(tokens)
+    final override fun tryParse(tokens: TokenMatchesSequence, position: Int): ParseResult<T> = rootParser.tryParse(
+        tokens, position
+    )
 
     protected operator fun <T> Parser<T>.provideDelegate(thisRef: Grammar<*>, property: KProperty<*>): Parser<T> =
         also { _parsers.add(it) }
 
     protected operator fun <T> Parser<T>.getValue(thisRef: Grammar<*>, property: KProperty<*>): Parser<T> = this
 
-    protected operator fun Token.provideDelegate(thisRef: Grammar<*>, property: KProperty<*>) : Token =
+    protected operator fun Token.provideDelegate(thisRef: Grammar<*>, property: KProperty<*>): Token =
         also {
             if (it.name == null) {
                 it.name = property.name
@@ -45,7 +44,7 @@ abstract class Grammar<out T> : Parser<T> {
             _tokens.add(it)
         }
 
-    protected operator fun Token.getValue(thisRef: Grammar<*>, property: KProperty<*>) : Token = this
+    protected operator fun Token.getValue(thisRef: Grammar<*>, property: KProperty<*>): Token = this
 }
 
 /** A convenience function to use for referencing a parser that is not initialized up to this moment. */
@@ -55,6 +54,6 @@ expect class ParserReference<out T> internal constructor(parserProvider: () -> P
     val parser: Parser<T>
 }
 
-fun <T> Grammar<T>.tryParseToEnd(input: String) = rootParser.tryParseToEnd(tokenizer.tokenize(input))
+fun <T> Grammar<T>.tryParseToEnd(input: String) = rootParser.tryParseToEnd(tokenizer.tokenize(input), 0)
 
 fun <T> Grammar<T>.parseToEnd(input: String): T = rootParser.parseToEnd(tokenizer.tokenize(input))

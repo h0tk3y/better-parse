@@ -7,5 +7,5 @@ import com.github.h0tk3y.betterParse.parser.Parser
 actual class ParserReference<out T> internal actual constructor(parserProvider: () -> Parser<T>) : Parser<T> {
     actual val parser by lazy(parserProvider)
 
-    override fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<T> = parser.tryParse(tokens)
+    override fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<T> = parser.tryParse(tokens,)
 }

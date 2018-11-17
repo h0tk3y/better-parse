@@ -29,34 +29,34 @@ class AndCombinator<out R> @PublishedApi internal constructor(
 
     internal val nonSkippedIndices = consumers.indices.filter { consumers[it] !is SkipParser }
 
-    override fun tryParse(tokens: TokenMatchesSequence): ParseResult<R> {
-        var remainder = tokens
+    override fun tryParse(tokens: TokenMatchesSequence, position: Int): ParseResult<R> {
+        var nextPosition = position
 
         var results: ArrayList<Any?>? = null
         loop@ for (index in 0 until consumers.size) {
             val consumer = consumers[index]
             when (consumer) {
                 is Parser<*> -> {
-                    val result = consumer.tryParse(remainder)
+                    val result = consumer.tryParse(tokens, nextPosition)
                     when (result) {
                         is ErrorResult -> return result
                         is Parsed<*> -> {
                             (results ?: ArrayList<Any?>().also { results = it }).add(result.value)
-                            remainder = result.remainder
+                            nextPosition = result.nextPosition
                         }
                     }
                 }
                 is SkipParser -> {
-                    val result = consumer.innerParser.tryParse(remainder)
+                    val result = consumer.innerParser.tryParse(tokens, nextPosition)
                     when (result) {
                         is ErrorResult -> return result
-                        is Parsed<*> -> remainder = result.remainder
+                        is Parsed<*> -> nextPosition = result.nextPosition
                     }
                 }
                 else -> throw IllegalArgumentException()
             }
         }
 
-        return Parsed(transform(results ?: emptyList()), remainder)
+        return Parsed(transform(results ?: emptyList()), nextPosition)
     }
 }

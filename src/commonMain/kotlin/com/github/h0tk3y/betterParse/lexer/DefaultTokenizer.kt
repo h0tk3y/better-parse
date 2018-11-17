@@ -19,12 +19,13 @@ class DefaultTokenizer(override val tokens: List<Token>) : Tokenizer {
 }
 
 class TokenProducer(val tokens: List<Token>, private val input: CharSequence) {
+    private val inputLength = input.length
     private var pos = 0
     private var row = 1
     private var col = 1
 
     private val relativeInput = object : CharSequence {
-        override val length: Int get() = input.length - pos
+        override val length: Int get() = inputLength - pos
         override fun get(index: Int): Char = input[index + pos]
         override fun subSequence(startIndex: Int, endIndex: Int) = input.subSequence(startIndex + pos, endIndex + pos)
 
@@ -61,7 +62,7 @@ class TokenProducer(val tokens: List<Token>, private val input: CharSequence) {
         }
 
         errorState = true
-        return TokenMatch(noneMatched, input, pos, input.length - pos, row, col)
+        return TokenMatch(noneMatched, input, pos, inputLength - pos, row, col)
     }
 
 }

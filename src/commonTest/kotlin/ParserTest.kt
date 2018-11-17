@@ -14,7 +14,7 @@ class ParserTest {
 
     @Test fun unparsedReportsNoIgnoredTokens() {
         val tokens = DefaultTokenizer(listOf(ignoredX, a)).tokenize("axxxa")
-        val result = a.tryParseToEnd(tokens)
+        val result = a.tryParseToEnd(tokens,0)
         assertTrue(result is UnparsedRemainder && result.startsWith.type == a)
     }
 }

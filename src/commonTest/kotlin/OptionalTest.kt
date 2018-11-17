@@ -14,13 +14,13 @@ class OptionalTest : Grammar<Nothing>() {
 
     @Test fun successful() {
         val tokens = tokenizer.tokenize("abab")
-        val result = optional(a and b and a and b).tryParse(tokens)
+        val result = optional(a and b and a and b).tryParse(tokens,0)
         assertTrue(result.toParsedOrThrow().value is Tuple4)
     }
 
     @Test fun unsuccessful() {
         val tokens = tokenizer.tokenize("abab")
-        val result = optional(b and a and b and a).tryParse(tokens)
+        val result = optional(b and a and b and a).tryParse(tokens,0)
         assertNull(result.toParsedOrThrow().value)
     }
 }

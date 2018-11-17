@@ -21,7 +21,7 @@ class OrTest : Grammar<Nothing>() {
     @Test fun alternativesError() {
         val tokens = tokenizer.tokenize("ab")
         val parser = (a and a) or (a and b and a)
-        val result = parser.tryParse(tokens) as AlternativesFailure
+        val result = parser.tryParse(tokens,0) as AlternativesFailure
 
         assertTrue(result.errors[0] is MismatchedToken)
         assertTrue(result.errors[1] is UnexpectedEof)

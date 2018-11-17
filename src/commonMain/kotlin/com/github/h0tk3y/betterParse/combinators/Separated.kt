@@ -1,10 +1,7 @@
 package com.github.h0tk3y.betterParse.combinators
 
 import com.github.h0tk3y.betterParse.lexer.*
-import com.github.h0tk3y.betterParse.parser.ErrorResult
-import com.github.h0tk3y.betterParse.parser.ParseResult
-import com.github.h0tk3y.betterParse.parser.Parsed
-import com.github.h0tk3y.betterParse.parser.Parser
+import com.github.h0tk3y.betterParse.parser.*
 
 @Suppress("UNCHECKED_CAST")
 class SeparatedCombinator<T, S>(
@@ -12,38 +9,39 @@ class SeparatedCombinator<T, S>(
     val separatorParser: Parser<S>,
     val acceptZero: Boolean
 ) : Parser<Separated<T, S>> {
-    override fun tryParse(tokens: TokenMatchesSequence): ParseResult<Separated<T, S>> {
+    override fun tryParse(tokens: TokenMatchesSequence, position: Int): ParseResult<Separated<T, S>> {
         val termMatches = mutableListOf<T>()
         val separatorMatches = mutableListOf<S>()
 
-        val first = termParser.tryParse(tokens)
+        val first = termParser.tryParse(tokens, position)
 
         return when (first) {
-            is ErrorResult -> if (acceptZero) Parsed(
-                Separated(emptyList(), emptyList()),
-                tokens
-            ) else first
+            is ErrorResult -> if (acceptZero)
+                Parsed(Separated(emptyList(), emptyList()), position)
+            else
+                first
+
             is Parsed -> {
-                termMatches += first.value
-                var currentRemainder = first.remainder
+                termMatches.add(first.value)
+                var nextPosition = first.nextPosition
                 loop@ while (true) {
-                    val separator = separatorParser.tryParse(currentRemainder)
+                    val separator = separatorParser.tryParse(tokens, nextPosition)
                     when (separator) {
                         is ErrorResult -> break@loop
                         is Parsed -> {
-                            val nextTerm = termParser.tryParse(separator.remainder)
+                            val nextTerm = termParser.tryParse(tokens, separator.nextPosition)
                             when (nextTerm) {
                                 is ErrorResult -> break@loop
                                 is Parsed -> {
-                                    separatorMatches += separator.value
-                                    termMatches += nextTerm.value
-                                    currentRemainder = nextTerm.remainder
+                                    separatorMatches.add(separator.value)
+                                    termMatches.add(nextTerm.value)
+                                    nextPosition = nextTerm.nextPosition
                                 }
                             }
                         }
                     }
                 }
-                Parsed(Separated(termMatches, separatorMatches), currentRemainder)
+                Parsed(Separated(termMatches, separatorMatches), nextPosition)
             }
         }
     }

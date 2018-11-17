@@ -7,10 +7,10 @@ import com.github.h0tk3y.betterParse.parser.*
  * If none succeeds, returns the [AlternativesFailure] with all the [ErrorResult]s. */
 class OrCombinator<T>(val parsers: List<Parser<T>>) :
     Parser<T> {
-    override fun tryParse(tokens: TokenMatchesSequence): ParseResult<T> {
+    override fun tryParse(tokens: TokenMatchesSequence, position: Int): ParseResult<T> {
         var failures: ArrayList<ErrorResult>? = null
         for (index in 0 until parsers.size) {
-            val result = parsers[index].tryParse(tokens)
+            val result = parsers[index].tryParse(tokens, position)
             when (result) {
                 is Parsed -> return result
                 is ErrorResult -> {
