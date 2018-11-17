@@ -146,15 +146,15 @@ class TestLiftToAst {
                 tokens: TokenMatchesSequence,
                 position: Int
             ): ParseResult<Pair<T, T>> {
-                val res = alternatives.asSequence().map { it to it.tryParse(tokens, position) }.firstOrNull { it.second is Parsed<T> }
+                val res = alternatives.asSequence().map { it to it.tryParse(tokens, position) }.firstOrNull { it.second is SuccessResult<T> }
                     ?: return object : ErrorResult() {}
                 val (parser1, res1) = res
-                val res2 = parser1.tryParse(tokens, res1.toParsedOrThrow().nextPosition)
+                val res2 = parser1.tryParse(tokens, res1.toParsedOrThrow().nextTokenIndex)
                 return when (res2) {
                     is ErrorResult -> res2
-                    is Parsed<T> -> Parsed(
+                    is SuccessResult<T> -> Parsed(
                         res1.toParsedOrThrow().value to res2.value,
-                        res2.nextPosition
+                        res2.nextTokenIndex
                     )
                 }
             }
@@ -174,21 +174,21 @@ class TestLiftToAst {
                             tokens: TokenMatchesSequence,
                             position: Int
                         ): ParseResult<SyntaxTree<T>> {
-                            val res = parsers.asSequence().map { it to it.tryParse(tokens, position) }.firstOrNull { it.second is Parsed<*> }
+                            val res = parsers.asSequence().map { it to it.tryParse(tokens, position) }.firstOrNull { it.second is SuccessResult<*> }
                                 ?: return object : ErrorResult() {}
                             val (parser1, res1) = res
-                            res1 as Parsed<SyntaxTree<*>>
-                            val res2 = parser1.tryParse(tokens, res1.toParsedOrThrow().nextPosition)
+                            res1 as SuccessResult<SyntaxTree<*>>
+                            val res2 = parser1.tryParse(tokens, res1.toParsedOrThrow().nextTokenIndex)
                             return when (res2) {
                                 is ErrorResult -> res2
-                                is Parsed<SyntaxTree<*>> -> Parsed(
+                                is SuccessResult<SyntaxTree<*>> -> Parsed(
                                     SyntaxTree(
                                         item = res1.toParsedOrThrow().value.item to res2.value.item,
                                         children = listOf(res1.value, res2.value),
                                         parser = parser,
                                         range = res1.value.range.start..res2.value.range.endInclusive
                                     ) as SyntaxTree<T>,
-                                    res2.nextPosition
+                                    res2.nextTokenIndex
                                 )
                             }
                         }

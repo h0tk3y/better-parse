@@ -14,20 +14,19 @@ abstract class Token(name: String? = null, val ignored: Boolean) : Parser<TokenM
     var name = name
         internal set
 
+    internal var tokenizer: Tokenizer? = null
+
     abstract fun match(input: CharSequence): Int
 
-    override tailrec fun tryParse(tokens: TokenMatchesSequence, position: Int): ParseResult<TokenMatch> {
-        val token = tokens.firstOrNull(position)
-        return when {
-            token == null -> UnexpectedEof(this)
-            token.type == noneMatched -> NoMatchingToken(token)
-            token.type == this -> Parsed(token, position + 1)
-            token.type.ignored -> tryParse(tokens, position + 1)
-            else -> if (this !in tokens.tokenizer.tokens)
-                throw IllegalArgumentException("Token $this not in lexer tokens")
-            else
-                MismatchedToken(this, token)
-        }
+    override fun tryParse(tokens: TokenMatchesSequence, position: Int): ParseResult<TokenMatch> {
+        val token = tokens.getNotIgnored(position) ?: return UnexpectedEof(this)
+        if (token.type == this)
+            return token
+        if (token.type == noneMatched)
+            return NoMatchingToken(token)
+        if (tokenizer != tokens.tokenizer)
+            throw IllegalArgumentException("Token $this is not valid for a given Tokenizer")
+        return MismatchedToken(this, token)
     }
 }
 

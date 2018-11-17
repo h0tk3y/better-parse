@@ -3,7 +3,7 @@ package com.github.h0tk3y.betterParse.combinators
 import com.github.h0tk3y.betterParse.lexer.*
 import com.github.h0tk3y.betterParse.parser.*
 
-/** Tries to parse the sequence with the [parsers] until one succeeds. Returns its [Parsed] result in this case.
+/** Tries to parse the sequence with the [parsers] until one succeeds. Returns its [SuccessResult] result in this case.
  * If none succeeds, returns the [AlternativesFailure] with all the [ErrorResult]s. */
 class OrCombinator<T>(val parsers: List<Parser<T>>) :
     Parser<T> {
@@ -12,7 +12,7 @@ class OrCombinator<T>(val parsers: List<Parser<T>>) :
         for (index in 0 until parsers.size) {
             val result = parsers[index].tryParse(tokens, position)
             when (result) {
-                is Parsed -> return result
+                is SuccessResult -> return result
                 is ErrorResult -> {
                     if (failures == null)
                         failures = ArrayList()

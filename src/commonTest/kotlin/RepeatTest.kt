@@ -33,7 +33,7 @@ class RepeatTest : Grammar<Nothing>() {
                 val result = parser.tryParseToEnd(tokens,0)
 
                 when {
-                    n in range -> assertTrue(result is Parsed)
+                    n in range -> assertTrue(result is SuccessResult)
                     n > range.last -> assertTrue(result is UnparsedRemainder)
                     n < range.first -> assertTrue(result is UnexpectedEof)
                 }

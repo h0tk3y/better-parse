@@ -6,7 +6,7 @@ import com.github.h0tk3y.betterParse.utils.*
 import kotlin.jvm.*
 
 /** Parses the sequence with the receiver [Parser] and then with the [other] parser. If both suceed, returns a [Tuple2]
- * with the values from the [Parsed] results. Otherwise, returns the [ErrorResult] of the failed parser. */
+ * with the values from the [SuccessResult] results. Otherwise, returns the [ErrorResult] of the failed parser. */
 infix inline fun <reified A, reified B> Parser<A>.and(other: Parser<B>) =
     AndCombinator(listOf(this, other)) { (a1, a2) -> Tuple2(a1 as A, a2 as B) }
 
@@ -14,7 +14,7 @@ infix inline fun <reified A, reified B> Parser<A>.and(other: Parser<B>) =
 operator inline fun <reified A, reified B> Parser<A>.times(other: Parser<B>) = this and other
 
 /** Parses the sequence with the receiver [Parser] and then with the [other] parser. If both suceed, returns a [Tuple2]
- * with the values from the [Parsed] results. Otherwise, returns the [ErrorResult] of the failed parser. */
+ * with the values from the [SuccessResult] results. Otherwise, returns the [ErrorResult] of the failed parser. */
 @JvmName("and0")
 infix inline fun <reified A, reified B> AndCombinator<A>.and(other: Parser<B>) =
     AndCombinator(consumers + listOf(other)) { (a1, a2) -> Tuple2(a1 as A, a2 as B) }
@@ -40,9 +40,9 @@ class AndCombinator<out R> @PublishedApi internal constructor(
                     val result = consumer.tryParse(tokens, nextPosition)
                     when (result) {
                         is ErrorResult -> return result
-                        is Parsed<*> -> {
+                        is SuccessResult<*> -> {
                             (results ?: ArrayList<Any?>().also { results = it }).add(result.value)
-                            nextPosition = result.nextPosition
+                            nextPosition = result.nextTokenIndex
                         }
                     }
                 }
@@ -50,7 +50,7 @@ class AndCombinator<out R> @PublishedApi internal constructor(
                     val result = consumer.innerParser.tryParse(tokens, nextPosition)
                     when (result) {
                         is ErrorResult -> return result
-                        is Parsed<*> -> nextPosition = result.nextPosition
+                        is SuccessResult<*> -> nextPosition = result.nextTokenIndex
                     }
                 }
                 else -> throw IllegalArgumentException()

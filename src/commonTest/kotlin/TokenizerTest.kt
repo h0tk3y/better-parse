@@ -21,7 +21,7 @@ class TokenizerTest {
         val lexer = DefaultTokenizer(listOf(aPlus, bPlus))
 
         val input = "abaaabbbaaaabbbb"
-        val positions = lexer.tokenize(input).toList().map { it.position }
+        val positions = lexer.tokenize(input).toList().map { it.offset }
 
         assertEquals(listOf(0, 1, 2, 5, 8, 12), positions)
     }
@@ -57,7 +57,7 @@ class TokenizerTest {
         assertEquals(5, result.size)
         assertEquals(noneMatched, result.last().type)
         assertEquals("xxaa", result.last().text)
-        assertEquals(4, result.last().position)
+        assertEquals(4, result.last().offset)
     }
 
     @Test fun priority() {
