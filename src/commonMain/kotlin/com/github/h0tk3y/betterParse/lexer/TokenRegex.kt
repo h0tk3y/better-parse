@@ -25,10 +25,10 @@ class TokenRegex : Token {
 
     override fun match(input: CharSequence) = regex.find(input)?.range?.let {
         val length = it.endInclusive - it.start + 1
-        if (length == 0) null else length
-    }
+        length
+    } ?: 0
 
-    override fun toString() = "${name?:""} [$pattern]" + if (ignored) " [ignorable]" else ""
+    override fun toString() = "${name ?: ""} [$pattern]" + if (ignored) " [ignorable]" else ""
 }
 
 fun tokenRegex(name: String, @Language("RegExp", "", "") pattern: String, ignore: Boolean = false) =

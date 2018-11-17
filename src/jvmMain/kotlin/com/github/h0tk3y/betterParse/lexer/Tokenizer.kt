@@ -1,8 +1,8 @@
 package com.github.h0tk3y.betterParse.lexer
 
-import java.io.InputStream
+import java.io.*
 import java.util.*
-import java.util.regex.Pattern
+import java.util.regex.*
 
 interface JvmTokenizer : Tokenizer {
     /** Tokenizes the [input] from an [InputStream] into a [TokenizerMatchesSequence]. */
@@ -91,13 +91,13 @@ class DefaultJvmTokenizer(override val tokens: List<Token>) : JvmTokenizer {
                         matchResult = input.match()
                         tokens[patternGroupIndices.indexOfFirst { matchResult.group(it) != null }]
                     } else {
-                        setNext(TokenMatch(noneMatched, input.next(), pos, row, col))
+                        setNext(TokenMatch(noneMatched, input.next(), pos, 0, row, col))
                         errorState = true
                         return
                     }
 
                 val match = matchResult.group()
-                val result = TokenMatch(matchedToken, match, pos, row, col)
+                val result = TokenMatch(matchedToken, match, pos, 0, row, col)
 
                 pos += match.length
                 col += match.length
