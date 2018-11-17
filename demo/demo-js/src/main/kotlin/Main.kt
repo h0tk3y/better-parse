@@ -1,14 +1,10 @@
 
 import com.github.h0tk3y.betterParse.combinators.*
-import com.github.h0tk3y.betterParse.grammar.Grammar
-import com.github.h0tk3y.betterParse.grammar.parser
-import com.github.h0tk3y.betterParse.grammar.tryParseToEnd
-import com.github.h0tk3y.betterParse.parser.ErrorResult
-import com.github.h0tk3y.betterParse.parser.Parsed
-import com.github.h0tk3y.betterParse.parser.Parser
-import org.w3c.dom.HTMLInputElement
-import kotlin.browser.document
-import kotlin.browser.window
+import com.github.h0tk3y.betterParse.grammar.*
+import com.github.h0tk3y.betterParse.lexer.*
+import com.github.h0tk3y.betterParse.parser.*
+import org.w3c.dom.*
+import kotlin.browser.*
 
 fun main() {
     window.onload = {
@@ -20,7 +16,7 @@ fun main() {
             val parseResult = BooleanGrammar.tryParseToEnd(expr)
 
             val resultText = when (parseResult) {
-                is Parsed -> parseResult.value.toString()
+                is SuccessResult -> parseResult.value.toString()
                 is ErrorResult -> parseResult.toString()
             }
 
@@ -46,16 +42,16 @@ data class Or(val left: BooleanExpression, val right: BooleanExpression) : Boole
 data class Impl(val left: BooleanExpression, val right: BooleanExpression) : BooleanExpression()
 
 private object BooleanGrammar : Grammar<BooleanExpression>() {
-    val tru by token("true")
-    val fal by token("false")
-    val id by token("\\w+")
-    val lpar by token("\\(")
-    val rpar by token("\\)")
-    val not by token("!")
-    val and by token("&")
-    val or by token("\\|")
-    val impl by token("->")
-    val ws by token("\\s+", ignore = true)
+    val tru by tokenText("true")
+    val fal by tokenText("false")
+    val id by tokenRegex("\\w+")
+    val lpar by tokenText("(")
+    val rpar by tokenText(")")
+    val not by tokenText("!")
+    val and by tokenText("&")
+    val or by tokenText("|")
+    val impl by tokenText("->")
+    val ws by tokenRegex("\\s+", ignore = true)
 
     val negation by -not * parser(this::term) map { Not(it) }
     val bracedExpression by -lpar * parser(this::implChain) * -rpar
