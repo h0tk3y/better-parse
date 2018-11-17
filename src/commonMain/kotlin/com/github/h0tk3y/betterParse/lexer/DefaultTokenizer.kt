@@ -9,6 +9,7 @@ private fun Regex.countGroups() = "(?:$pattern)?".toRegex().find("")!!.groups.si
 class DefaultTokenizer(override val tokens: List<Token>) : Tokenizer {
     init {
         require(tokens.isNotEmpty()) { "The tokens list should not be empty" }
+        tokens.forEach { it.tokenizer = this }
     }
 
     /** Tokenizes the [input] from a [String] into a [TokenMatchesSequence]. */
@@ -18,8 +19,9 @@ class DefaultTokenizer(override val tokens: List<Token>) : Tokenizer {
     fun tokenize(input: CharSequence) = TokenMatchesSequence(TokenProducer(tokens, input), this)
 }
 
-class TokenProducer(val tokens: List<Token>, private val input: CharSequence) {
+class TokenProducer(private val tokens: List<Token>, private val input: CharSequence) {
     private val inputLength = input.length
+    private var tokenIndex = 0
     private var pos = 0
     private var row = 1
     private var col = 1
@@ -42,10 +44,10 @@ class TokenProducer(val tokens: List<Token>, private val input: CharSequence) {
         for (index in 0 until tokens.size) {
             val token = tokens[index]
             val matchLength = token.match(relativeInput)
-            if (matchLength == 0) 
+            if (matchLength == 0)
                 continue
-            
-            val result = TokenMatch(token, input, pos, matchLength, row, col)
+
+            val result = TokenMatch(token, tokenIndex++, input, pos, matchLength, row, col)
 
             for (i in pos until pos + matchLength) {
                 if (input[i] == '\n') {
@@ -62,7 +64,7 @@ class TokenProducer(val tokens: List<Token>, private val input: CharSequence) {
         }
 
         errorState = true
-        return TokenMatch(noneMatched, input, pos, inputLength - pos, row, col)
+        return TokenMatch(noneMatched, tokenIndex++, input, pos, inputLength - pos, row, col)
     }
 
 }

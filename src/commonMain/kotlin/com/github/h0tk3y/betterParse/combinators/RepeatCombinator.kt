@@ -4,7 +4,7 @@ import com.github.h0tk3y.betterParse.lexer.*
 import com.github.h0tk3y.betterParse.parser.*
 
 /** Tries to parse the sequence with the [parser], as many times as it succeeds, but no more than [atMost].
- * If the parser succeeded less than [atLeast] times, returns its [ErrorResult], otherwise returns the list of [Parsed]
+ * If the parser succeeded less than [atLeast] times, returns its [ErrorResult], otherwise returns the list of [SuccessResult]
  * results from the parser invocations.*/
 class RepeatCombinator<T> internal constructor(
     val parser: Parser<T>,
@@ -29,9 +29,9 @@ class RepeatCombinator<T> internal constructor(
                     else
                         result
                 }
-                is Parsed -> {
+                is SuccessResult -> {
                     resultsList.add(result.value)
-                    nextPosition = result.nextPosition
+                    nextPosition = result.nextTokenIndex
                 }
             }
         }

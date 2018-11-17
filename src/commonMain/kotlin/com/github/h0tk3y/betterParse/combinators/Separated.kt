@@ -21,21 +21,21 @@ class SeparatedCombinator<T, S>(
             else
                 first
 
-            is Parsed -> {
+            is SuccessResult -> {
                 termMatches.add(first.value)
-                var nextPosition = first.nextPosition
+                var nextPosition = first.nextTokenIndex
                 loop@ while (true) {
                     val separator = separatorParser.tryParse(tokens, nextPosition)
                     when (separator) {
                         is ErrorResult -> break@loop
-                        is Parsed -> {
-                            val nextTerm = termParser.tryParse(tokens, separator.nextPosition)
+                        is SuccessResult -> {
+                            val nextTerm = termParser.tryParse(tokens, separator.nextTokenIndex)
                             when (nextTerm) {
                                 is ErrorResult -> break@loop
-                                is Parsed -> {
+                                is SuccessResult -> {
                                     separatorMatches.add(separator.value)
                                     termMatches.add(nextTerm.value)
-                                    nextPosition = nextTerm.nextPosition
+                                    nextPosition = nextTerm.nextTokenIndex
                                 }
                             }
                         }

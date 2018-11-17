@@ -1,6 +1,6 @@
 package com.github.h0tk3y.betterParse.combinators
 
-import com.github.h0tk3y.betterParse.parser.Parsed
+import com.github.h0tk3y.betterParse.parser.SuccessResult
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.utils.Tuple
 import com.github.h0tk3y.betterParse.utils.Tuple1
@@ -14,14 +14,14 @@ fun <T> skip(parser: Parser<T>) = SkipParser(parser)
 /** The same as `[skip] of this parser. ` */
 operator fun Parser<*>.unaryMinus() = skip(this)
 
-/** Parses the sequence with the receiver [Parser] and the wrapped [other] parser, but returns the [Parsed] result
+/** Parses the sequence with the receiver [Parser] and the wrapped [other] parser, but returns the [SuccessResult] result
  * from the receiver parser. */
 infix fun <T : Tuple> AndCombinator<T>.and(other: SkipParser) =
     AndCombinator(consumers + other, transform)
 
 operator fun <T : Tuple> AndCombinator<T>.times(other: SkipParser) = this and other
 
-/** Parses the sequence with the receiver [Parser] and the wrapped [other] parser, but returns the [Parsed] result
+/** Parses the sequence with the receiver [Parser] and the wrapped [other] parser, but returns the [SuccessResult] result
  * with a value from the receiver parser in a [Tuple1]. */
 infix inline fun <reified T> Parser<T>.and(other: SkipParser) =
     AndCombinator(listOf(this, other), { (a) -> a as T } )
@@ -29,7 +29,7 @@ infix inline fun <reified T> Parser<T>.and(other: SkipParser) =
 /** The same as `this `[and]` other`*/
 operator inline fun <reified T> Parser<T>.times(other: SkipParser) = this and other
 
-/** Parses the wrapped receiver [Parser] and the [other] parser and returns the [Parsed] result
+/** Parses the wrapped receiver [Parser] and the [other] parser and returns the [SuccessResult] result
  * with a value from the [other] parser in a [Tuple1]. */
 infix inline fun <reified T> SkipParser.and(other: Parser<T>) =
     AndCombinator(listOf(this, other)) { (b) -> b as T }

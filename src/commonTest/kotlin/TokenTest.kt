@@ -11,10 +11,10 @@ class TokenTest {
     @Test
     fun successfulParse() {
         val tokens = DefaultTokenizer(listOf(a)).tokenize("aaa")
-        val result = a.tryParse(tokens, 0) as Parsed
+        val result = a.tryParse(tokens, 0) as SuccessResult
 
         assertEquals(a, result.value.type)
-        assertEquals(listOf(a, a), tokens.toList(result.nextPosition).map { it.type })
+        assertEquals(listOf(a, a), tokens.toList(result.nextTokenIndex).map { it.type })
     }
 
 /*
@@ -32,7 +32,7 @@ class TokenTest {
         val tokens = DefaultTokenizer(listOf(a, b)).tokenize(input)
         val result = a.tryParse(tokens, 0)
 
-        assertEquals(NoMatchingToken(TokenMatch(noneMatched, input, 0, 1, 1, 1)), result)
+        assertEquals(NoMatchingToken(TokenMatch(noneMatched, 0, input, 0, 1, 1, 1)), result)
     }
 
     @Test
@@ -41,7 +41,7 @@ class TokenTest {
         val tokens = DefaultTokenizer(listOf(ignoredX, a)).tokenize(input)
         val result = a.tryParse(tokens, 0)
 
-        assertEquals(TokenMatch(a, input, 3, 1, 1, 4), result.toParsedOrThrow().value)
+        assertEquals(TokenMatch(a, 3, input, 3, 1, 1, 4), result.toParsedOrThrow().value)
     }
 
     @Test
@@ -50,7 +50,7 @@ class TokenTest {
         val tokens = DefaultTokenizer(listOf(a, b)).tokenize(input)
         val result = a.tryParse(tokens, 0)
 
-        assertEquals(MismatchedToken(a, TokenMatch(b, input, 0, 1, 1, 1)), result)
+        assertEquals(MismatchedToken(a, TokenMatch(b, 0, input, 0, 1, 1, 1)), result)
     }
 
     @Test
@@ -59,7 +59,7 @@ class TokenTest {
         val tokens = DefaultTokenizer(listOf(num)).tokenize(input)
         val result = num.tryParse(tokens, 0)
 
-        assertEquals(NoMatchingToken(TokenMatch(noneMatched, input, 0, 1, 1, 1)), result)
+        assertEquals(NoMatchingToken(TokenMatch(noneMatched, 0, input, 0, 1, 1, 1)), result)
     }
 
     @Test

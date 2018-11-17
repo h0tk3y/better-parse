@@ -1,12 +1,12 @@
 package com.github.h0tk3y.betterParse.lexer
 
 class TokenMatchesSequence(
-    val tokenProducer: TokenProducer,
+    private val tokenProducer: TokenProducer,
     val tokenizer: Tokenizer,
-    val matches: ArrayList<TokenMatch> = arrayListOf()
+    private val matches: ArrayList<TokenMatch> = arrayListOf()
 )  {
     
-    fun firstOrNull(position: Int = 0): TokenMatch? {
+    operator fun get(position: Int): TokenMatch? {
         while (position >= matches.size) {
             val next = tokenProducer.advance() ?: return null
             matches.add(next)
@@ -14,8 +14,8 @@ class TokenMatchesSequence(
         return matches[position]
     }
     
-    inline fun firstOrNull(position: Int = 0, predicate: (TokenMatch) -> Boolean): TokenMatch? {
-        // fill until startAt
+    fun getNotIgnored(position: Int): TokenMatch? {
+        // fill until position
         while (position >= matches.size) {
             val next = tokenProducer.advance() ?: return null
             matches.add(next)
@@ -34,7 +34,7 @@ class TokenMatchesSequence(
                     next
                 }
             }
-            if (predicate(value))
+            if (!value.type.ignored)
                 return value
             pos++
         }

@@ -35,7 +35,7 @@ class SeparatedTest : Grammar<Nothing>() {
         assertTrue(resultRejectZero is MismatchedToken)
 
         val resultAcceptZero = separated(word asJust "x", comma, acceptZero = true).tryParse(tokens,0)
-        assertTrue(resultAcceptZero is Parsed && resultAcceptZero.value.terms.isEmpty())
+        assertTrue(resultAcceptZero is SuccessResult && resultAcceptZero.value.terms.isEmpty())
     }
 
     @Test fun reduceLeftRight() {

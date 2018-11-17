@@ -39,7 +39,7 @@ class AndTest : Grammar<Nothing>() {
 
     @Test fun singleParserInSkipChain() {
         val tokens = tokenizer.tokenize("ababa")
-        val parser = -a * -b * a * -b * -a use { position }
+        val parser = -a * -b * a * -b * -a use { offset }
         val result = parser.parseToEnd(tokens)
 
         assertEquals(2, result)
