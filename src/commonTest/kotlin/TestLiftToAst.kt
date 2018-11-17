@@ -142,7 +142,7 @@ class TestLiftToAst {
     fun testCustomTransformer() {
         class ForcedDuplicate<T>(val alternatives: List<Parser<T>>) :
             Parser<Pair<T, T>> {
-            override fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<Pair<T, T>> {
+            override fun tryParse(tokens: TokenMatchesSequence): ParseResult<Pair<T, T>> {
                 val res = alternatives.asSequence().map { it to it.tryParse(tokens) }.firstOrNull { it.second is Parsed<T> }
                     ?: return object : ErrorResult() {}
                 val (parser1, res1) = res
@@ -167,7 +167,7 @@ class TestLiftToAst {
                     return object : Parser<SyntaxTree<T>> {
                         val parsers = parser.alternatives.map { default.transform(it) }
 
-                        override fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<SyntaxTree<T>> {
+                        override fun tryParse(tokens: TokenMatchesSequence): ParseResult<SyntaxTree<T>> {
                             val res = parsers.asSequence().map { it to it.tryParse(tokens) }.firstOrNull { it.second is Parsed<*> }
                                 ?: return object : ErrorResult() {}
                             val (parser1, res1) = res

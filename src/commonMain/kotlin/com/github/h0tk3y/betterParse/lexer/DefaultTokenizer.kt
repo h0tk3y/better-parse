@@ -11,15 +11,14 @@ class DefaultTokenizer(override val tokens: List<Token>) : Tokenizer {
         require(tokens.isNotEmpty()) { "The tokens list should not be empty" }
     }
 
-    /** Tokenizes the [input] from a [String] into a [TokenizerMatchesSequence]. */
-    override fun tokenize(input: String): Sequence<TokenMatch> = tokenize(input as CharSequence)
+    /** Tokenizes the [input] from a [String] into a [TokenMatchesSequence]. */
+    override fun tokenize(input: String): TokenMatchesSequence = tokenize(input as CharSequence)
 
-    /** Tokenizes the [input] from a [Scanner] into a [TokenizerMatchesSequence]. */
-    fun tokenize(input: CharSequence): Sequence<TokenMatch> =
-        TokenizerMatchesSequence(TokensIterator(tokens, input), this)
+    /** Tokenizes the [input] from a [Scanner] into a [TokenMatchesSequence]. */
+    fun tokenize(input: CharSequence) = TokenMatchesSequence(TokenProducer(tokens, input), this)
 }
 
-class TokensIterator(val tokens: List<Token>, private val input: CharSequence) : AbstractIterator<TokenMatch>() {
+class TokenProducer(val tokens: List<Token>, private val input: CharSequence) {
     private var pos = 0
     private var row = 1
     private var col = 1
@@ -34,10 +33,9 @@ class TokensIterator(val tokens: List<Token>, private val input: CharSequence) :
 
     private var errorState = false
 
-    override fun computeNext() {
+    fun advance(): TokenMatch? {
         if (relativeInput.isEmpty() || errorState) {
-            done()
-            return
+            return null
         }
 
         for (index in 0 until tokens.size) {
@@ -48,26 +46,22 @@ class TokensIterator(val tokens: List<Token>, private val input: CharSequence) :
             
             val result = TokenMatch(token, input, pos, matchLength, row, col)
 
-            updateRowAndColumn(matchLength)
+            for (i in pos until pos + matchLength) {
+                if (input[i] == '\n') {
+                    row++
+                    col = 1
+                } else {
+                    col++
+                }
+            }
 
             pos += matchLength
 
-            setNext(result)
-            return
+            return result
         }
 
-        setNext(TokenMatch(noneMatched, input, pos, input.length - pos, row, col))
         errorState = true
+        return TokenMatch(noneMatched, input, pos, input.length - pos, row, col)
     }
 
-    private fun updateRowAndColumn(matchLength: Int) {
-        for (i in pos until pos + matchLength) {
-            if (input[i] == '\n') {
-                row++
-                col = 1
-            } else {
-                col++
-            }
-        }
-    }
 }

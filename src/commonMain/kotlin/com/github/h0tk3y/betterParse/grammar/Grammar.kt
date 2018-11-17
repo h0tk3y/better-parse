@@ -30,7 +30,7 @@ abstract class Grammar<out T> : Parser<T> {
     /** A [Parser] that represents the root rule of this [Grammar] and is used by default for parsing. */
     abstract val rootParser: Parser<T>
 
-    final override fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<T> = rootParser.tryParse(tokens)
+    final override fun tryParse(tokens: TokenMatchesSequence): ParseResult<T> = rootParser.tryParse(tokens)
 
     protected operator fun <T> Parser<T>.provideDelegate(thisRef: Grammar<*>, property: KProperty<*>): Parser<T> =
         also { _parsers.add(it) }

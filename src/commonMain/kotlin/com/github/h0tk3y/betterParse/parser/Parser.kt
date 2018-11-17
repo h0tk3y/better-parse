@@ -5,15 +5,15 @@ import com.github.h0tk3y.betterParse.lexer.*
 /** A common interface for parsers that can try to consume a part or the whole [TokenMatch] sequence and return one of
  * possible [ParseResult], either [Parsed] or [ErrorResult] */
 interface Parser<out T> {
-    fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<T>
+    fun tryParse(tokens: TokenMatchesSequence): ParseResult<T>
 }
 
 object EmptyParser : Parser<Unit> {
-    override fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<Unit> =
+    override fun tryParse(tokens: TokenMatchesSequence): ParseResult<Unit> =
         Parsed(Unit, tokens)
 }
 
-fun <T> Parser<T>.tryParseToEnd(tokens: Sequence<TokenMatch>) = tryParse(tokens).let { result ->
+fun <T> Parser<T>.tryParseToEnd(tokens: TokenMatchesSequence) = tryParse(tokens).let { result ->
     when (result) {
         is ErrorResult -> result
         is Parsed -> result.remainder.firstOrNull { !it.type.ignored }?.let {
@@ -24,9 +24,9 @@ fun <T> Parser<T>.tryParseToEnd(tokens: Sequence<TokenMatch>) = tryParse(tokens)
     }
 }
 
-fun <T> Parser<T>.parse(tokens: Sequence<TokenMatch>): T = tryParse(tokens).toParsedOrThrow().value
+fun <T> Parser<T>.parse(tokens: TokenMatchesSequence): T = tryParse(tokens).toParsedOrThrow().value
 
-fun <T> Parser<T>.parseToEnd(tokens: Sequence<TokenMatch>): T = tryParseToEnd(tokens).toParsedOrThrow().value
+fun <T> Parser<T>.parseToEnd(tokens: TokenMatchesSequence): T = tryParseToEnd(tokens).toParsedOrThrow().value
 
 
 /** Represents a result of input sequence parsing by a [Parser] that tried to parse [T]. */
@@ -35,7 +35,7 @@ sealed class ParseResult<out T>
 
 /** Represents a successful parsing result of a [Parser] that produced [value] and left a
  * possibly empty input sequence [remainder] unprocessed.*/
-data class Parsed<out T>(val value: T, val remainder: Sequence<TokenMatch>) : ParseResult<T>() {
+data class Parsed<out T>(val value: T, val remainder: TokenMatchesSequence) : ParseResult<T>() {
     override fun toString(): String = "Parsed($value)"
 }
 
