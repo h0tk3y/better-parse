@@ -25,31 +25,35 @@ class TokenTest {
     }
 
     @Test fun noMatchingToken() {
-        val tokens = DefaultTokenizer(listOf(a, b)).tokenize("c")
+        val input = "c"
+        val tokens = DefaultTokenizer(listOf(a, b)).tokenize(input)
         val result = a.tryParse(tokens)
 
-        assertEquals(NoMatchingToken(TokenMatch(noneMatched, "c", 0, 1, 1)), result)
+        assertEquals(NoMatchingToken(TokenMatch(noneMatched, input, 0, 1, 1, 1)), result)
     }
 
     @Test fun ignored() {
-        val tokens = DefaultTokenizer(listOf(ignoredX, a)).tokenize("xxxa")
+        val input = "xxxa"
+        val tokens = DefaultTokenizer(listOf(ignoredX, a)).tokenize(input)
         val result = a.tryParse(tokens)
 
-        assertEquals(TokenMatch(a, "a", 3, 1, 4), result.toParsedOrThrow().value)
+        assertEquals(TokenMatch(a, input, 3, 1, 1, 4), result.toParsedOrThrow().value)
     }
 
     @Test fun mismatched() {
-        val tokens = DefaultTokenizer(listOf(a, b)).tokenize("b")
+        val input = "b"
+        val tokens = DefaultTokenizer(listOf(a, b)).tokenize(input)
         val result = a.tryParse(tokens)
 
-        assertEquals(MismatchedToken(a, TokenMatch(b, "b", 0, 1, 1)), result)
+        assertEquals(MismatchedToken(a, TokenMatch(b, input, 0, 1, 1, 1)), result)
     }
     
     @Test fun mismatchedRegex() {
-        val tokens = DefaultTokenizer(listOf(num)).tokenize("b")
+        val input = "b"
+        val tokens = DefaultTokenizer(listOf(num)).tokenize(input)
         val result = num.tryParse(tokens)
 
-        assertEquals(NoMatchingToken(TokenMatch(noneMatched, "b", 0, 1, 1)), result)
+        assertEquals(NoMatchingToken(TokenMatch(noneMatched, input, 0, 1, 1, 1)), result)
     }
 
     @Test

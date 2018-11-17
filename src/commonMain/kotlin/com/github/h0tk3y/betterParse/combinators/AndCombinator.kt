@@ -1,12 +1,9 @@
 package com.github.h0tk3y.betterParse.combinators
 
-import com.github.h0tk3y.betterParse.lexer.TokenMatch
-import com.github.h0tk3y.betterParse.parser.ErrorResult
-import com.github.h0tk3y.betterParse.parser.ParseResult
-import com.github.h0tk3y.betterParse.parser.Parsed
-import com.github.h0tk3y.betterParse.parser.Parser
-import com.github.h0tk3y.betterParse.utils.Tuple2
-import kotlin.jvm.JvmName
+import com.github.h0tk3y.betterParse.lexer.*
+import com.github.h0tk3y.betterParse.parser.*
+import com.github.h0tk3y.betterParse.utils.*
+import kotlin.jvm.*
 
 /** Parses the sequence with the receiver [Parser] and then with the [other] parser. If both suceed, returns a [Tuple2]
  * with the values from the [Parsed] results. Otherwise, returns the [ErrorResult] of the failed parser. */
@@ -35,33 +32,31 @@ class AndCombinator<out R> @PublishedApi internal constructor(
     override fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<R> {
         var remainder = tokens
 
-        val results = arrayListOf<Any>()
-        loop@for (index in 0 until consumers.size) {
-            val parser = when (val consumer = consumers[index]) {
-                is Parser<*> -> consumer
-                is SkipParser -> consumer.innerParser
+        var results: ArrayList<Any?>? = null
+        loop@ for (index in 0 until consumers.size) {
+            val consumer = consumers[index]
+            when (consumer) {
+                is Parser<*> -> {
+                    val result = consumer.tryParse(remainder)
+                    when (result) {
+                        is ErrorResult -> return result
+                        is Parsed<*> -> {
+                            (results ?: ArrayList<Any?>().also { results = it }).add(result.value)
+                            remainder = result.remainder
+                        }
+                    }
+                }
+                is SkipParser -> {
+                    val result = consumer.innerParser.tryParse(remainder)
+                    when (result) {
+                        is ErrorResult -> return result
+                        is Parsed<*> -> remainder = result.remainder
+                    }
+                }
                 else -> throw IllegalArgumentException()
-            }
-            val result = parser.tryParse(remainder)
-            when (result) {
-                is ErrorResult -> {
-                    results.clear()
-                    results.add(result)
-                    break@loop
-                }
-                is Parsed<*> -> {
-                    results.add(result)
-                    remainder = result.remainder
-                }
             }
         }
 
-        val errorResult = results.singleOrNull() as? ErrorResult
-        if (errorResult != null)
-            return errorResult
-
-        val values = nonSkippedIndices.map { (results[it] as Parsed<*>).value }
-
-        return Parsed(transform(values), remainder)
+        return Parsed(transform(results ?: emptyList()), remainder)
     }
 }

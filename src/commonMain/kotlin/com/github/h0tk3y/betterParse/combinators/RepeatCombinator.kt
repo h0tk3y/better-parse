@@ -1,10 +1,7 @@
 package com.github.h0tk3y.betterParse.combinators
 
-import com.github.h0tk3y.betterParse.lexer.TokenMatch
-import com.github.h0tk3y.betterParse.parser.ErrorResult
-import com.github.h0tk3y.betterParse.parser.ParseResult
-import com.github.h0tk3y.betterParse.parser.Parsed
-import com.github.h0tk3y.betterParse.parser.Parser
+import com.github.h0tk3y.betterParse.lexer.*
+import com.github.h0tk3y.betterParse.parser.*
 
 /** Tries to parse the sequence with the [parser], as many times as it succeeds, but no more than [atMost].
  * If the parser succeeded less than [atLeast] times, returns its [ErrorResult], otherwise returns the list of [Parsed]
@@ -17,7 +14,7 @@ class RepeatCombinator<T> internal constructor(
 
     init {
         require(atLeast >= 0) { "atLeast = $atLeast, expected non-negative" }
-        require(atMost == -1 || atMost >= atLeast) { "atMost = $atMost is invalid, should be greater or equal than atLeast = $atLeast"}
+        require(atMost == -1 || atMost >= atLeast) { "atMost = $atMost is invalid, should be greater or equal than atLeast = $atLeast" }
     }
 
     override fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<List<T>> {
@@ -28,7 +25,8 @@ class RepeatCombinator<T> internal constructor(
             when (item) {
                 is ErrorResult -> {
                     return if (resultsList.size >= atLeast)
-                        Parsed(resultsList, lastTokens) else
+                        Parsed(resultsList, lastTokens)
+                    else
                         item
                 }
                 is Parsed -> {

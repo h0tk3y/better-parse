@@ -14,8 +14,8 @@ expect annotation class Language(val value: String, val prefix: String, val suff
 abstract class Token(name: String? = null, val ignored: Boolean) : Parser<TokenMatch> {
     var name = name
         internal set
-    
-    abstract fun match(input: CharSequence): Int?
+
+    abstract fun match(input: CharSequence): Int
 
     override tailrec fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<TokenMatch> {
         val token = tokens.firstOrNull()
@@ -23,9 +23,10 @@ abstract class Token(name: String? = null, val ignored: Boolean) : Parser<TokenM
             token == null -> UnexpectedEof(this)
             token.type == noneMatched -> NoMatchingToken(token)
             token.type == this -> Parsed(token, tokens.skipOne())
-            token.type.ignored -> this.tryParse(tokens.skipOne())
+            token.type.ignored -> tryParse(tokens.skipOne())
             else -> if (tokens is TokenizerMatchesSequence && this !in tokens.tokenizer.tokens)
-                throw IllegalArgumentException("Token $this not in lexer tokens") else
+                throw IllegalArgumentException("Token $this not in lexer tokens")
+            else
                 MismatchedToken(this, token)
         }
     }

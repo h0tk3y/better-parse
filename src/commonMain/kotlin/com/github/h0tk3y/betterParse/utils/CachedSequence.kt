@@ -1,19 +1,18 @@
 package com.github.h0tk3y.betterParse.utils
 
-import com.github.h0tk3y.betterParse.lexer.TokenMatch
-import com.github.h0tk3y.betterParse.lexer.TokenizerMatchesSequence
+import com.github.h0tk3y.betterParse.lexer.*
 
-open class CachedSequence<T> constructor(
-        val source: Iterator<T>,
-        val cache: ArrayList<T>,
-        val startAt: Int
+open class CachedSequence<T : Any> constructor(
+    val source: Iterator<T>,
+    val cache: ArrayList<T>,
+    val startAt: Int
 ) : Sequence<T> {
 
     constructor(source: Sequence<T>) : this(source.iterator(), ArrayList(), 0)
 
     override fun iterator(): Iterator<T> {
         return object : Iterator<T> {
-            var pos = startAt
+            private var pos = startAt
 
             override fun hasNext() = pos < cache.size || source.hasNext()
 
@@ -36,7 +35,7 @@ internal fun Sequence<TokenMatch>.skipOne(): Sequence<TokenMatch> = when (this) 
  * Creates a sequence that caches the once-evaluated items of the original sequence, so that
  * repeated iteration does not lead to evaluating the items again.
  */
-fun <T> Sequence<T>.cached(): Sequence<T> = when (this) {
+fun <T : Any> Sequence<T>.cached(): Sequence<T> = when (this) {
     is CachedSequence -> this
     else -> CachedSequence(this)
 }

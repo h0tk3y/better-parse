@@ -6,11 +6,12 @@ package com.github.h0tk3y.betterParse.lexer
  */
 data class TokenMatch(
     val type: Token,
-    val text: String,
+    val input: CharSequence,
     val position: Int,
+    val length: Int,
     val row: Int,
     val column: Int
 ) {
-    val length: Int get() = text.length
+    val text: String get() = input.substring(position, position + length)
     override fun toString(): String = "${type.name} for \"$text\" at $position ($row:$column)"
 }
