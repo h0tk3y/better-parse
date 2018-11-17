@@ -8,5 +8,5 @@ actual class ParserReference<out T> internal actual constructor(private val pars
     actual val parser: Parser<T>
         get() = parserProvider()
 
-    override fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<T> = parser.tryParse(tokens)
+    override fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<T> = parser.tryParse(tokens,)
 }

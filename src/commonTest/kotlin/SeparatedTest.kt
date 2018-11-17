@@ -14,7 +14,7 @@ class SeparatedTest : Grammar<Nothing>() {
 
     @Test fun separate() {
         val tokens = tokenizer.tokenize("one, two, three")
-        val result = separated(word use { text }, comma).tryParse(tokens).toParsedOrThrow().value
+        val result = separated(word use { text }, comma).tryParse(tokens,0).toParsedOrThrow().value
 
         assertEquals(listOf("one", "two", "three"), result.terms)
         assertEquals(2, result.separators.size)
@@ -31,10 +31,10 @@ class SeparatedTest : Grammar<Nothing>() {
     @Test fun acceptZero() {
         val tokens = tokenizer.tokenize("123")
 
-        val resultRejectZero = separated(word asJust "x", comma).tryParse(tokens)
+        val resultRejectZero = separated(word asJust "x", comma).tryParse(tokens,0)
         assertTrue(resultRejectZero is MismatchedToken)
 
-        val resultAcceptZero = separated(word asJust "x", comma, acceptZero = true).tryParse(tokens)
+        val resultAcceptZero = separated(word asJust "x", comma, acceptZero = true).tryParse(tokens,0)
         assertTrue(resultAcceptZero is Parsed && resultAcceptZero.value.terms.isEmpty())
     }
 

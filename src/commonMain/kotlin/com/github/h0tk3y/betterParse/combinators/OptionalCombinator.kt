@@ -6,10 +6,10 @@ import com.github.h0tk3y.betterParse.parser.*
 /** Tries to parse the sequence with [parser], and if that fails, returns [Parsed] of null instead. */
 class OptionalCombinator<T>(val parser: Parser<T>) :
     Parser<T?> {
-    override fun tryParse(tokens: TokenMatchesSequence): ParseResult<T?> {
-        val result = parser.tryParse(tokens)
+    override fun tryParse(tokens: TokenMatchesSequence, position: Int): ParseResult<T?> {
+        val result = parser.tryParse(tokens, position)
         return when (result) {
-            is ErrorResult -> Parsed(null, tokens)
+            is ErrorResult -> Parsed(null, position)
             is Parsed -> result
         }
     }

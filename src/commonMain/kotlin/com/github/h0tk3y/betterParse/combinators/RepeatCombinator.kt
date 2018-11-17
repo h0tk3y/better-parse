@@ -17,25 +17,25 @@ class RepeatCombinator<T> internal constructor(
         require(atMost == -1 || atMost >= atLeast) { "atMost = $atMost is invalid, should be greater or equal than atLeast = $atLeast" }
     }
 
-    override fun tryParse(tokens: TokenMatchesSequence): ParseResult<List<T>> {
+    override fun tryParse(tokens: TokenMatchesSequence, position: Int): ParseResult<List<T>> {
         val resultsList = arrayListOf<T>()
-        var lastTokens = tokens
+        var nextPosition = position
         while (atMost == -1 || resultsList.size < atMost) {
-            val item = parser.tryParse(lastTokens)
-            when (item) {
+            val result = parser.tryParse(tokens, nextPosition)
+            when (result) {
                 is ErrorResult -> {
                     return if (resultsList.size >= atLeast)
-                        Parsed(resultsList, lastTokens)
+                        Parsed(resultsList, nextPosition)
                     else
-                        item
+                        result
                 }
                 is Parsed -> {
-                    resultsList.add(item.value)
-                    lastTokens = item.remainder
+                    resultsList.add(result.value)
+                    nextPosition = result.nextPosition
                 }
             }
         }
-        return Parsed(resultsList, lastTokens)
+        return Parsed(resultsList, nextPosition)
     }
 }
 
@@ -45,6 +45,7 @@ fun <T> oneOrMore(parser: Parser<T>): Parser<List<T>> = RepeatCombinator(parser,
 
 infix fun <T> Int.times(parser: Parser<T>): Parser<List<T>> = RepeatCombinator(parser, atLeast = this, atMost = this)
 
-infix fun <T> IntRange.times(parser: Parser<T>): Parser<List<T>> = RepeatCombinator(parser, atLeast = first, atMost = last)
+infix fun <T> IntRange.times(parser: Parser<T>): Parser<List<T>> =
+    RepeatCombinator(parser, atLeast = first, atMost = last)
 
 infix fun <T> Int.timesOrMore(parser: Parser<T>): Parser<List<T>> = RepeatCombinator(parser, atLeast = this)
