@@ -2,7 +2,7 @@ package com.example
 
 import com.github.h0tk3y.betterParse.grammar.tryParseToEnd
 import com.github.h0tk3y.betterParse.parser.ErrorResult
-import com.github.h0tk3y.betterParse.parser.Parsed
+import com.github.h0tk3y.betterParse.parser.SuccessResult
 import com.github.h0tk3y.betterParse.st.SyntaxTree
 import com.github.h0tk3y.betterParse.st.liftToSyntaxTreeGrammar
 
@@ -29,7 +29,7 @@ fun parseAndPrintTree(expr: String) {
 
     when (result) {
         is ErrorResult -> println("Could not parse expression: $result")
-        is Parsed<SyntaxTree<BooleanExpression>> -> printSyntaxTree(expr, result.value)
+        is SuccessResult<SyntaxTree<BooleanExpression>> -> printSyntaxTree(expr, result.value)
     }
 }
 

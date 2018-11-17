@@ -30,16 +30,16 @@ data class Or(val left: BooleanExpression, val right: BooleanExpression) : Boole
 data class Impl(val left: BooleanExpression, val right: BooleanExpression) : BooleanExpression()
 
 private object BooleanGrammar : Grammar<BooleanExpression>() {
-    val tru by token("true")
-    val fal by token("false")
-    val id by token("\\w+")
-    val lpar by token("\\(")
-    val rpar by token("\\)")
-    val not by token("!")
-    val and by token("&")
-    val or by token("\\|")
-    val impl by token("->")
-    val ws by token("\\s+", ignore = true)
+    val tru by tokenText("true")
+    val fal by tokenText("false")
+    val id by tokenRegex("\\w+")
+    val lpar by tokenText("(")
+    val rpar by tokenText(")")
+    val not by tokenText("!")
+    val and by tokenText("&")
+    val or by tokenText("|")
+    val impl by tokenText("->")
+    val ws by tokenRegex("\\s+", ignore = true)
 
     val negation by -not * parser(this::term) map { Not(it) }
     val bracedExpression by -lpar * parser { implChain } * -rpar
