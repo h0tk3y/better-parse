@@ -26,7 +26,7 @@ class TokenProducer(private val tokens: List<Token>, private val input: CharSequ
     private var row = 1
     private var col = 1
 
-    private val relativeInput = object : CharSequence {
+    private val relativeInput : CharSequence = object : CharSequence {
         override val length: Int get() = inputLength - pos
         override fun get(index: Int): Char = input[index + pos]
         override fun subSequence(startIndex: Int, endIndex: Int) = input.subSequence(startIndex + pos, endIndex + pos)
