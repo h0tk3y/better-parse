@@ -8,7 +8,7 @@ import kotlin.test.*
 class RepeatTest : Grammar<Nothing>() {
     override val rootParser: Parser<Nothing> get() = throw NoSuchElementException()
 
-    val a by tokenRegex("a")
+    val a by regexToken("a")
 
     @Test fun repeat() {
         val minN = 0
@@ -33,7 +33,7 @@ class RepeatTest : Grammar<Nothing>() {
                 val result = parser.tryParseToEnd(tokens,0)
 
                 when {
-                    n in range -> assertTrue(result is SuccessResult)
+                    n in range -> assertTrue(result is Parsed)
                     n > range.last -> assertTrue(result is UnparsedRemainder)
                     n < range.first -> assertTrue(result is UnexpectedEof)
                 }

@@ -4,7 +4,7 @@ import com.github.h0tk3y.betterParse.lexer.*
 import com.github.h0tk3y.betterParse.parser.*
 
 /** Tries to parse the sequence with the [parser], as many times as it succeeds, but no more than [atMost].
- * If the parser succeeded less than [atLeast] times, returns its [ErrorResult], otherwise returns the list of [SuccessResult]
+ * If the parser succeeded less than [atLeast] times, returns its [ErrorResult], otherwise returns the list of [Parsed]
  * results from the parser invocations.*/
 class RepeatCombinator<T> internal constructor(
     val parser: Parser<T>,
@@ -17,25 +17,25 @@ class RepeatCombinator<T> internal constructor(
         require(atMost == -1 || atMost >= atLeast) { "atMost = $atMost is invalid, should be greater or equal than atLeast = $atLeast" }
     }
 
-    override fun tryParse(tokens: TokenMatchesSequence, position: Int): ParseResult<List<T>> {
+    override fun tryParse(tokens: TokenMatchesSequence, fromPosition: Int): ParseResult<List<T>> {
         val resultsList = arrayListOf<T>()
-        var nextPosition = position
+        var nextPosition = fromPosition
         while (atMost == -1 || resultsList.size < atMost) {
             val result = parser.tryParse(tokens, nextPosition)
             when (result) {
                 is ErrorResult -> {
                     return if (resultsList.size >= atLeast)
-                        Parsed(resultsList, nextPosition)
+                        ParsedValue(resultsList, nextPosition)
                     else
                         result
                 }
-                is SuccessResult -> {
+                is Parsed -> {
                     resultsList.add(result.value)
-                    nextPosition = result.nextTokenIndex
+                    nextPosition = result.nextPosition
                 }
             }
         }
-        return Parsed(resultsList, nextPosition)
+        return ParsedValue(resultsList, nextPosition)
     }
 }
 

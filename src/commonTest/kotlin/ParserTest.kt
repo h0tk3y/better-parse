@@ -4,8 +4,8 @@ import com.github.h0tk3y.betterParse.parser.*
 import kotlin.test.*
 
 class ParserTest {
-    val a = tokenText("a", "a")
-    val ignoredX = TokenRegex("ignoredX", "x", ignored = true)
+    val a = literalToken("a", "a")
+    val ignoredX = RegexToken("ignoredX", "x", ignored = true)
 
     @Test fun ignoredUnparsed() {
         val tokens = DefaultTokenizer(listOf(ignoredX, a)).tokenize("axxx")

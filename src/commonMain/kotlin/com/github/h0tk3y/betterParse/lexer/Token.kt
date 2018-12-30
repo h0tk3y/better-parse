@@ -18,17 +18,20 @@ abstract class Token(name: String? = null, val ignored: Boolean) : Parser<TokenM
 
     abstract fun match(input: CharSequence): Int
 
-    override fun tryParse(tokens: TokenMatchesSequence, position: Int): ParseResult<TokenMatch> {
-        val token = tokens.getNotIgnored(position) ?: return UnexpectedEof(this)
-        if (token.type == this)
-            return token
-        if (token.type == noneMatched)
-            return NoMatchingToken(token)
-        if (tokenizer != tokens.tokenizer)
-            throw IllegalArgumentException("Token $this is not valid for a given Tokenizer")
-        return MismatchedToken(this, token)
+    override tailrec fun tryParse(tokens: TokenMatchesSequence, fromPosition: Int): ParseResult<TokenMatch> {
+        val tokenMatch = tokens[fromPosition] ?: return UnexpectedEof(this)
+        return when {
+            tokenMatch.type == this -> tokenMatch
+            tokenMatch.type == noneMatched -> NoMatchingToken(tokenMatch)
+            tokenizer != tokens.tokenizer ->
+                throw IllegalArgumentException("Token $this is not valid for a given Tokenizer")
+            tokenMatch.type.ignored -> tryParse(tokens, fromPosition + 1)
+            else -> MismatchedToken(this, tokenMatch)
+        }
     }
 }
 
 /** Token type indicating that there was no [Token] found to be matched by a [Lexer]. */
-val noneMatched = TokenRegex("no token matched", "", false)
+val noneMatched = object : Token("no token matched", false) {
+    override fun match(input: CharSequence): Int = 0
+}

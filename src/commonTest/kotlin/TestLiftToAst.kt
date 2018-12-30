@@ -1,10 +1,16 @@
 
 import com.github.h0tk3y.betterParse.combinators.*
-import com.github.h0tk3y.betterParse.grammar.*
-import com.github.h0tk3y.betterParse.lexer.*
+import com.github.h0tk3y.betterParse.grammar.Grammar
+import com.github.h0tk3y.betterParse.grammar.parseToEnd
+import com.github.h0tk3y.betterParse.grammar.parser
+import com.github.h0tk3y.betterParse.lexer.TokenMatch
+import com.github.h0tk3y.betterParse.lexer.TokenMatchesSequence
+import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.*
 import com.github.h0tk3y.betterParse.st.*
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 private sealed class BooleanExpression
 
@@ -29,16 +35,16 @@ private data class Or(val left: BooleanExpression, val right: BooleanExpression)
 private data class Impl(val left: BooleanExpression, val right: BooleanExpression) : BooleanExpression()
 
 private val booleanGrammar = object : Grammar<BooleanExpression>() {
-    val tru by tokenRegex("true")
-    val fal by tokenRegex("false")
-    val id by tokenRegex("\\w+")
-    val lpar by tokenRegex("\\(")
-    val rpar by tokenRegex("\\)")
-    val not by tokenRegex("!")
-    val and by tokenRegex("&")
-    val or by tokenRegex("\\|")
-    val impl by tokenRegex("->")
-    val ws by tokenRegex("\\s+", ignore = true)
+    val tru by regexToken("true")
+    val fal by regexToken("false")
+    val id by regexToken("\\w+")
+    val lpar by regexToken("\\(")
+    val rpar by regexToken("\\)")
+    val not by regexToken("!")
+    val and by regexToken("&")
+    val or by regexToken("\\|")
+    val impl by regexToken("->")
+    val ws by regexToken("\\s+", ignore = true)
 
     val term: Parser<BooleanExpression> by
     (tru asJust TRUE) or
@@ -144,17 +150,17 @@ class TestLiftToAst {
             Parser<Pair<T, T>> {
             override fun tryParse(
                 tokens: TokenMatchesSequence,
-                position: Int
+                fromPosition: Int
             ): ParseResult<Pair<T, T>> {
-                val res = alternatives.asSequence().map { it to it.tryParse(tokens, position) }.firstOrNull { it.second is SuccessResult<T> }
+                val res = alternatives.asSequence().map { it to it.tryParse(tokens, fromPosition) }.firstOrNull { it.second is Parsed<T> }
                     ?: return object : ErrorResult() {}
                 val (parser1, res1) = res
-                val res2 = parser1.tryParse(tokens, res1.toParsedOrThrow().nextTokenIndex)
+                val res2 = parser1.tryParse(tokens, res1.toParsedOrThrow().nextPosition)
                 return when (res2) {
                     is ErrorResult -> res2
-                    is SuccessResult<T> -> Parsed(
+                    is Parsed<T> -> ParsedValue(
                         res1.toParsedOrThrow().value to res2.value,
-                        res2.nextTokenIndex
+                        res2.nextPosition
                     )
                 }
             }
@@ -172,23 +178,23 @@ class TestLiftToAst {
 
                         override fun tryParse(
                             tokens: TokenMatchesSequence,
-                            position: Int
+                            fromPosition: Int
                         ): ParseResult<SyntaxTree<T>> {
-                            val res = parsers.asSequence().map { it to it.tryParse(tokens, position) }.firstOrNull { it.second is SuccessResult<*> }
+                            val res = parsers.asSequence().map { it to it.tryParse(tokens, fromPosition) }.firstOrNull { it.second is Parsed<*> }
                                 ?: return object : ErrorResult() {}
                             val (parser1, res1) = res
-                            res1 as SuccessResult<SyntaxTree<*>>
-                            val res2 = parser1.tryParse(tokens, res1.toParsedOrThrow().nextTokenIndex)
+                            res1 as Parsed<SyntaxTree<*>>
+                            val res2 = parser1.tryParse(tokens, res1.toParsedOrThrow().nextPosition)
                             return when (res2) {
                                 is ErrorResult -> res2
-                                is SuccessResult<SyntaxTree<*>> -> Parsed(
+                                is Parsed<SyntaxTree<*>> -> ParsedValue(
                                     SyntaxTree(
                                         item = res1.toParsedOrThrow().value.item to res2.value.item,
                                         children = listOf(res1.value, res2.value),
                                         parser = parser,
                                         range = res1.value.range.start..res2.value.range.endInclusive
                                     ) as SyntaxTree<T>,
-                                    res2.nextTokenIndex
+                                    res2.nextPosition
                                 )
                             }
                         }

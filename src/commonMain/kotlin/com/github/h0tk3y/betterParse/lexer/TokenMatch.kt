@@ -1,9 +1,9 @@
 package com.github.h0tk3y.betterParse.lexer
 
-import com.github.h0tk3y.betterParse.parser.*
+import com.github.h0tk3y.betterParse.parser.Parsed
 
 /**
- * Represents a [SuccessResult] result of a [Token], with the token [type], the [text] that matched the token in the input
+ * Represents a [Parsed] result of a [Token], with the token [type], the [text] that matched the token in the input
  * sequence, the [offset] in the sequence (starting from 0), and [row] and [column] (both starting from 1).
  */
 data class TokenMatch(
@@ -14,12 +14,12 @@ data class TokenMatch(
     val length: Int,
     val row: Int,
     val column: Int
-) : SuccessResult<TokenMatch>() {
+) : Parsed<TokenMatch>() {
     val text: String get() = input.substring(offset, offset + length)
 
     override val value: TokenMatch
         get() = this
-    override val nextTokenIndex: Int
+    override val nextPosition: Int
         get() = tokenIndex + 1
-    override fun toString(): String = "${type.name}@$nextTokenIndex for \"$text\" at $offset ($row:$column)"
+    override fun toString(): String = "${type.name}@$nextPosition for \"$text\" at $offset ($row:$column)"
 }

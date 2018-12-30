@@ -1,20 +1,33 @@
+
 import com.github.h0tk3y.betterParse.lexer.*
-import com.github.h0tk3y.betterParse.parser.*
-import kotlin.test.*
+import com.github.h0tk3y.betterParse.parser.MismatchedToken
+import com.github.h0tk3y.betterParse.parser.NoMatchingToken
+import com.github.h0tk3y.betterParse.parser.Parsed
+import com.github.h0tk3y.betterParse.parser.toParsedOrThrow
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class TokenTest {
-    val a = tokenRegex("a", "a")
-    val b = tokenText("b", "b")
-    val ignoredX = TokenRegex("ignoredX", "x", ignored = true)
-    val num = tokenRegex("-?[0-9]*(?:\\.[0-9]*)?")
+    val a = regexToken("a", "a")
+    val b = literalToken("b", "b")
+    val ignoredX = RegexToken("ignoredX", "x", ignored = true)
+    val num = regexToken("-?[0-9]*(?:\\.[0-9]*)?")
+
+    @Test
+    fun expectIgnoredToken() {
+        val tokens = DefaultTokenizer(listOf(a, b, ignoredX)).tokenize("xxaba")
+        val result = ignoredX.tryParse(tokens, 0).toParsedOrThrow()
+        assertEquals("x", result.value.text)
+    }
 
     @Test
     fun successfulParse() {
         val tokens = DefaultTokenizer(listOf(a)).tokenize("aaa")
-        val result = a.tryParse(tokens, 0) as SuccessResult
+        val result = a.tryParse(tokens, 0) as Parsed
 
         assertEquals(a, result.value.type)
-        assertEquals(listOf(a, a), tokens.toList(result.nextTokenIndex).map { it.type })
+        assertEquals(listOf(a, a), tokens.drop(result.nextPosition).toList().map { it.type })
     }
 
 /*

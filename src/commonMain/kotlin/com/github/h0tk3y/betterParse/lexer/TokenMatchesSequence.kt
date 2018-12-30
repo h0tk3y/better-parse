@@ -1,14 +1,19 @@
 package com.github.h0tk3y.betterParse.lexer
 
+/** Stateful producer of tokens that yields [Token]s from some inputs sequence that it is based upon, one by one */
+interface TokenProducer {
+    fun nextToken(): TokenMatch?
+}
+
 class TokenMatchesSequence(
     private val tokenProducer: TokenProducer,
     val tokenizer: Tokenizer,
     private val matches: ArrayList<TokenMatch> = arrayListOf()
-)  {
-    
+) : Sequence<TokenMatch> {
+
     operator fun get(position: Int): TokenMatch? {
         while (position >= matches.size) {
-            val next = tokenProducer.advance() ?: return null
+            val next = tokenProducer.nextToken() ?: return null
             matches.add(next)
         }
         return matches[position]
@@ -17,7 +22,7 @@ class TokenMatchesSequence(
     fun getNotIgnored(position: Int): TokenMatch? {
         // fill until position
         while (position >= matches.size) {
-            val next = tokenProducer.advance() ?: return null
+            val next = tokenProducer.nextToken() ?: return null
             matches.add(next)
         }
 
@@ -26,7 +31,7 @@ class TokenMatchesSequence(
             val value = if (pos < matches.size)
                 matches[pos]
             else {
-                val next = tokenProducer.advance()
+                val next = tokenProducer.nextToken()
                 if (next == null)
                     return null
                 else {
@@ -40,11 +45,17 @@ class TokenMatchesSequence(
         }
     }
 
-    fun toList(position: Int = 0): List<TokenMatch> {
-        while (true) {
-            val next = tokenProducer.advance() ?: return matches.subList(position, matches.size)
-            matches.add(next)
+    override fun iterator(): Iterator<TokenMatch> =
+        iterator {
+            var position = 0
+            while (true) {
+                ++position
+                val nextMatch = get(position + 1) ?: break
+                yield(nextMatch)
+                if (nextMatch.type == noneMatched) {
+                    break
+                }
+            }
         }
-    }
 }
 

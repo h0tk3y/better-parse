@@ -1,22 +1,24 @@
 package com.github.h0tk3y.betterParse.parser
 
-import com.github.h0tk3y.betterParse.lexer.*
+import com.github.h0tk3y.betterParse.lexer.Token
+import com.github.h0tk3y.betterParse.lexer.TokenMatch
+import com.github.h0tk3y.betterParse.lexer.TokenMatchesSequence
 
 /** A common interface for parsers that can try to consume a part or the whole [TokenMatch] sequence and return one of
- * possible [ParseResult], either [SuccessResult] or [ErrorResult] */
+ * possible [ParseResult], either [Parsed] or [ErrorResult] */
 interface Parser<out T> {
-    fun tryParse(tokens: TokenMatchesSequence, position: Int): ParseResult<T>
+    fun tryParse(tokens: TokenMatchesSequence, fromPosition: Int): ParseResult<T>
 }
 
 object EmptyParser : Parser<Unit> {
-    override fun tryParse(tokens: TokenMatchesSequence, position: Int): ParseResult<Unit> = Parsed(Unit, position)
+    override fun tryParse(tokens: TokenMatchesSequence, fromPosition: Int): ParseResult<Unit> = ParsedValue(Unit, fromPosition)
 }
 
 fun <T> Parser<T>.tryParseToEnd(tokens: TokenMatchesSequence, position: Int): ParseResult<T> {
     val result = tryParse(tokens, position)
     return when (result) {
         is ErrorResult -> result
-        is SuccessResult -> tokens.getNotIgnored(result.nextTokenIndex)?.let {
+        is Parsed -> tokens.getNotIgnored(result.nextPosition)?.let {
             UnparsedRemainder(it)
         } ?: result
     }
@@ -30,12 +32,11 @@ fun <T> Parser<T>.parseToEnd(tokens: TokenMatchesSequence): T = tryParseToEnd(to
 /** Represents a result of input sequence parsing by a [Parser] that tried to parse [T]. */
 sealed class ParseResult<out T>
 
-
 /** Represents a successful parsing result of a [Parser] that produced [value]
- * and left input starting with [nextTokenIndex] unprocessed. */
-abstract class SuccessResult<out T>() : ParseResult<T>() {
+ * and left input starting with [nextPosition] unprocessed. */
+abstract class Parsed<out T> : ParseResult<T>() {
     abstract val value: T
-    abstract val nextTokenIndex: Int
+    abstract val nextPosition: Int
     
     override fun toString(): String = "Parsed($value)"
     
@@ -43,22 +44,22 @@ abstract class SuccessResult<out T>() : ParseResult<T>() {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
 
-        other as SuccessResult<*>
+        other as Parsed<*>
 
         if (value != other.value) return false
-        if (nextTokenIndex != other.nextTokenIndex) return false
+        if (nextPosition != other.nextPosition) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = value?.hashCode() ?: 0
-        result = 31 * result + nextTokenIndex
+        result = 31 * result + nextPosition
         return result
     }
 }
 
-class Parsed<out T>(override val value: T, override val nextTokenIndex : Int) : SuccessResult<T>()
+internal class ParsedValue<out T>(override val value: T, override val nextPosition : Int) : Parsed<T>()
 
 /** Represents a parse error of a [Parser] that could not successfully parse an input sequence. */
 abstract class ErrorResult : ParseResult<Nothing>() {
@@ -81,12 +82,11 @@ data class UnexpectedEof(val expected: Token) : ErrorResult()
 /** A parser tried several alternatives but all resulted into [errors]. */
 data class AlternativesFailure(val errors: List<ErrorResult>) : ErrorResult()
 
-
 /** Thrown when a [Parser] is forced to parse a sequence with [parseToEnd] or [parse] and fails with an [ErrorResult]. */
-class ParseException(val errorResult: ErrorResult) : Exception("Could not parse input: $errorResult")
+class ParseException(@Suppress("CanBeParameter") val errorResult: ErrorResult) : Exception("Could not parse input: $errorResult")
 
-/** Throws [ParseException] if the receiver [ParseResult] is a [ErrorResult]. Returns the [SuccessResult] result otherwise. */
+/** Throws [ParseException] if the receiver [ParseResult] is a [ErrorResult]. Returns the [Parsed] result otherwise. */
 fun <T> ParseResult<T>.toParsedOrThrow() = when (this) {
-    is SuccessResult -> this
+    is Parsed -> this
     is ErrorResult -> throw ParseException(this)
 }

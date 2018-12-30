@@ -4,19 +4,20 @@ import com.github.h0tk3y.betterParse.combinators.*
 import com.github.h0tk3y.betterParse.grammar.Grammar
 import com.github.h0tk3y.betterParse.grammar.parseToEnd
 import com.github.h0tk3y.betterParse.grammar.parser
-import com.github.h0tk3y.betterParse.lexer.*
+import com.github.h0tk3y.betterParse.lexer.literalToken
+import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.Parser
 
 class ArithmeticsEvaluator : Grammar<Int>() {
-    val num by tokenRegex("-?\\d+")
-    val lpar by tokenText("(")
-    val rpar by tokenText(")")
-    val mul by tokenText("*")
-    val pow by tokenText("^")
-    val div by tokenText("/")
-    val minus by tokenText("-")
-    val plus by tokenText("+")
-    val ws by tokenRegex("\\s+", ignore = true)
+    val num by regexToken("-?\\d+")
+    val lpar by literalToken("(")
+    val rpar by literalToken(")")
+    val mul by literalToken("*")
+    val pow by literalToken("^")
+    val div by literalToken("/")
+    val minus by literalToken("-")
+    val plus by literalToken("+")
+    val ws by regexToken("\\s+", ignore = true)
 
     val number by num use { text.toInt() }
     val term: Parser<Int> by number or

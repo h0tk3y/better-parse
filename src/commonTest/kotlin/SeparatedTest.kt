@@ -8,9 +8,9 @@ import kotlin.test.*
 class SeparatedTest : Grammar<Nothing>() {
     override val rootParser: Parser<Nothing> get() = throw NoSuchElementException()
 
-    val number by tokenRegex("\\d+")
-    val comma by tokenRegex(",\\s+")
-    val word by tokenRegex("\\w+")
+    val number by regexToken("\\d+")
+    val comma by regexToken(",\\s+")
+    val word by regexToken("\\w+")
 
     @Test fun separate() {
         val tokens = tokenizer.tokenize("one, two, three")
@@ -35,7 +35,7 @@ class SeparatedTest : Grammar<Nothing>() {
         assertTrue(resultRejectZero is MismatchedToken)
 
         val resultAcceptZero = separated(word asJust "x", comma, acceptZero = true).tryParse(tokens,0)
-        assertTrue(resultAcceptZero is SuccessResult && resultAcceptZero.value.terms.isEmpty())
+        assertTrue(resultAcceptZero is Parsed && resultAcceptZero.value.terms.isEmpty())
     }
 
     @Test fun reduceLeftRight() {
