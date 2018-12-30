@@ -3,7 +3,7 @@ import com.github.h0tk3y.betterParse.grammar.Grammar
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.grammar.tryParseToEnd
 import com.github.h0tk3y.betterParse.parser.ErrorResult
-import com.github.h0tk3y.betterParse.parser.Parsed
+import com.github.h0tk3y.betterParse.parser.ParsedValue
 import com.github.h0tk3y.betterParse.parser.Parser
 
 fun main() {
@@ -12,7 +12,7 @@ fun main() {
     val parseResult = BooleanGrammar.tryParseToEnd(expr)
 
     val resultText = when (parseResult) {
-        is Parsed -> parseResult.value.toString()
+        is ParsedValue -> parseResult.value.toString()
         is ErrorResult -> parseResult.toString()
     }
 
@@ -30,16 +30,16 @@ data class Or(val left: BooleanExpression, val right: BooleanExpression) : Boole
 data class Impl(val left: BooleanExpression, val right: BooleanExpression) : BooleanExpression()
 
 private object BooleanGrammar : Grammar<BooleanExpression>() {
-    val tru by tokenText("true")
-    val fal by tokenText("false")
-    val id by tokenRegex("\\w+")
-    val lpar by tokenText("(")
-    val rpar by tokenText(")")
-    val not by tokenText("!")
-    val and by tokenText("&")
-    val or by tokenText("|")
-    val impl by tokenText("->")
-    val ws by tokenRegex("\\s+", ignore = true)
+    val tru by literalToken("true")
+    val fal by literalToken("false")
+    val id by regexToken("\\w+")
+    val lpar by literalToken("(")
+    val rpar by literalToken(")")
+    val not by literalToken("!")
+    val and by literalToken("&")
+    val or by literalToken("|")
+    val impl by literalToken("->")
+    val ws by regexToken("\\s+", ignore = true)
 
     val negation by -not * parser(this::term) map { Not(it) }
     val bracedExpression by -lpar * parser { implChain } * -rpar

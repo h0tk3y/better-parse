@@ -7,8 +7,8 @@ import kotlin.test.*
 class OrTest : Grammar<Nothing>() {
     override val rootParser: Parser<Nothing> get() = throw NoSuchElementException()
 
-    val a by tokenRegex("a")
-    val b by tokenRegex("b")
+    val a by regexToken("a")
+    val b by regexToken("b")
 
     @Test fun aOrB() {
         val tokens = tokenizer.tokenize("abababa")

@@ -11,9 +11,9 @@ class FlagsCompatibilityTest {
     @Test
     fun testJavaPatternFlags() {
         val patternsGrammar = object : Grammar<String>() {
-            val caseInsensitive by tokenRegex(Regex("abc", IGNORE_CASE))
+            val caseInsensitive by regexToken(Regex("abc", IGNORE_CASE))
 
-            val comments by tokenRegex(
+            val comments by regexToken(
                 Regex(
                     """
                     d # some comment
@@ -24,13 +24,13 @@ class FlagsCompatibilityTest {
                 )
             )
 
-            val dotall by tokenRegex(Regex("eol.*?dotall", DOT_MATCHES_ALL))
+            val dotall by regexToken(Regex("eol.*?dotall", DOT_MATCHES_ALL))
 
-            val literal by tokenRegex(Regex(".*.*.*", LITERAL))
+            val literal by regexToken(Regex(".*.*.*", LITERAL))
 
-            val multiline by tokenRegex(Regex("eol$\n^multiline", MULTILINE))
+            val multiline by regexToken(Regex("eol$\n^multiline", MULTILINE))
 
-            val unixLines by tokenRegex(Regex(". x", UNIX_LINES))
+            val unixLines by regexToken(Regex(". x", UNIX_LINES))
 
             override val rootParser: Parser<String>
                 get() = (caseInsensitive * comments * dotall * literal * multiline /** unicodeCase*/ * unixLines).use {
@@ -51,9 +51,9 @@ class FlagsCompatibilityTest {
     @Test
     fun testKotlinRegexFlags() {
         val regexesGrammar = object : Grammar<String>() {
-            val caseInsensitive by tokenRegex("abc".toRegex(IGNORE_CASE))
+            val caseInsensitive by regexToken("abc".toRegex(IGNORE_CASE))
 
-            val comments by tokenRegex(
+            val comments by regexToken(
                 """
                     d # some comment
                     e # some comment
@@ -61,13 +61,13 @@ class FlagsCompatibilityTest {
                 """.trimIndent().toRegex(COMMENTS)
             )
 
-            val dotall by tokenRegex("eol.*?dotall".toRegex(DOT_MATCHES_ALL))
+            val dotall by regexToken("eol.*?dotall".toRegex(DOT_MATCHES_ALL))
 
-            val literal by tokenRegex(".*.*.*".toRegex(LITERAL))
+            val literal by regexToken(".*.*.*".toRegex(LITERAL))
 
-            val multiline by tokenRegex("eol$\n^multiline".toRegex(MULTILINE))
+            val multiline by regexToken("eol$\n^multiline".toRegex(MULTILINE))
 
-            val unixLines by tokenRegex(". x".toRegex(UNIX_LINES))
+            val unixLines by regexToken(". x".toRegex(UNIX_LINES))
 
             override val rootParser: Parser<String>
                 get() = (caseInsensitive * comments * dotall * literal * multiline * unixLines).use {
@@ -88,7 +88,7 @@ class FlagsCompatibilityTest {
     @Test(expected = UnsupportedOperationException::class)
     fun testCanonEqUnsupported() {
         val badGrammar = object : Grammar<Unit>() {
-            val badToken by tokenRegex(Regex("abc", CANON_EQ))
+            val badToken by regexToken(Regex("abc", CANON_EQ))
 
             override val rootParser: Parser<Unit>
                 get() = badToken use { Unit }

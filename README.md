@@ -110,7 +110,7 @@ val tokenizer = DefaultTokenizer(listOf(id, cm, ws))
 is listed before `Token("aa")`, the latter will never be matched. Be careful with keyword tokens!
 
 ```kotlin
-val tokenMatches: Sequence<TokenMatch> = tokenizer.tokenize("hello, world") // Support other types of input as well.
+val tokenMatches: Sequence<TokenMatch> = tokenizer.tokenize("hello, world")
 ```
     
 > A more convenient way of defining tokens is described in the [**Grammar**](#grammar) section.

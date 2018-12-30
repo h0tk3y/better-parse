@@ -1,6 +1,6 @@
 package com.github.h0tk3y.betterParse.combinators
 
-import com.github.h0tk3y.betterParse.lexer.*
+import com.github.h0tk3y.betterParse.lexer.TokenMatchesSequence
 import com.github.h0tk3y.betterParse.parser.*
 
 @Suppress("UNCHECKED_CAST")
@@ -9,39 +9,39 @@ class SeparatedCombinator<T, S>(
     val separatorParser: Parser<S>,
     val acceptZero: Boolean
 ) : Parser<Separated<T, S>> {
-    override fun tryParse(tokens: TokenMatchesSequence, position: Int): ParseResult<Separated<T, S>> {
+    override fun tryParse(tokens: TokenMatchesSequence, fromPosition: Int): ParseResult<Separated<T, S>> {
         val termMatches = mutableListOf<T>()
         val separatorMatches = mutableListOf<S>()
 
-        val first = termParser.tryParse(tokens, position)
+        val first = termParser.tryParse(tokens, fromPosition)
 
         return when (first) {
             is ErrorResult -> if (acceptZero)
-                Parsed(Separated(emptyList(), emptyList()), position)
+                ParsedValue(Separated(emptyList(), emptyList()), fromPosition)
             else
                 first
 
-            is SuccessResult -> {
+            is Parsed -> {
                 termMatches.add(first.value)
-                var nextPosition = first.nextTokenIndex
+                var nextPosition = first.nextPosition
                 loop@ while (true) {
                     val separator = separatorParser.tryParse(tokens, nextPosition)
                     when (separator) {
                         is ErrorResult -> break@loop
-                        is SuccessResult -> {
-                            val nextTerm = termParser.tryParse(tokens, separator.nextTokenIndex)
+                        is Parsed -> {
+                            val nextTerm = termParser.tryParse(tokens, separator.nextPosition)
                             when (nextTerm) {
                                 is ErrorResult -> break@loop
-                                is SuccessResult -> {
+                                is Parsed -> {
                                     separatorMatches.add(separator.value)
                                     termMatches.add(nextTerm.value)
-                                    nextPosition = nextTerm.nextTokenIndex
+                                    nextPosition = nextTerm.nextPosition
                                 }
                             }
                         }
                     }
                 }
-                Parsed(Separated(termMatches, separatorMatches), nextPosition)
+                ParsedValue(Separated(termMatches, separatorMatches), nextPosition)
             }
         }
     }

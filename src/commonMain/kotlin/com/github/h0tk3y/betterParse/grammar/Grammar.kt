@@ -1,8 +1,14 @@
 package com.github.h0tk3y.betterParse.grammar
 
-import com.github.h0tk3y.betterParse.lexer.*
-import com.github.h0tk3y.betterParse.parser.*
-import kotlin.reflect.*
+import com.github.h0tk3y.betterParse.lexer.DefaultTokenizer
+import com.github.h0tk3y.betterParse.lexer.Token
+import com.github.h0tk3y.betterParse.lexer.TokenMatchesSequence
+import com.github.h0tk3y.betterParse.lexer.Tokenizer
+import com.github.h0tk3y.betterParse.parser.ParseResult
+import com.github.h0tk3y.betterParse.parser.Parser
+import com.github.h0tk3y.betterParse.parser.parseToEnd
+import com.github.h0tk3y.betterParse.parser.tryParseToEnd
+import kotlin.reflect.KProperty
 
 /**
  * A language grammar represented by a list of [Token]s and one or more [Parser]s, with one
@@ -27,8 +33,8 @@ abstract class Grammar<out T> : Parser<T> {
     /** A [Parser] that represents the root rule of this [Grammar] and is used by default for parsing. */
     abstract val rootParser: Parser<T>
 
-    final override fun tryParse(tokens: TokenMatchesSequence, position: Int): ParseResult<T> = rootParser.tryParse(
-        tokens, position
+    final override fun tryParse(tokens: TokenMatchesSequence, fromPosition: Int): ParseResult<T> = rootParser.tryParse(
+        tokens, fromPosition
     )
 
     protected operator fun <T> Parser<T>.provideDelegate(thisRef: Grammar<*>, property: KProperty<*>): Parser<T> =

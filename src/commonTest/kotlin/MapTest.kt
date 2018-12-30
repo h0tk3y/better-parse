@@ -5,8 +5,8 @@ import com.github.h0tk3y.betterParse.parser.*
 import kotlin.test.*
 
 class MapTest {
-    val aPlus = TokenRegex("aPlus", "a+")
-    val bPlus = TokenRegex("aPlus", "b+")
+    val aPlus = RegexToken("aPlus", "a+")
+    val bPlus = RegexToken("aPlus", "b+")
     val lexer = DefaultTokenizer(listOf(aPlus, bPlus))
 
     @Test fun testSuccessfulMap() {

@@ -9,8 +9,8 @@ import kotlin.test.*
 class OptionalTest : Grammar<Nothing>() {
     override val rootParser: Parser<Nothing> get() = throw NoSuchElementException()
 
-    val a by tokenRegex("a")
-    val b by tokenRegex("b")
+    val a by regexToken("a")
+    val b by regexToken("b")
 
     @Test fun successful() {
         val tokens = tokenizer.tokenize("abab")

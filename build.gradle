@@ -4,8 +4,8 @@ group 'com.github.h0tk3y.betterParse'
 version '0.4.0-alpha-3'
 
 buildscript {
-    ext.kotlin_version = '1.3.0'
-    ext.kotlin_plugin_version = '1.3.0'
+    ext.kotlin_version = '1.3.11'
+    ext.kotlin_plugin_version = '1.3.11'
 
     repositories {
         maven { url 'https://kotlin.bintray.com/kotlin-dev' }
@@ -75,7 +75,7 @@ dependencies {
 compileKotlinJvm {
     kotlinOptions {
         jvmTarget = "1.6"
-        apiVersion = '1.1' // stay compatible with 1.1 stdlib
+        apiVersion = '1.3' // stay compatible with 1.1 stdlib
     }
 }
 
