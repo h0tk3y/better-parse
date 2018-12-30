@@ -46,15 +46,21 @@ class TokenMatchesSequence(
     }
 
     override fun iterator(): Iterator<TokenMatch> =
-        iterator {
+        object : AbstractIterator<TokenMatch>() {
             var position = 0
-            while (true) {
-                ++position
-                val nextMatch = get(position + 1) ?: break
-                yield(nextMatch)
-                if (nextMatch.type == noneMatched) {
-                    break
+            var noneMatchedAtThisPosition = false
+
+            override fun computeNext() {
+                if (noneMatchedAtThisPosition) {
+                    done()
                 }
+
+                val nextMatch = get(position) ?: run { done(); return }
+                setNext(nextMatch)
+                if (nextMatch.type == noneMatched) {
+                    noneMatchedAtThisPosition = true
+                }
+                ++position
             }
         }
 }

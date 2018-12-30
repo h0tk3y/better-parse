@@ -1,7 +1,5 @@
 package com.github.h0tk3y.betterParse.lexer
 
-expect fun Regex.patternWithEmbeddedFlags(): String
-
 private fun Regex.countGroups() = "(?:$pattern)?".toRegex().find("")!!.groups.size - 1
 
 /** Tokenizes input character sequences using the [tokens], prioritized by their order in the list,

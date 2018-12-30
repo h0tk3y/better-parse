@@ -1,10 +1,13 @@
 
-import com.github.h0tk3y.betterParse.combinators.*
-import com.github.h0tk3y.betterParse.grammar.*
-import com.github.h0tk3y.betterParse.lexer.*
-import com.github.h0tk3y.betterParse.parser.*
-import com.github.h0tk3y.betterParse.utils.*
-import kotlin.test.*
+import com.github.h0tk3y.betterParse.combinators.times
+import com.github.h0tk3y.betterParse.combinators.use
+import com.github.h0tk3y.betterParse.grammar.Grammar
+import com.github.h0tk3y.betterParse.grammar.parseToEnd
+import com.github.h0tk3y.betterParse.lexer.regexToken
+import com.github.h0tk3y.betterParse.parser.Parser
+import com.github.h0tk3y.betterParse.utils.components
+import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.text.RegexOption.*
 
 class FlagsCompatibilityTest {
@@ -83,17 +86,5 @@ class FlagsCompatibilityTest {
 
         val result = regexesGrammar.parseToEnd(input)
         assertEquals(input, result)
-    }
-
-    @Test(expected = UnsupportedOperationException::class)
-    fun testCanonEqUnsupported() {
-        val badGrammar = object : Grammar<Unit>() {
-            val badToken by regexToken(Regex("abc", CANON_EQ))
-
-            override val rootParser: Parser<Unit>
-                get() = badToken use { Unit }
-        }
-
-        println(badGrammar.parseToEnd("abc"))
     }
 }
