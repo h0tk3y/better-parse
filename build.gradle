@@ -75,7 +75,7 @@ dependencies {
 compileKotlinJvm {
     kotlinOptions {
         jvmTarget = "1.6"
-        apiVersion = '1.3' // stay compatible with 1.1 stdlib
+//        apiVersion = '1.1' // stay compatible with 1.1 stdlib
     }
 }
 
