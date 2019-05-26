@@ -1,8 +1,0 @@
-include ':demo:demo-jvm', ':demo:demo-js', ':demo:demo-native'
-
-rootProject.name = 'better-parse'
-
-if (System.getProperty("useGradleMetadata") == "true") {
-     rootProject.name = 'better-parse-multiplatform'
-     enableFeaturePreview 'GRADLE_METADATA'
-}
