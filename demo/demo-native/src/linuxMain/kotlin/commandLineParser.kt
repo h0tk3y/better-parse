@@ -1,9 +1,12 @@
+
 import com.github.h0tk3y.betterParse.combinators.*
 import com.github.h0tk3y.betterParse.grammar.Grammar
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.grammar.tryParseToEnd
+import com.github.h0tk3y.betterParse.lexer.literalToken
+import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.ErrorResult
-import com.github.h0tk3y.betterParse.parser.ParsedValue
+import com.github.h0tk3y.betterParse.parser.Parsed
 import com.github.h0tk3y.betterParse.parser.Parser
 
 fun main() {
@@ -12,7 +15,7 @@ fun main() {
     val parseResult = BooleanGrammar.tryParseToEnd(expr)
 
     val resultText = when (parseResult) {
-        is ParsedValue -> parseResult.value.toString()
+        is Parsed -> parseResult.value.toString()
         is ErrorResult -> parseResult.toString()
     }
 

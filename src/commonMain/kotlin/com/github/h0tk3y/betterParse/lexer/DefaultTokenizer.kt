@@ -24,24 +24,16 @@ private class DefaultTokenProducer(private val tokens: List<Token>, private val 
     private var row = 1
     private var col = 1
 
-    private val relativeInput: CharSequence = object : CharSequence {
-        override val length: Int get() = inputLength - pos
-        override fun get(index: Int): Char = input[index + pos]
-        override fun subSequence(startIndex: Int, endIndex: Int) = input.subSequence(startIndex + pos, endIndex + pos)
-
-        override fun toString(): String = "" // Avoids performance penalty in Matcher calling toString
-    }
-
     private var errorState = false
 
     override fun nextToken(): TokenMatch? {
-        if (relativeInput.isEmpty() || errorState) {
+        if (pos > input.lastIndex || errorState) {
             return null
         }
 
         for (index in 0 until tokens.size) {
             val token = tokens[index]
-            val matchLength = token.match(relativeInput)
+            val matchLength = token.match(input, pos)
             if (matchLength == 0)
                 continue
 

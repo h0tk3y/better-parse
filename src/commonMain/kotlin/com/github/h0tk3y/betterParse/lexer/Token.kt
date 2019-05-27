@@ -16,7 +16,7 @@ abstract class Token(name: String? = null, val ignored: Boolean) : Parser<TokenM
 
     internal var tokenizer: Tokenizer? = null
 
-    abstract fun match(input: CharSequence): Int
+    abstract fun match(input: CharSequence, fromIndex: Int): Int
 
     override tailrec fun tryParse(tokens: TokenMatchesSequence, fromPosition: Int): ParseResult<TokenMatch> {
         val tokenMatch = tokens[fromPosition] ?: return UnexpectedEof(this)
@@ -33,5 +33,5 @@ abstract class Token(name: String? = null, val ignored: Boolean) : Parser<TokenM
 
 /** Token type indicating that there was no [Token] found to be matched by a [Lexer]. */
 val noneMatched = object : Token("no token matched", false) {
-    override fun match(input: CharSequence): Int = 0
+    override fun match(input: CharSequence, fromIndex: Int): Int = 0
 }
