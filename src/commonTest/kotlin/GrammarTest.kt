@@ -1,17 +1,23 @@
-import com.github.h0tk3y.betterParse.combinators.*
-import com.github.h0tk3y.betterParse.grammar.*
-import com.github.h0tk3y.betterParse.lexer.*
-import com.github.h0tk3y.betterParse.parser.*
-import kotlin.test.*
+
+import com.github.h0tk3y.betterParse.combinators.map
+import com.github.h0tk3y.betterParse.combinators.separated
+import com.github.h0tk3y.betterParse.combinators.use
+import com.github.h0tk3y.betterParse.grammar.Grammar
+import com.github.h0tk3y.betterParse.grammar.parseToEnd
+import com.github.h0tk3y.betterParse.lexer.regexToken
+import com.github.h0tk3y.betterParse.lexer.token
+import com.github.h0tk3y.betterParse.parser.Parser
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class GrammarTest {
     @Test
     fun simpleParse() {
         val digits = "0123456789"
         val g = object : Grammar<Int>() {
-            val n by token {
+            val n by token { input, from ->
                 var length = 0
-                while (length < it.length && it[length] in digits)
+                while (from + length < input.length && input[from + length] in digits)
                     length++
                 length
             }
