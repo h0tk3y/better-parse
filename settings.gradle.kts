@@ -3,6 +3,7 @@ pluginManagement {
         jcenter()
         maven("https://plugins.gradle.org/m2/")
         maven("https://dl.bintray.com/salomonbrys/gradle-plugins")
+        maven("https://dl.bintray.com/orangy/maven")
         gradlePluginPortal()
     }
 
