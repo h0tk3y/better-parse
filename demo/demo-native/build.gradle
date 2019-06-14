@@ -18,7 +18,9 @@ kotlin {
     targets {
         fromPreset(presets.linuxX64, 'linux') {
             compilations.main {
-                outputKind 'executable'
+                binaries {
+                    executable { }
+                }
             }
         }
     }
@@ -32,7 +34,7 @@ kotlin.sourceSets {
     }
     linuxMain {
         dependencies {
-            api rootProject
+            api(rootProject)
         }
     }
 }

@@ -14,8 +14,8 @@ repositories {
 apply plugin: 'kotlin2js'
 
 dependencies {
-    implementation rootProject
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-js'
+    implementation(rootProject)
+    implementation('org.jetbrains.kotlin:kotlin-stdlib-js')
 }
 
 task assembleWeb(type: Sync) {
