@@ -6,6 +6,11 @@ import com.github.h0tk3y.betterParse.lexer.*
 import com.github.h0tk3y.betterParse.parser.*
 
 object OptimizedJsonGrammar : Grammar<Any?>() {
+    private fun Char.isLetterOrDigit() =
+        (this in 'a'..'z') || (this in 'A'..'Z') || (this in '0'..'9')
+
+    private fun Char.isDigit() = this >= '0' && this <= '9'
+
     private fun tokenIdent(text: String) = token { it, at ->
         if (!it.startsWith(text, at)) return@token 0
         if (at + text.length > it.length && it[at + text.length].isLetterOrDigit()) return@token 0
@@ -30,7 +35,7 @@ object OptimizedJsonGrammar : Grammar<Any?>() {
             while (index < length && it[index].isDigit())
                 index++
         }
-        if (index == 0 || (index == 1 && sign)) return@token 0
+        if (index == at || (index == at + 1 && sign)) return@token 0
         index - at
     }
 

@@ -1,20 +1,24 @@
+//@file:Suppress("INLINE_FROM_HIGHER_PLATFORM") // fixme remove this suppression
 
 import org.apache.tools.ant.taskdefs.condition.Os
 import java.net.URI
 
 plugins {
-    kotlin("multiplatform").version("1.3.31")
-    kotlin("plugin.allopen").version("1.3.31")
-
-    id("com.github.salomonbrys.gradle.kotlin.js.mpp-tests.node").version("1.2.0")
-    id("org.jetbrains.gradle.benchmarks.plugin").version("0.1.7-dev-22")
+    kotlin("multiplatform").version("1.3.50-dev-557")
     `maven-publish`
+}
+
+allprojects {
+    repositories {
+        jcenter()
+        maven("https://dl.bintray.com/kotlin/kotlin-dev")
+    }
 }
 
 group = "com.github.h0tk3y.betterParse"
 version = "0.4.0"
 
-val kotlinVersion = "1.3.31"
+val kotlinVersion = "1.3.50-dev-557"
 
 kotlin {
     sourceSets {
@@ -34,10 +38,12 @@ kotlin {
         val nativeMain by creating {
             dependsOn(commonMain.get())
         }
+
+
     }
 
     jvm {
-        compilations.named("main") {
+        compilations.named("main").configure {
             kotlinOptions.jvmTarget = "1.6"
 
             defaultSourceSet.dependencies {
@@ -54,6 +60,7 @@ kotlin {
     js {
         compilations["main"].defaultSourceSet.dependencies {
             implementation(kotlin("stdlib-js", kotlinVersion))
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:0.9.0")
         }
         compilations["test"].defaultSourceSet.dependencies {
             implementation(kotlin("test-js", kotlinVersion))
@@ -61,10 +68,6 @@ kotlin {
 
         compilations.all {
             kotlinOptions.moduleKind = "umd"
-        }
-
-        kotlinJsNodeTests {
-            thisTarget()
         }
     }
 
@@ -143,39 +146,5 @@ publishing {
                 password = findProperty("bintray_api_key") as? String
             }
         }
-    }
-}
-
-// Benchmarking
-
-node {
-    version = "10.15.1"
-}
-
-repositories {
-    jcenter()
-    maven("https://dl.bintray.com/orangy/maven")
-}
-
-allOpen {
-    annotation("org.openjdk.jmh.annotations.State")
-}
-
-kotlin.jvm().compilations.create("benchmark") {
-    defaultSourceSet.dependencies {
-        implementation("org.jetbrains.gradle.benchmarks:runtime-jvm:0.1.7-dev-22")
-        implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.9.0")
-        implementation(kotlin.jvm().compilations["main"].run { compileDependencyFiles + output.allOutputs })
-    }
-}
-
-benchmark {
-    defaults {
-        iterations = 5 // number of iterations
-        iterationTime = 300 // time in ms per iteration
-    }
-
-    configurations {
-        create("jvmBenchmark")
     }
 }
