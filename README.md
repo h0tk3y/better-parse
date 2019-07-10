@@ -275,7 +275,7 @@ class Variable(val name: String) : Item
 
 object ItemsParser : Grammar<List<Item>>() {
     val num by token("\\d+")
-    val word by token("[A-Za-z]")
+    val word by token("[A-Za-z]+")
     val comma by token(",\\s+")
 
     val numParser by num use { Number(text.toInt()) }
