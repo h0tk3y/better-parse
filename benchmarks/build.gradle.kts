@@ -1,18 +1,7 @@
-@file:Suppress("INLINE_FROM_HIGHER_PLATFORM")
-// fixme remove this suppression
-
-import org.jetbrains.gradle.benchmarks.benchmark
-
 plugins {
     kotlin("multiplatform")
-    kotlin("plugin.allopen").version("1.3.50-dev-759")
-
-    id("kotlinx.team.node")
-    id("org.jetbrains.gradle.benchmarks.plugin").version("0.1.7-dev-24")
-}
-
-repositories {
-    maven("https://dl.bintray.com/orangy/maven")
+    kotlin("plugin.allopen")
+    id("kotlinx.benchmark")
 }
 
 kotlin {
@@ -21,8 +10,14 @@ kotlin {
             dependencies {
                 implementation(rootProject)
                 implementation(kotlin("stdlib-common"))
-                implementation("org.jetbrains.gradle.benchmarks:runtime:0.1.7-dev-24")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:0.11.0")
+                implementation(benchmark.common)
+                implementation(serialization.common)
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation(kotlin("test-common"))
+                implementation(kotlin("test-annotations-common"))
             }
         }
     }
@@ -33,29 +28,38 @@ kotlin {
 
             defaultSourceSet.dependencies {
                 implementation(kotlin("stdlib"))
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.11.0")
+                benchmark.jvm?.let(::implementation)
+                serialization.jvm?.let(::implementation)
             }
+        }
+
+        compilations["test"].defaultSourceSet.dependencies {
+            implementation(kotlin("test-junit"))
         }
     }
 
     js {
-        compilations["main"].apply {
-            defaultSourceSet.dependencies {
-                implementation(kotlin("stdlib-js"))
-                implementation("org.jetbrains.gradle.benchmarks:runtime-js:0.1.7-dev-24")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:0.11.0")
-            }
+        nodejs()
+
+        compilations["main"].defaultSourceSet.dependencies {
+            implementation(kotlin("stdlib-js"))
+            benchmark.js?.let(::implementation)
+            serialization.js?.let(::implementation)
+        }
+        compilations["test"].defaultSourceSet.dependencies {
+            implementation(kotlin("test-js"))
         }
     }
 }
 
 allOpen.annotation("org.openjdk.jmh.annotations.State")
 
-node {
-    version = "10.15.1"
-}
-
 benchmark {
     targets.register("jvm")
     targets.register("js")
+
+    configurations["main"].apply {
+        warmups = 5
+        iterations = 10
+    }
 }

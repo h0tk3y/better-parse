@@ -5,11 +5,11 @@ import com.github.h0tk3y.betterParse.grammar.*
 import com.github.h0tk3y.betterParse.lexer.*
 import com.github.h0tk3y.betterParse.parser.*
 
-object OptimizedJsonGrammar : Grammar<Any?>() {
+class OptimizedJsonGrammar : Grammar<Any?>() {
     private fun Char.isLetterOrDigit() =
         (this in 'a'..'z') || (this in 'A'..'Z') || (this in '0'..'9')
 
-    private fun Char.isDigit() = this >= '0' && this <= '9'
+    private fun Char.isDigit() = this in '0'..'9'
 
     private fun tokenIdent(text: String) = token { it, at ->
         if (!it.startsWith(text, at)) return@token 0
@@ -40,7 +40,7 @@ object OptimizedJsonGrammar : Grammar<Any?>() {
     }
 
     @Suppress("unused")
-    private val whiteSpace by token(ignore = true) { it, at ->
+    private val whiteSpace by token(ignored = true) { it, at ->
         var index = at
         val length = it.length
         while (index < length && it[index].isWhitespace())

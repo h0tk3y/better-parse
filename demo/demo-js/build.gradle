@@ -1,17 +1,6 @@
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.0'
-    }
+plugins {
+    id("org.jetbrains.kotlin.js")
 }
-
-repositories {
-    jcenter()
-}
-
-apply plugin: 'kotlin2js'
 
 dependencies {
     implementation(rootProject)
@@ -19,7 +8,8 @@ dependencies {
 }
 
 task assembleWeb(type: Sync) {
-    configurations.compile.each { File file ->
+    def compilation = kotlin.target.compilations["main"]
+    compilation.compileDependencyFiles.each { File file ->
         from(zipTree(file.absolutePath), {
             includeEmptyDirs = false
             include { fileTreeElement ->
@@ -28,11 +18,9 @@ task assembleWeb(type: Sync) {
             }
         })
     }
-    from compileKotlin2Js.destinationDir
+    from compilation.compileKotlinTaskHolder.map { it.destinationDir }
     from(kotlin.sourceSets.getByName('main').resources) { include '*.html' }
     into "${buildDir}/web"
-
-    dependsOn classes
 }
 
 assemble.dependsOn assembleWeb

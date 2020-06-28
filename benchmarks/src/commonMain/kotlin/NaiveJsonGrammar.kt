@@ -5,7 +5,7 @@ import com.github.h0tk3y.betterParse.lexer.*
 import com.github.h0tk3y.betterParse.grammar.Grammar
 import com.github.h0tk3y.betterParse.parser.Parser
 
-object NaiveJsonGrammar : Grammar<Any?>() {
+class NaiveJsonGrammar : Grammar<Any?>() {
     @Suppress("unused")
     private val whiteSpace by regexToken("[\r|\n]|\\s+", ignore = true)
 

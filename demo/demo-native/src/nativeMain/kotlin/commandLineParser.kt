@@ -1,4 +1,3 @@
-
 import com.github.h0tk3y.betterParse.combinators.*
 import com.github.h0tk3y.betterParse.grammar.Grammar
 import com.github.h0tk3y.betterParse.grammar.parser
@@ -11,10 +10,10 @@ import com.github.h0tk3y.betterParse.parser.Parser
 
 fun main() {
     println("Enter a boolean expression:")
-    val expr = readLine().orEmpty()
-    val parseResult = BooleanGrammar.tryParseToEnd(expr)
 
-    val resultText = when (parseResult) {
+    val expr = readLine().orEmpty()
+
+    val resultText = when (val parseResult = BooleanGrammar().tryParseToEnd(expr)) {
         is Parsed -> parseResult.value.toString()
         is ErrorResult -> parseResult.toString()
     }
@@ -32,7 +31,7 @@ data class And(val left: BooleanExpression, val right: BooleanExpression) : Bool
 data class Or(val left: BooleanExpression, val right: BooleanExpression) : BooleanExpression()
 data class Impl(val left: BooleanExpression, val right: BooleanExpression) : BooleanExpression()
 
-private object BooleanGrammar : Grammar<BooleanExpression>() {
+private class BooleanGrammar : Grammar<BooleanExpression>() {
     val tru by literalToken("true")
     val fal by literalToken("false")
     val id by regexToken("\\w+")

@@ -6,7 +6,7 @@ import com.github.h0tk3y.betterParse.parser.*
 expect annotation class Language(val value: String, val prefix: String, val suffix: String)
 
 /**
- * Represents a basic detectable part of the input, that is detected by its [pattern] and might be [ignored].
+ * Represents a basic detectable part of the input that may be [ignored] during parsing.
  * Parses to [TokenMatch].
  * The [name] only provides additional information.
  */
@@ -14,18 +14,17 @@ abstract class Token(name: String? = null, val ignored: Boolean) : Parser<TokenM
     var name = name
         internal set
 
-    internal var tokenizer: Tokenizer? = null
-
     abstract fun match(input: CharSequence, fromIndex: Int): Int
 
-    override tailrec fun tryParse(tokens: TokenMatchesSequence, fromPosition: Int): ParseResult<TokenMatch> {
+    override fun tryParse(tokens: TokenMatchesSequence, fromPosition: Int): ParseResult<TokenMatch> =
+        tryParseImpl(tokens, fromPosition)
+
+    private tailrec fun tryParseImpl(tokens: TokenMatchesSequence, fromPosition: Int): ParseResult<TokenMatch> {
         val tokenMatch = tokens[fromPosition] ?: return UnexpectedEof(this)
         return when {
             tokenMatch.type == this -> tokenMatch
             tokenMatch.type == noneMatched -> NoMatchingToken(tokenMatch)
-            tokenizer != tokens.tokenizer ->
-                throw IllegalArgumentException("Token $this is not valid for a given Tokenizer")
-            tokenMatch.type.ignored -> tryParse(tokens, fromPosition + 1)
+            tokenMatch.type.ignored -> tryParseImpl(tokens, fromPosition + 1)
             else -> MismatchedToken(this, tokenMatch)
         }
     }

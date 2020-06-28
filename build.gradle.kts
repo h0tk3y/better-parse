@@ -1,77 +1,64 @@
-//@file:Suppress("INLINE_FROM_HIGHER_PLATFORM") // fixme remove this suppression
-
 import org.apache.tools.ant.taskdefs.condition.Os
+import org.jetbrains.kotlin.gradle.plugin.mpp.AbstractKotlinNativeTargetPreset
 import java.net.URI
 
 plugins {
-    kotlin("multiplatform").version("1.3.50-dev-557")
+    kotlin("multiplatform")
     `maven-publish`
 }
 
-allprojects {
-    repositories {
-        jcenter()
-        maven("https://dl.bintray.com/kotlin/kotlin-dev")
-    }
-}
-
-group = "com.github.h0tk3y.betterParse"
-version = "0.4.0"
-
-val kotlinVersion = "1.3.50-dev-557"
-
 kotlin {
     sourceSets {
+        all {
+            languageSettings.useExperimentalAnnotation("kotlin.ExperimentalMultiplatform")
+        }
+
         commonMain {
             dependencies {
-                implementation(kotlin("stdlib-common", kotlinVersion))
+                implementation(kotlin("stdlib-common"))
             }
         }
 
         commonTest {
             dependencies {
-                implementation(kotlin("test-common", kotlinVersion))
-                implementation(kotlin("test-annotations-common", kotlinVersion))
+                implementation(kotlin("test-common"))
+                implementation(kotlin("test-annotations-common"))
             }
         }
 
-        val nativeMain by creating {
+        create("nativeMain") {
             dependsOn(commonMain.get())
         }
-
-
     }
 
     jvm {
-        compilations.named("main").configure {
-            kotlinOptions.jvmTarget = "1.6"
-
-            defaultSourceSet.dependencies {
-                implementation(kotlin("stdlib", kotlinVersion))
-            }
+        compilations["main"].defaultSourceSet.dependencies {
+            implementation(kotlin("stdlib"))
         }
-        compilations.named("test") {
-            defaultSourceSet.dependencies {
-                implementation(kotlin("test-junit", kotlinVersion))
-            }
+        compilations["test"].defaultSourceSet.dependencies {
+            implementation(kotlin("test-junit"))
+        }
+        compilations.all {
+            kotlinOptions.jvmTarget = "1.6"
         }
     }
 
     js {
+        browser()
+        nodejs()
+
         compilations["main"].defaultSourceSet.dependencies {
-            implementation(kotlin("stdlib-js", kotlinVersion))
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:0.9.0")
+            implementation(kotlin("stdlib-js"))
         }
         compilations["test"].defaultSourceSet.dependencies {
-            implementation(kotlin("test-js", kotlinVersion))
+            implementation(kotlin("test-js"))
         }
-
         compilations.all {
             kotlinOptions.moduleKind = "umd"
         }
     }
 
-    presets.withType(org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetPreset::class).forEach {
+    presets.withType<AbstractKotlinNativeTargetPreset<*>>().forEach {
         targetFromPreset(it) {
             compilations.getByName("main") {
                 defaultSourceSet.dependsOn(sourceSets["nativeMain"])
@@ -80,11 +67,7 @@ kotlin {
     }
 }
 
-kotlin.sourceSets.all {
-    languageSettings.useExperimentalAnnotation("kotlin.ExperimentalMultiplatform")
-}
-
-// Code generation
+//region Code generation
 
 val codegen by tasks.registering {
     val maxTupleSize = 16
@@ -99,25 +82,22 @@ val codegen by tasks.registering {
     )
 }
 
-kotlin.targets.all {
-    compilations.all {
-        tasks[compileKotlinTaskName].dependsOn(codegen)
-    }
+kotlin.sourceSets.commonMain {
+    kotlin.srcDirs(files().builtBy(codegen))
 }
 
-// Publication
+//endregion
 
-val publicationsFromLinux =
-    kotlin.targets.withType(org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget::class).names.filter {
-        !it.startsWith("mingw") && !it.startsWith("macos") && !it.startsWith("ios")
-    } + listOf("kotlinMultiplatform", "metadata", "js", "jvm")
+//region Publication
 
 val publicationsFromWindows = listOf("mingwX64")
 
 val publicationsFromMacos =
     kotlin.targets.withType(org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget::class).names.filter {
-        it.startsWith("macos") || it.startsWith("ios")
+        it.startsWith("macos") || it.startsWith("ios") || it.startsWith("watchos") || it.startsWith("tvos")
     }
+
+val publicationsFromLinux = publishing.publications.names - publicationsFromWindows - publicationsFromMacos
 
 val publicationsFromThisPlatform = when {
     Os.isFamily(Os.FAMILY_WINDOWS) -> publicationsFromWindows
@@ -148,3 +128,5 @@ publishing {
         }
     }
 }
+
+//endregion
