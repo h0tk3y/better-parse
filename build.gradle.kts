@@ -90,10 +90,10 @@ kotlin.sourceSets.commonMain {
 
 //region Publication
 
-val publicationsFromWindows = listOf("mingwX64")
+val publicationsFromWindows = listOf("mingwX64", "mingwX86")
 
 val publicationsFromMacos =
-    kotlin.targets.withType(org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget::class).names.filter {
+    kotlin.targets.names.filter {
         it.startsWith("macos") || it.startsWith("ios") || it.startsWith("watchos") || it.startsWith("tvos")
     }
 

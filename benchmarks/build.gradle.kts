@@ -1,3 +1,11 @@
+buildscript {
+    // Workaround, remove once kotlinx.benchmark build for 1.4-M2 is available
+    configurations["classpath"].resolutionStrategy.eachDependency { 
+        if (requested.group == "org.jetbrains.kotlin")
+            useVersion(System.getProperty("build.kotlinVersion"))
+    }
+}
+
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.allopen")
