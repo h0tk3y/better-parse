@@ -6,17 +6,17 @@ A nice parser combinator library for Kotlin JVM, JS, and Multiplatform projects
 
 ```kotlin
 val booleanGrammar = object : Grammar<BooleanExpression>() {
-    val id by token("\\w+")
-    val not by token("!")
-    val and by token("&")
-    val or by token("|")
-    val ws by token("\\s+", ignore = true)
-    val lpar by token("\\(")
-    val rpar by token("\\)")
+    val id by regexToken("\\w+")
+    val not by literalToken("!")
+    val and by literalToken("&")
+    val or by literalToken("|")
+    val ws by regexToken("\\s+", ignore = true)
+    val lpar by literalToken("(")
+    val rpar by literalToken(")")
 
     val term by 
         (id use { Variable(text) }) or
-        (-not * parser(this::term) map { (Not(it) }) or
+        (-not * parser(this::term) map { Not(it) }) or
         (-lpar * parser(this::rootParser) * -rpar)
 
     val andChain by leftAssociative(term, and) { l, _, r -> And(l, r) }
@@ -40,63 +40,46 @@ Then, in Kotlin/JVM projects:
 
 ```groovy
 dependencies {
-   compile 'com.github.h0tk3y.betterParse:better-parse-jvm:0.4.0-alpha-3'
+   implementation 'com.github.h0tk3y.betterParse:better-parse:0.4.0'
 }
 ```
 
-Note: for version 0.3.5 and below, use `better-parse` instead of `better-parse-jvm`.
-
-In Kotlin/JS projects (since 0.4.0-alpha-3):
+In Kotlin/JS projects (since 0.4.0):
 
 ```groovy
 dependencies {
-   compile 'com.github.h0tk3y.betterParse:better-parse-js:0.4.0-alpha-3'
+   implementation 'com.github.h0tk3y.betterParse:better-parse:0.4.0'
 }
 ```
 
-In [Kotlin Multiplatform projects](http://kotlinlang.org/docs/reference/building-mpp-with-gradle.html#adding-dependencies) (since 0.4.0-alpha-3):
+In [Kotlin Multiplatform projects](http://kotlinlang.org/docs/reference/building-mpp-with-gradle.html#adding-dependencies) (since 0.4.0):
 
 ```groovy
 dependencies {
-    commonMainApi 'com.github.h0tk3y.betterParse:better-parse-metadata:0.4.0-alpha-3'
-    /* Note: adjust the below examples to your targets set. You may need to:
-       * replace the prefixes: if your JVM target is `myJvm6`, use `myJvm6MainApi` instead of `jvmMainApi` 
-       * remove the dependencies for the targets you don't have: if you don't target Linux x64, remove `linuxX64MainApi`
-       * add the targets not listed below; note that the artifact IDs contain the lowercased preset name, for example, 
-         use `better-parse-androidnativearm32` for your target from the androidNativeArm32 preset
-    */
-    jvmMainApi 'com.github.h0tk3y.betterParse:better-parse-jvm:0.4.0-alpha-3'
-    jsMainApi 'com.github.h0tk3y.betterParse:better-parse-js:0.4.0-alpha-3'
-    mingwX64MainApi 'com.github.h0tk3y.betterParse:better-parse-mingwx64:0.4.0-alpha-3'
-    linuxX64MainApi 'com.github.h0tk3y.betterParse:better-parse-linuxx64:0.4.0-alpha-3'
+    commonMainImplementation 'com.github.h0tk3y.betterParse:better-parse:0.4.0'
 }
 ```
-
-A simpler way is possible: if you 
-[enable the experimental Gradle metadata](http://kotlinlang.org/docs/reference/building-mpp-with-gradle.html#experimental-metadata-publishing-mode), 
-add just a single dependency:
-
-```groovy
-dependencies {
-    commonMainApi 'com.github.h0tk3y.betterParse:better-parse-multiplatform:0.4.0-alpha3'
-}
-```
-
-Note: this version of `better-parse-multiplatform` is published with Gradle 4.10.2. Future Gradle versions may fail to
-consume this dependency due to the metadata experimental status.
 
 ## Tokens ##
 As many other language recognition tools, `better-parse` abstracts away from raw character input by 
-pre-processing it with a `Tokenizer`, that can match `Token`s by their patterns (regular expressions) against an input sequence.
+pre-processing it with a `Tokenizer`, that can match `Token`s (with regular expressions, literal values or arbitrary 
+against an input character sequence.
 
-A `Tokenizer` tokenizes an input sequence such as `InputStream` or a `String` into a `Sequence<TokenMatch>`, providing each with a position in the input.
+There are several kinds of supported `Token`s:
+
+* a `regexToken("(?:my)?(?:regex))` is matched as a regular expression;
+* a `literalToken("foo")` is matched literally, character to character;
+* a `token { (charSequence, from) -> ... }` is matched using the passed function.
+
+A `Tokenizer` tokenizes an input sequence such as `InputStream` or a `String` into a `Sequence<TokenMatch>`, providing 
+each with a position in the input.
 
 One way to create a `Tokenizer` is to first define the `Tokens` to be matched:
 
 ```kotlin
-val id = Token("\\w+")
-val cm = Token(",")
-val ws = Token("\\s+", ignore = true)
+val id = regexToken("\\w+")
+val cm = literalToken(",")
+val ws = regexToken("\\s+", ignore = true)
 ```
 
 > A `Token` can be ignored by setting its `ignore = true`. An ignored token can still be matched explicitly, but if 
@@ -106,8 +89,10 @@ another token is expected, the ignored one is just dropped from the sequence.
 val tokenizer = DefaultTokenizer(listOf(id, cm, ws))
 ```
     
-> Note: the tokens order matters in some cases, because the tokenizer tries to match them in exactly this order. For instance, if `Token("a")` 
-is listed before `Token("aa")`, the latter will never be matched. Be careful with keyword tokens!
+> Note: the tokens order matters in some cases, because the tokenizer tries to match them in exactly this order. 
+> For instance, if `literalToken("a")` 
+> is listed before `literalToken("aa")`, the latter will never be matched. Be careful with keyword tokens! 
+> If you match them with regexes, a word boundary `\b` in the end may help against ambiguity.
 
 ```kotlin
 val tokenMatches: Sequence<TokenMatch> = tokenizer.tokenize("hello, world")
@@ -119,26 +104,27 @@ It is possible to provide a custom implementation of a `Tokenizer`.
 
 ## Parser ##
 
-A `Parser<T>` is an object that accepts an input sequence (a sequence of tokens, `Sequence<TokenMatch>`) and
-tries to convert some (from none to all) of its items into a `T`. In `better-parse`, parsers are also used 
-as build blocks to create new parsers by *combining* them.
+A `Parser<T>` is an object that accepts an input sequence (`TokenMatchesSequence`) and
+tries to convert some (from none to all) of its items into a `T`. In `better-parse`, parsers are also 
+the building blocks used to create new parsers by *combining* them.
 
 When a parser tries to process the input, there are two possible outcomes:
 
-* If it succeeds, it returns `Parsed<T>` containing the `T` result and the `remainder: Sequence<TokenMatch>` that it left unprocessed. 
-The latter can then be, and often is, passed to another parser.
+* If it succeeds, it returns `Parsed<T>` containing the `T` result and the `nextPosition: Int` that points to what 
+it left unprocessed. The latter can then be, and often is, passed to another parser.
 
 * If it fails, it reports the failure returning an `ErrorResult`, which provides detailed information about the failure.
 
-A very basic parser to start with is a `Token` itself: when given an input `Sequence<TokenMatch>`, it succeeds if the sequence starts 
-with the match of this token itself _(possibly, skipping some **ignored** tokens)_ and returns that `TokenMatch`, also excluding it 
-_(and, possibly, some ignored tokens)_ from the remainder.
+A very basic parser to start with is a `Token` itself: given an input `TokenMatchesSequence` and a position in it, 
+it succeeds if the sequence starts with the match of this token itself 
+_(possibly, skipping some **ignored** tokens)_ and returns that `TokenMatch`, pointing at the next token 
+with the `nextPosition`.
 
 ```kotlin
-val a = Token("a+")
-val b = Token("b+")
+val a = regexToken("a+")
+val b = regexToken("b+")
 val tokenMatches = DefaultTokenizer(listOf(a, b)).tokenize("aabbaaa")
-val result = a.tryParse(tokenMatches) // contains the match for "aa" and the remainder with "bbaaa" in it
+val result = a.tryParse(tokenMatches, 0) // contains the match for "aa" and the next index is 1 for the match of b
 ```
     
 ## Combinators ## 
@@ -152,7 +138,7 @@ There are several kinds of combinators included in `better-parse`:
     The error results are returned unchanged.
     
     ```kotlin
-    val id = Token("\\w+")
+    val id = regexToken("\\w+")
     val aText = a map { it.text } // Parser<String>, returns the matched text from the input sequence
     ```
       
@@ -273,10 +259,10 @@ interface Item
 class Number(val value: Int) : Item
 class Variable(val name: String) : Item
 
-object ItemsParser : Grammar<List<Item>>() {
-    val num by token("\\d+")
-    val word by token("[A-Za-z]+")
-    val comma by token(",\\s+")
+class ItemsParser : Grammar<List<Item>>() {
+    val num by regexToken("\\d+")
+    val word by regexToken("[A-Za-z]+")
+    val comma by regexToken(",\\s+")
 
     val numParser by num use { Number(text.toInt()) }
     val varParser by word use { Variable(text) }
@@ -284,7 +270,7 @@ object ItemsParser : Grammar<List<Item>>() {
     override val rootParser by separatedTerms(numParser or varParser, comma)
 }
 
-val result: List<Item> = ItemsParser.parseToEnd("one, 2, three, 4, five")
+val result: List<Item> = ItemsParser().parseToEnd("one, 2, three, 4, five")
 ```
     
 To use a parser that has not been constructed yet, reference it with `parser { someParser }` or `parser(this::someParser)`:
