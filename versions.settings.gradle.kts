@@ -3,7 +3,7 @@ package com.github.h0tk3y.betterParse.build
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import kotlin.reflect.full.memberProperties
 
-val kotlinVersion = KotlinPlugin.V14M2
+val kotlinVersion = KotlinPlugin.V1372
 
 enum class KotlinPlugin {
     V1372, V14M2
