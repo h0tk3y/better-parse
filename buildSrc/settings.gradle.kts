@@ -6,10 +6,12 @@ pluginManagement {
         gradle.parent!!.sharedServices.registrations["repositories"].service.get()
             as (RepositoryHandler, isPlugins: Boolean) -> Unit
 
-    val kotlinVersion = System.getProperty("build.kotlinVersion")
-
     configureRepositories(repositories, true)
-    gradle.allprojects { configureRepositories(repositories, false) }
+    gradle.allprojects {
+        configureRepositories(repositories, false)
+    }
+
+    val kotlinVersion = System.getProperty("build.kotlinVersion")
 
     plugins {
         kotlin("jvm").version(kotlinVersion)

@@ -41,6 +41,7 @@ data class Versions(
 )
 
 fun addGlobalProperty(key: String, value: String) {
+    System.setProperty("build.$key", value)
     fun ExtraPropertiesExtension.addExt() { set(key, value) }
     settings.extensions.extraProperties.addExt()
     gradle.allprojects { extensions.extraProperties.addExt() }

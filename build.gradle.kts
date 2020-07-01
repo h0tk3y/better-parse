@@ -122,7 +122,7 @@ publishing {
             )
 
             credentials {
-                username = findProperty("bintray_user") as? String
+                username = bintrayUsername
                 password = findProperty("bintray_api_key") as? String
             }
         }

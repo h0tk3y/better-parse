@@ -23,7 +23,6 @@ pluginManagement {
     apply(from = "versions.settings.gradle.kts")
     val kotlinVersion: String by settings
     val benchmarkVersion: String by settings
-    System.setProperty("build.kotlinVersion", kotlinVersion)
 
     plugins {
         kotlin("multiplatform").version(kotlinVersion)
