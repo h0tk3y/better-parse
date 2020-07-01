@@ -25,4 +25,4 @@ jobs:
       run: chmod +x gradlew
     - uses: eskatos/gradle-command-action@v1
       with:
-        arguments: build
+        arguments: assemble jvmTest
