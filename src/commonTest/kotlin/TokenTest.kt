@@ -1,17 +1,13 @@
 
 import com.github.h0tk3y.betterParse.lexer.*
-import com.github.h0tk3y.betterParse.parser.MismatchedToken
-import com.github.h0tk3y.betterParse.parser.NoMatchingToken
-import com.github.h0tk3y.betterParse.parser.Parsed
-import com.github.h0tk3y.betterParse.parser.toParsedOrThrow
+import com.github.h0tk3y.betterParse.parser.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 
 class TokenTest {
     val a = regexToken("a", "a")
     val b = literalToken("b", "b")
-    val ignoredX = RegexToken("ignoredX", "x", ignored = true)
+    val ignoredX = RegexToken("ignoredX", "x", true)
     val num = regexToken("-?[0-9]*(?:\\.[0-9]*)?")
 
     @Test
@@ -30,14 +26,16 @@ class TokenTest {
         assertEquals(listOf(a, a), tokens.drop(result.nextPosition).toList().map { it.type })
     }
 
-/*
-    @Test fun unexpectedEof() {
-        val tokens = sequenceOf<TokenMatch>()
-        val result = a.tryParse(tokens)
+    @Test
+    fun unexpectedEof() {
+        val tokens = TokenMatchesSequence(object : TokenProducer {
+            override fun nextToken(): TokenMatch? = null
+        }, DefaultTokenizer(listOf(a)), arrayListOf())
+
+        val result = a.tryParseToEnd(tokens, 0)
 
         assertEquals(UnexpectedEof(a), result)
     }
-*/
 
     @Test
     fun noMatchingToken() {
@@ -73,13 +71,5 @@ class TokenTest {
         val result = num.tryParse(tokens, 0)
 
         assertEquals(NoMatchingToken(TokenMatch(noneMatched, 0, input, 0, 1, 1, 1)), result)
-    }
-
-    @Test
-    fun wrongLexer() {
-        assertFailsWith<IllegalArgumentException> {
-            val tokens = DefaultTokenizer(listOf(a, ignoredX)).tokenize("axax")
-            b.tryParse(tokens,0)
-        }
     }
 }

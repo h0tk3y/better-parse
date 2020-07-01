@@ -1,5 +1,6 @@
 package com.github.h0tk3y.betterParse.lexer
 
+import java.util.*
 import java.util.regex.Matcher
 
 actual class RegexToken : Token {
@@ -8,7 +9,7 @@ actual class RegexToken : Token {
     private val matcher: Matcher
 
     companion object {
-        val inputStartPrefix = "\\A"
+        const val inputStartPrefix = "\\A"
     }
 
     actual constructor(name: String?, @Language("RegExp", "", "") patternString: String, ignored: Boolean)
@@ -38,8 +39,7 @@ actual class RegexToken : Token {
         }
 
         val end = matcher.end()
-        val length = end - fromIndex
-        return length
+        return end - fromIndex
     }
 
     override fun toString() = "${name ?: ""} [$pattern]" + if (ignored) " [ignorable]" else ""

@@ -7,12 +7,12 @@ actual class RegexToken : Token {
     /** To ensure that the [regex] will only match its pattern from the index where it is called on with
      * Regex.find(input, startIndex), set the JS RegExp flag 'y', which makes the RegExp 'sticky'.
      * See: https://javascript.info/regexp-sticky */
-    private fun preprocessRegex(regex: Regex) {
+    private fun preprocessRegex(@Suppress("UNUSED_PARAMETER") regex: Regex) {
         js(
             """
-           var r = regex.nativePattern_0;
-           regex.nativePattern_0 = new RegExp(r.source, r.flags + (r.sticky ? "" : "y")); 
-           """
+            var r = regex.nativePattern_0;
+            regex.nativePattern_0 = new RegExp(r.source, r.flags + (r.sticky ? "" : "y")); 
+            """
         )
     }
 
@@ -32,7 +32,7 @@ actual class RegexToken : Token {
 
     override fun match(input: CharSequence, fromIndex: Int): Int =
         regex.find(input, fromIndex)?.range?.let {
-            val length = it.endInclusive - it.start + 1
+            val length = it.last - it.first + 1
             length
         } ?: 0
 

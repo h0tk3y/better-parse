@@ -129,8 +129,8 @@ private class ParserToSyntaxTreeLifter(
         return AndCombinator(liftedConsumers) { parsedItems ->
             val nonSkippedResults = combinator.nonSkippedIndices.map { parsedItems[it] }
             val originalResult = combinator.transform(nonSkippedResults.map { (it as SyntaxTree<*>).item })
-            val start = (parsedItems.first() as SyntaxTree<*>).range.start
-            val end = ((parsedItems.lastOrNull { (it as SyntaxTree<*>).range.endInclusive != 0 }) as? SyntaxTree<*>)?.range?.endInclusive ?: 0
+            val start = (parsedItems.first() as SyntaxTree<*>).range.first
+            val end = ((parsedItems.lastOrNull { (it as SyntaxTree<*>).range.last != 0 }) as? SyntaxTree<*>)?.range?.last ?: 0
             @Suppress("UNCHECKED_CAST")
             val children = if (liftOptions.retainSkipped)
                 parsedItems as List<SyntaxTree<*>> else

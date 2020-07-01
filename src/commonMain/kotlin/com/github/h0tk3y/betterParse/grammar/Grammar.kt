@@ -22,7 +22,7 @@ abstract class Grammar<out T> : Parser<T> {
 
     /** List of tokens that is by default used for tokenizing a sequence before parsing this language. The tokens are
      * added to this list during an instance construction. */
-    open val tokens get(): List<Token> = _tokens
+    open val tokens get(): List<Token> = _tokens.distinctBy { it.name ?: it }
 
     /** Set of the tokens and parsers that were declared by delegation to the parser instances (`val p by someParser`), and [rootParser] */
     open val declaredParsers get() = (_parsers + _tokens + rootParser).toSet()

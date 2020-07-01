@@ -11,19 +11,25 @@ class TokenMatchesSequence(
     private val matches: ArrayList<TokenMatch> = arrayListOf()
 ) : Sequence<TokenMatch> {
 
-    operator fun get(position: Int): TokenMatch? {
+    private inline fun ensureReadPosition(position: Int): Boolean {
         while (position >= matches.size) {
-            val next = tokenProducer.nextToken() ?: return null
+            val next = tokenProducer.nextToken()
+                ?: return false
             matches.add(next)
+        }
+        return true
+    }
+
+    operator fun get(position: Int): TokenMatch? {
+        if (!ensureReadPosition(position)) {
+            return null
         }
         return matches[position]
     }
     
     fun getNotIgnored(position: Int): TokenMatch? {
-        // fill until position
-        while (position >= matches.size) {
-            val next = tokenProducer.nextToken() ?: return null
-            matches.add(next)
+        if (!ensureReadPosition(position)) {
+            return null
         }
 
         var pos = position

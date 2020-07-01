@@ -7,7 +7,6 @@ private fun Regex.countGroups() = "(?:$pattern)?".toRegex().find("")!!.groups.si
 class DefaultTokenizer(override val tokens: List<Token>) : Tokenizer {
     init {
         require(tokens.isNotEmpty()) { "The tokens list should not be empty" }
-        tokens.forEach { it.tokenizer = this }
     }
 
     /** Tokenizes the [input] from a [String] into a [TokenMatchesSequence]. */
@@ -31,6 +30,7 @@ private class DefaultTokenProducer(private val tokens: List<Token>, private val 
             return null
         }
 
+        @Suppress("ReplaceManualRangeWithIndicesCalls")
         for (index in 0 until tokens.size) {
             val token = tokens[index]
             val matchLength = token.match(input, pos)

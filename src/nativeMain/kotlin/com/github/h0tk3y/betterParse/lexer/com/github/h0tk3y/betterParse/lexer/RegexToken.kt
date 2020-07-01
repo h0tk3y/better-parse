@@ -5,7 +5,7 @@ actual class RegexToken : Token {
     private val regex: Regex
 
     companion object {
-        val inputStartPrefix = "\\A"
+        const val inputStartPrefix = "\\A"
     }
 
     actual constructor(name: String?, @Language("RegExp", "", "") patternString: String, ignored: Boolean)
@@ -32,16 +32,15 @@ actual class RegexToken : Token {
         override fun subSequence(startIndex: Int, endIndex: Int) =
             input.subSequence(startIndex + fromIndex, endIndex + fromIndex)
 
-        override fun toString(): String = String(CharArray(length, this::get))  // FIXME
+        override fun toString(): String = error("unsupported operation")
     }
 
     override fun match(input: CharSequence, fromIndex: Int): Int {
         relativeInput.input = input
         relativeInput.fromIndex = fromIndex
-        println("matching $pattern against $relativeInput")
 
         return regex.find(relativeInput)?.range?.let {
-            val length = it.endInclusive - it.start + 1
+            val length = it.last - it.first + 1
             length
         } ?: 0
     }

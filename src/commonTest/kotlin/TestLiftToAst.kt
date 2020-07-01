@@ -192,7 +192,7 @@ class TestLiftToAst {
                                         item = res1.toParsedOrThrow().value.item to res2.value.item,
                                         children = listOf(res1.value, res2.value),
                                         parser = parser,
-                                        range = res1.value.range.start..res2.value.range.endInclusive
+                                        range = res1.value.range.first..res2.value.range.last
                                     ) as SyntaxTree<T>,
                                     res2.nextPosition
                                 )
