@@ -1,6 +1,6 @@
 # better-parse
 
-[ ![Download](https://api.bintray.com/packages/hotkeytlt/maven/better-parse/images/download.svg) ](https://bintray.com/hotkeytlt/maven/better-parse/_latestVersion) ![Gradle build](https://github.com/h0tk3y/better-parse/workflows/Gradle%20build/badge.svg)
+[ ![Download](https://api.bintray.com/packages/hotkeytlt/maven/better-parse/images/download.svg) ](https://bintray.com/hotkeytlt/maven/better-parse/_latestVersion) [ ![Gradle build](https://github.com/h0tk3y/better-parse/workflows/Gradle%20build/badge.svg) ](https://github.com/h0tk3y/better-parse/actions?query=workflow%3A%22Gradle+build%22)
 
 A nice parser combinator library for Kotlin JVM, JS, and Multiplatform projects
 
