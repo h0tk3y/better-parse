@@ -1,8 +1,10 @@
 package com.github.h0tk3y.betterParse.benchmark
 
 import com.github.h0tk3y.betterParse.grammar.parseToEnd
+import kotlin.test.Ignore
 import kotlin.test.Test
 
+@Ignore
 class Main {
     val repeat = 1000_000_000
 
