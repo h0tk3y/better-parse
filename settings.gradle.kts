@@ -4,9 +4,8 @@ import org.gradle.api.artifacts.dsl.RepositoryHandler
 
 pluginManagement {
     abstract class RepositorySetup :
-        BuildServiceParameters,
-        BuildService<RepositorySetup>, (RepositoryHandler, Boolean) -> Unit by { repositoryHandler, isPlugins ->
-        with(repositoryHandler) {
+        BuildServiceParameters, (RepositoryHandler, Boolean) -> Unit, BuildService<RepositorySetup> {
+        override fun invoke(repositories: RepositoryHandler, isPlugins: Boolean): Unit = with(repositories) {
             jcenter()
             maven("https://dl.bintray.com/kotlin/kotlinx")
             maven("https://dl.bintray.com/kotlin/kotlin-dev")
