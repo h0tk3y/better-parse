@@ -12,13 +12,16 @@ actual class RegexToken : Token {
         const val inputStartPrefix = "\\A"
     }
 
-    actual constructor(name: String?, @Language("RegExp", "", "") patternString: String, ignored: Boolean)
-            : super(name, ignored) {
-        pattern = patternString
-        regex = if (patternString.startsWith(inputStartPrefix))
+    private fun prependPatternWithInputStart(patternString: String) =
+        if (patternString.startsWith(inputStartPrefix))
             patternString.toRegex()
         else
             ("$inputStartPrefix(?:$patternString)").toRegex()
+
+    actual constructor(name: String?, @Language("RegExp", "", "") patternString: String, ignored: Boolean)
+        : super(name, ignored) {
+        pattern = patternString
+        regex = prependPatternWithInputStart(patternString)
 
         matcher = regex.toPattern().matcher("")
     }
@@ -26,9 +29,8 @@ actual class RegexToken : Token {
     actual constructor(name: String?, regex: Regex, ignored: Boolean)
             : super(name, ignored) {
         pattern = regex.pattern
-        this.regex = regex
-
-        matcher = regex.toPattern().matcher("")
+        this.regex = prependPatternWithInputStart(pattern)
+        matcher = this.regex.toPattern().matcher("")
     }
 
     override fun match(input: CharSequence, fromIndex: Int): Int {

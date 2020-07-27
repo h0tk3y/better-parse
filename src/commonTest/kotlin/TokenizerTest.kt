@@ -1,4 +1,5 @@
 
+import com.github.h0tk3y.betterParse.grammar.Grammar
 import com.github.h0tk3y.betterParse.lexer.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -87,5 +88,13 @@ class TokenizerTest {
         val result = lex.tokenize(input)
 
         assertEquals(listOf(a, b, c), result.toList().map { it.type })
+    }
+
+    @Test fun issue28() {
+        val a = regexToken("a+".toRegex())
+        val b = regexToken("b+".toRegex())
+        val lex = DefaultTokenizer(listOf(a, b))
+        val input = "abab"
+        assertEquals(listOf(a, b, a, b), lex.tokenize(input).toList().map { it.type })
     }
 }
