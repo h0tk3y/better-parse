@@ -1,6 +1,5 @@
 package com.github.h0tk3y.betterParse.lexer
 
-import java.util.*
 import java.util.regex.Matcher
 
 actual class RegexToken : Token {
@@ -19,19 +18,13 @@ actual class RegexToken : Token {
             ("$inputStartPrefix(?:$patternString)").toRegex()
 
     actual constructor(name: String?, @Language("RegExp", "", "") patternString: String, ignored: Boolean)
-        : super(name, ignored) {
+            : super(name, ignored) {
         pattern = patternString
         regex = prependPatternWithInputStart(patternString)
-
         matcher = regex.toPattern().matcher("")
     }
 
-    actual constructor(name: String?, regex: Regex, ignored: Boolean)
-            : super(name, ignored) {
-        pattern = regex.pattern
-        this.regex = prependPatternWithInputStart(pattern)
-        matcher = this.regex.toPattern().matcher("")
-    }
+    actual constructor(name: String?, regex: Regex, ignored: Boolean) : this(name, regex.pattern, ignored)
 
     override fun match(input: CharSequence, fromIndex: Int): Int {
         matcher.reset(input).region(fromIndex, input.length)
