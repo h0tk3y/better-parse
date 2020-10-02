@@ -13,8 +13,8 @@ kotlin.js {
 var assembleWeb = task<Sync>("assembleWeb") {
     val main by kotlin.js().compilations.getting
 
-    main.compileDependencyFiles.forEach { file ->
-        from(zipTree(file.absolutePath)) {
+    main.compileDependencyFiles.map { it.absolutePath }.map(::zipTree).forEach {
+        from(it) {
             includeEmptyDirs = false
 
             include { fileTreeElement ->
