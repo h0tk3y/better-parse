@@ -21,8 +21,8 @@ class ArithmeticsEvaluator : Grammar<Int>() {
 
     val number by num use { text.toInt() }
     val term: Parser<Int> by number or
-        (skip(minus) and parser(this::term) map { -it }) or
-        (skip(lpar) and parser(this::rootParser) and skip(rpar))
+        (skip(minus) and parser(::term) map { -it }) or
+        (skip(lpar) and parser(::rootParser) and skip(rpar))
 
     val powChain by leftAssociative(term, pow) { a, _, b -> Math.pow(a.toDouble(), b.toDouble()).toInt() }
 
@@ -37,7 +37,7 @@ class ArithmeticsEvaluator : Grammar<Int>() {
     override val rootParser: Parser<Int> by subSumChain
 }
 
-fun main(args: Array<String>) {
+fun main() {
     val expr = "1 + 2 * (3 - 1^1) - 2^2^2 * (1 + 1)"
     val result = ArithmeticsEvaluator().parseToEnd(expr)
     println(result)

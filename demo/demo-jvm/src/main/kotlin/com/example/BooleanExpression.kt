@@ -47,7 +47,7 @@ object BooleanGrammar : Grammar<BooleanExpression>() {
     override val rootParser by implChain
 }
 
-fun main(args: Array<String>) {
+fun main() {
     val expr = "a & (b1 -> c1) | a1 & !b | !(a1 -> a2) -> a"
     println(BooleanGrammar.parseToEnd(expr))
 }

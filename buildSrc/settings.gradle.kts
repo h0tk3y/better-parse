@@ -14,6 +14,6 @@ pluginManagement {
     val kotlinVersion = System.getProperty("build.kotlinVersion")
 
     plugins {
-        kotlin("jvm").version(kotlinVersion)
+        kotlin("jvm") version(kotlinVersion)
     }
 }

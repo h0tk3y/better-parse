@@ -1,7 +1,5 @@
 plugins {
-    kotlin("jvm")
+    `kotlin-dsl`
 }
 
-dependencies {
-    implementation(kotlin("stdlib"))
-}
+repositories.jcenter()

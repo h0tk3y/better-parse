@@ -9,19 +9,19 @@ import com.github.h0tk3y.betterParse.parser.ErrorResult
 import com.github.h0tk3y.betterParse.parser.Parsed
 import com.github.h0tk3y.betterParse.parser.Parser
 import org.w3c.dom.HTMLInputElement
-import kotlin.browser.document
-import kotlin.browser.window
+import kotlinx.browser.document
+import kotlinx.browser.window
 
 fun main() {
     window.onload = {
         val parseButton = document.getElementById("parse")!!
         val exprInput = document.getElementById("expr") as HTMLInputElement
         val result = document.getElementById("result")!!
+
         parseButton.addEventListener("click", {
             val expr = exprInput.value
-            val parseResult = BooleanGrammar.tryParseToEnd(expr)
 
-            val resultText = when (parseResult) {
+            val resultText = when (val parseResult = BooleanGrammar.tryParseToEnd(expr)) {
                 is Parsed -> parseResult.value.toString()
                 is ErrorResult -> parseResult.toString()
             }
@@ -59,8 +59,8 @@ private object BooleanGrammar : Grammar<BooleanExpression>() {
     val impl by literalToken("->")
     val ws by regexToken("\\s+", ignore = true)
 
-    val negation by -not * parser(this::term) map { Not(it) }
-    val bracedExpression by -lpar * parser(this::implChain) * -rpar
+    val negation by -not * parser(::term) map { Not(it) }
+    val bracedExpression by -lpar * parser(::implChain) * -rpar
 
     val term: Parser<BooleanExpression> by
     (tru asJust TRUE) or

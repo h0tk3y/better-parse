@@ -9,7 +9,7 @@ val Project.benchmarkVersion: String
 val Project.serializationVersion: String
     get() = project.property("serializationVersion").toString()
 
-private const val serializationRuntimePrefix = "org.jetbrains.kotlinx:kotlinx-serialization-runtime"
+private const val serializationJsonPrefix = "org.jetbrains.kotlinx:kotlinx-serialization-json"
 private const val benchmarksRuntimePrefix = "org.jetbrains.kotlinx:kotlinx.benchmark.runtime"
 
 data class ModuleSuffixes(
@@ -33,15 +33,15 @@ data class MultiplatformLibraryDependency(
 
 private val mppNamingScheme = ModuleSuffixes("", null, null, null)
 
-val Project.benchmarksNamingScheme get() = when (kotlinVersion) {
-    "1.3.72" -> ModuleSuffixes("-metadata", "-jvm", "-js", null)
-    else -> mppNamingScheme
-}
-
-val Project.serializationNamingScheme get() = when(kotlinVersion) {
-    "1.3.72" -> ModuleSuffixes("-common", "", "-js", "-native")
-    else -> mppNamingScheme
-}
-
-val Project.benchmark get() = MultiplatformLibraryDependency(benchmarksRuntimePrefix, benchmarkVersion, benchmarksNamingScheme)
-val Project.serialization get() = MultiplatformLibraryDependency(serializationRuntimePrefix, serializationVersion, serializationNamingScheme)
+val Project.benchmark
+    get() = MultiplatformLibraryDependency(
+        benchmarksRuntimePrefix,
+        benchmarkVersion,
+        mppNamingScheme
+    )
+val Project.serialization
+    get() = MultiplatformLibraryDependency(
+        serializationJsonPrefix,
+        serializationVersion,
+        mppNamingScheme
+    )

@@ -6,10 +6,12 @@ import com.github.h0tk3y.betterParse.parser.Parsed
 import com.github.h0tk3y.betterParse.st.SyntaxTree
 import com.github.h0tk3y.betterParse.st.liftToSyntaxTreeGrammar
 
-fun main(args: Array<String>) {
-    val exprs = listOf("a -> b | !c",
-                       "a & !b | (a -> a & b) -> a | b | a & b",
-                       "a & !(b -> a | c) | (c -> d) & !(!c -> !d & a)")
+fun main() {
+    val exprs = listOf(
+        "a -> b | !c",
+        "a & !b | (a -> a & b) -> a | b | a & b",
+        "a & !(b -> a | c) | (c -> d) & !(!c -> !d & a)"
+    )
 
     val readExprSequence = generateSequence {
         print("Enter a boolean expression:")

@@ -13,12 +13,6 @@ kotlin {
             languageSettings.useExperimentalAnnotation("kotlin.ExperimentalMultiplatform")
         }
 
-        commonMain {
-            dependencies {
-                implementation(kotlin("stdlib-common"))
-            }
-        }
-
         commonTest {
             dependencies {
                 implementation(kotlin("test-common"))
@@ -26,18 +20,16 @@ kotlin {
             }
         }
 
-        create("nativeMain") {
+        val nativeMain by creating {
             dependsOn(commonMain.get())
         }
     }
 
     jvm {
-        compilations["main"].defaultSourceSet.dependencies {
-            implementation(kotlin("stdlib"))
-        }
         compilations["test"].defaultSourceSet.dependencies {
             implementation(kotlin("test-junit"))
         }
+
         compilations.all {
             kotlinOptions.jvmTarget = "1.6"
         }
@@ -47,12 +39,10 @@ kotlin {
         browser()
         nodejs()
 
-        compilations["main"].defaultSourceSet.dependencies {
-            implementation(kotlin("stdlib-js"))
-        }
         compilations["test"].defaultSourceSet.dependencies {
             implementation(kotlin("test-js"))
         }
+
         compilations.all {
             kotlinOptions.moduleKind = "umd"
         }
@@ -76,6 +66,7 @@ val codegen by tasks.registering {
         maxTupleSize,
         kotlin.sourceSets.commonMain.get().kotlin.srcDirs.first().absolutePath + "/generated/andFunctions.kt"
     )
+
     tupleCodegen(
         maxTupleSize,
         kotlin.sourceSets.commonMain.get().kotlin.srcDirs.first().absolutePath + "/generated/tuples.kt"
@@ -117,6 +108,7 @@ publishing {
             val bintrayUsername = "hotkeytlt"
             val bintrayRepoName = "maven"
             val bintrayPackageName = "better-parse"
+
             url = URI(
                 "https://api.bintray.com/maven/$bintrayUsername/$bintrayRepoName/$bintrayPackageName/;publish=0"
             )
