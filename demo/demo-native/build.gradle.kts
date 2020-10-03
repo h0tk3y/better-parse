@@ -21,7 +21,7 @@ kotlin {
         }
 
         kotlin.targets.withType<KotlinNativeTarget>().all {
-            compilations.getByName("main") {
+            val main by compilations.getting {
                 defaultSourceSet.dependsOn(nativeMain)
                 binaries.executable { }
             }

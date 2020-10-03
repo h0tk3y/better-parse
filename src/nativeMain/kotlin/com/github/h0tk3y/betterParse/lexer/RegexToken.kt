@@ -1,14 +1,14 @@
 package com.github.h0tk3y.betterParse.lexer
 
-actual class RegexToken : Token {
+public actual class RegexToken : Token {
     private val pattern: String
     private val regex: Regex
 
-    companion object {
-        const val inputStartPrefix = "\\A"
+    public companion object {
+        public const val inputStartPrefix: String = "\\A"
     }
 
-    actual constructor(name: String?, @Language("RegExp", "", "") patternString: String, ignored: Boolean)
+    public actual constructor(name: String?, @Language("RegExp", "", "") patternString: String, ignored: Boolean)
             : super(name, ignored) {
         pattern = patternString
         regex = if (patternString.startsWith(inputStartPrefix))
@@ -17,7 +17,7 @@ actual class RegexToken : Token {
             ("$inputStartPrefix(?:$patternString)").toRegex()
     }
 
-    actual constructor(name: String?, regex: Regex, ignored: Boolean)
+    public actual constructor(name: String?, regex: Regex, ignored: Boolean)
             : super(name, ignored) {
         pattern = regex.pattern
         this.regex = regex
@@ -35,7 +35,7 @@ actual class RegexToken : Token {
         override fun toString(): String = error("unsupported operation")
     }
 
-    override fun match(input: CharSequence, fromIndex: Int): Int {
+    public override fun match(input: CharSequence, fromIndex: Int): Int {
         relativeInput.input = input
         relativeInput.fromIndex = fromIndex
 
@@ -45,5 +45,5 @@ actual class RegexToken : Token {
         } ?: 0
     }
 
-    override fun toString() = "${name ?: ""} [$pattern]" + if (ignored) " [ignorable]" else ""
+    public override fun toString(): String = "${name ?: ""} [$pattern]" + if (ignored) " [ignorable]" else ""
 }

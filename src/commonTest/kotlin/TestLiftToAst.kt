@@ -146,18 +146,22 @@ class TestLiftToAst {
 
     @Test
     fun testCustomTransformer() {
-        class ForcedDuplicate<T>(val alternatives: List<Parser<T>>) :
-            Parser<Pair<T, T>> {
+        class ForcedDuplicate<T>(val alternatives: List<Parser<T>>) : Parser<Pair<T, T>> {
             override fun tryParse(
                 tokens: TokenMatchesSequence,
                 fromPosition: Int
             ): ParseResult<Pair<T, T>> {
-                val res = alternatives.asSequence().map { it to it.tryParse(tokens, fromPosition) }.firstOrNull { it.second is Parsed<T> }
+                val res = alternatives
+                    .asSequence()
+                    .map { it to it.tryParse(tokens, fromPosition) }
+                    .find { it.second is Parsed<T> }
                     ?: return object : ErrorResult() {}
+
                 val (parser1, res1) = res
-                val res2 = parser1.tryParse(tokens, res1.toParsedOrThrow().nextPosition)
-                return when (res2) {
+
+                return when (val res2 = parser1.tryParse(tokens, res1.toParsedOrThrow().nextPosition)) {
                     is ErrorResult -> res2
+
                     is Parsed<T> -> ParsedValue(
                         res1.toParsedOrThrow().value to res2.value,
                         res2.nextPosition
@@ -180,13 +184,18 @@ class TestLiftToAst {
                             tokens: TokenMatchesSequence,
                             fromPosition: Int
                         ): ParseResult<SyntaxTree<T>> {
-                            val res = parsers.asSequence().map { it to it.tryParse(tokens, fromPosition) }.firstOrNull { it.second is Parsed<*> }
+                            val res = parsers
+                                .asSequence()
+                                .map { it to it.tryParse(tokens, fromPosition) }
+                                .find { it.second is Parsed<*> }
                                 ?: return object : ErrorResult() {}
+
                             val (parser1, res1) = res
                             res1 as Parsed<SyntaxTree<*>>
-                            val res2 = parser1.tryParse(tokens, res1.toParsedOrThrow().nextPosition)
-                            return when (res2) {
+
+                            return when (val res2 = parser1.tryParse(tokens, res1.toParsedOrThrow().nextPosition)) {
                                 is ErrorResult -> res2
+
                                 is Parsed<SyntaxTree<*>> -> ParsedValue(
                                     SyntaxTree(
                                         item = res1.toParsedOrThrow().value.item to res2.value.item,

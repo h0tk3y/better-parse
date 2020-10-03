@@ -1,4 +1,3 @@
-
 import com.github.h0tk3y.betterParse.combinators.*
 import com.github.h0tk3y.betterParse.grammar.Grammar
 import com.github.h0tk3y.betterParse.lexer.regexToken
@@ -8,13 +7,14 @@ import com.github.h0tk3y.betterParse.utils.components
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class AndTest : Grammar<Nothing>() {
+internal class AndTest : Grammar<Nothing>() {
     override val rootParser: Parser<Nothing> get() = throw NoSuchElementException()
 
     val a by regexToken("a")
     val b by regexToken("b")
 
-    @Test fun simpleAnd() {
+    @Test
+    fun simpleAnd() {
         val tokens = tokenizer.tokenize("aba")
         val parser = a and b and a use { components.map { it.type } }
         val result = parser.parseToEnd(tokens)
@@ -22,7 +22,8 @@ class AndTest : Grammar<Nothing>() {
         assertEquals(listOf(a, b, a), result)
     }
 
-    @Test fun skip() {
+    @Test
+    fun skip() {
         val tokens = tokenizer.tokenize("abab")
         val parserA = a and skip(b) and a and skip(b) use { components.map { it.type } }
         val parserB = skip(a) and b and skip(a) and b use { components.map { it.type } }
@@ -31,7 +32,8 @@ class AndTest : Grammar<Nothing>() {
         assertEquals(listOf(b, b), parserB.parseToEnd(tokens))
     }
 
-    @Test fun leftmostSeveralSkips() {
+    @Test
+    fun leftmostSeveralSkips() {
         val tokens = tokenizer.tokenize("ababab")
         val parser = -a * -b * a * -b * -a * b use { t1.type to t2.type }
         val result = parser.parseToEnd(tokens)
@@ -39,7 +41,8 @@ class AndTest : Grammar<Nothing>() {
         assertEquals(a to b, result)
     }
 
-    @Test fun singleParserInSkipChain() {
+    @Test
+    fun singleParserInSkipChain() {
         val tokens = tokenizer.tokenize("ababa")
         val parser = -a * -b * a * -b * -a use { offset }
         val result = parser.parseToEnd(tokens)
@@ -47,7 +50,8 @@ class AndTest : Grammar<Nothing>() {
         assertEquals(2, result)
     }
 
-    @Test fun longAndOperatorChain() {
+    @Test
+    fun longAndOperatorChain() {
         val tokens = tokenizer.tokenize("aaabbb")
         val parser = a * a * a * b * b * b use { listOf(t6, t5, t4, t3, t2, t1).map { it.type } }
         val result = parser.parseToEnd(tokens)

@@ -28,13 +28,11 @@ val ast = booleanGrammar.parseToEnd("a & !b | b & (!a | c)")
     
 ### Using with Gradle
 
-> Use version 0.4.0 with Kotiln 1.3.72 and version 0.4.0-1.4-M2 with Kotlin 1.4-M2.
-
 Add the JCenter repository:
 
 ```groovy
 repositories {
-    maven { setUrl("https://dl.bintray.com/hotkeytlt/maven") }
+    maven { url 'https://dl.bintray.com/hotkeytlt/maven' }
 }
 ```
 

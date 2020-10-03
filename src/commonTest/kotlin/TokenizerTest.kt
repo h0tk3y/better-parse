@@ -2,7 +2,7 @@ import com.github.h0tk3y.betterParse.lexer.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class TokenizerTest {
+internal class TokenizerTest {
     @Test
     fun simpleInput() {
         val aPlus = regexToken("aPlus", "a+", false)

@@ -27,9 +27,7 @@ val booleanSyntaxTreeGrammar = BooleanGrammar.liftToSyntaxTreeGrammar()
 fun parseAndPrintTree(expr: String) {
     println(expr)
 
-    val result = booleanSyntaxTreeGrammar.tryParseToEnd(expr)
-
-    when (result) {
+    when (val result = booleanSyntaxTreeGrammar.tryParseToEnd(expr)) {
         is ErrorResult -> println("Could not parse expression: $result")
         is Parsed<SyntaxTree<BooleanExpression>> -> printSyntaxTree(expr, result.value)
     }

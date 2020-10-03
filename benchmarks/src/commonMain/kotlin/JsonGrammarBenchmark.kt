@@ -5,7 +5,6 @@ import kotlinx.benchmark.Benchmark
 import kotlinx.benchmark.Scope
 import kotlinx.benchmark.State
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
 
 @State(Scope.Benchmark)
 open class JsonGrammar {
@@ -18,9 +17,9 @@ open class JsonGrammar {
     open fun jsonBetterParse() {
         OptimizedJsonGrammar().parseToEnd(jsonSample1K)
     }
-    
+
     @Benchmark
     open fun jsonKotlinxDeserializer() {
-        Json(JsonConfiguration()).parseJson(jsonSample1K)
+        Json {}.parseToJsonElement(jsonSample1K)
     }
 }

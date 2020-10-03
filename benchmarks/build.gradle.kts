@@ -23,7 +23,7 @@ kotlin {
     }
 
     jvm {
-        compilations["main"].apply {
+        val main by compilations.getting {
             kotlinOptions.jvmTarget = "1.8"
 
             defaultSourceSet.dependencies {
@@ -32,8 +32,10 @@ kotlin {
             }
         }
 
-        compilations["test"].defaultSourceSet.dependencies {
-            implementation(kotlin("test-junit"))
+        val test by compilations.getting {
+            defaultSourceSet.dependencies {
+                implementation(kotlin("test-junit"))
+            }
         }
     }
 
@@ -57,7 +59,7 @@ benchmark {
     targets.register("jvm")
     targets.register("js")
 
-    configurations["main"].apply {
+    val main by configurations.getting {
         warmups = 5
         iterations = 10
     }

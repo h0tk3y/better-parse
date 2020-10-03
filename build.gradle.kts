@@ -8,16 +8,16 @@ plugins {
 }
 
 kotlin {
+    explicitApiWarning()
+
     sourceSets {
         all {
             languageSettings.useExperimentalAnnotation("kotlin.ExperimentalMultiplatform")
         }
 
-        commonTest {
-            dependencies {
-                implementation(kotlin("test-common"))
-                implementation(kotlin("test-annotations-common"))
-            }
+        commonTest.get().dependencies {
+            implementation(kotlin("test-common"))
+            implementation(kotlin("test-annotations-common"))
         }
 
         val nativeMain by creating {
@@ -26,8 +26,10 @@ kotlin {
     }
 
     jvm {
-        compilations["test"].defaultSourceSet.dependencies {
-            implementation(kotlin("test-junit"))
+        val test by compilations.getting {
+            defaultSourceSet.dependencies {
+                implementation(kotlin("test-junit"))
+            }
         }
 
         compilations.all {
@@ -50,7 +52,7 @@ kotlin {
 
     presets.withType<AbstractKotlinNativeTargetPreset<*>>().forEach {
         targetFromPreset(it) {
-            compilations.getByName("main") {
+            val main by compilations.getting {
                 defaultSourceSet.dependsOn(sourceSets["nativeMain"])
             }
         }
@@ -73,9 +75,7 @@ val codegen by tasks.registering {
     )
 }
 
-kotlin.sourceSets.commonMain {
-    kotlin.srcDirs(files().builtBy(codegen))
-}
+kotlin.sourceSets.commonMain.get().kotlin.srcDirs(files().builtBy(codegen))
 
 //endregion
 
@@ -83,10 +83,9 @@ kotlin.sourceSets.commonMain {
 
 val publicationsFromWindows = listOf("mingwX64", "mingwX86")
 
-val publicationsFromMacos =
-    kotlin.targets.names.filter {
-        it.startsWith("macos") || it.startsWith("ios") || it.startsWith("watchos") || it.startsWith("tvos")
-    }
+val publicationsFromMacos = kotlin.targets.names.filter {
+    it.startsWith("macos") || it.startsWith("ios") || it.startsWith("watchos") || it.startsWith("tvos")
+}
 
 val publicationsFromLinux = publishing.publications.names - publicationsFromWindows - publicationsFromMacos
 
@@ -101,23 +100,16 @@ tasks.withType(AbstractPublishToMaven::class).all {
     onlyIf { publication.name in publicationsFromThisPlatform }
 }
 
-publishing {
-    repositories {
-        maven {
-            name = "bintray"
-            val bintrayUsername = "hotkeytlt"
-            val bintrayRepoName = "maven"
-            val bintrayPackageName = "better-parse"
+publishing.repositories.maven {
+    name = "bintray"
+    val bintrayUsername = "hotkeytlt"
+    val bintrayRepoName = "maven"
+    val bintrayPackageName = "better-parse"
+    url = URI("https://api.bintray.com/maven/$bintrayUsername/$bintrayRepoName/$bintrayPackageName/;publish=0")
 
-            url = URI(
-                "https://api.bintray.com/maven/$bintrayUsername/$bintrayRepoName/$bintrayPackageName/;publish=0"
-            )
-
-            credentials {
-                username = bintrayUsername
-                password = findProperty("bintray_api_key") as? String
-            }
-        }
+    credentials {
+        username = bintrayUsername
+        password = findProperty("bintray_api_key") as? String
     }
 }
 

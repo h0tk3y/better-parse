@@ -7,6 +7,7 @@ import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.lexer.literalToken
 import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.Parser
+import kotlin.math.pow
 
 class ArithmeticsEvaluator : Grammar<Int>() {
     val num by regexToken("-?\\d+")
@@ -20,11 +21,12 @@ class ArithmeticsEvaluator : Grammar<Int>() {
     val ws by regexToken("\\s+", ignore = true)
 
     val number by num use { text.toInt() }
-    val term: Parser<Int> by number or
-        (skip(minus) and parser(::term) map { -it }) or
-        (skip(lpar) and parser(::rootParser) and skip(rpar))
 
-    val powChain by leftAssociative(term, pow) { a, _, b -> Math.pow(a.toDouble(), b.toDouble()).toInt() }
+    val term: Parser<Int> by number or
+            (skip(minus) and parser(::term) map { -it }) or
+            (skip(lpar) and parser(::rootParser) and skip(rpar))
+
+    val powChain by leftAssociative(term, pow) { a, _, b -> a.toDouble().pow(b.toDouble()).toInt() }
 
     val divMulChain by leftAssociative(powChain, div or mul use { type }) { a, op, b ->
         if (op == div) a / b else a * b

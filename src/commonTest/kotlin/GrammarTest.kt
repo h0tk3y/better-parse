@@ -1,4 +1,3 @@
-
 import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.combinators.separated
 import com.github.h0tk3y.betterParse.combinators.use
@@ -10,7 +9,7 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class GrammarTest {
+internal class GrammarTest {
     @Test
     fun simpleParse() {
         val digits = "0123456789"

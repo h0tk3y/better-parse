@@ -1,10 +1,9 @@
-
 import com.github.h0tk3y.betterParse.lexer.*
 import com.github.h0tk3y.betterParse.parser.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class TokenTest {
+internal class TokenTest {
     val a = regexToken("a", "a")
     val b = literalToken("b", "b")
     val ignoredX = RegexToken("ignoredX", "x", true)

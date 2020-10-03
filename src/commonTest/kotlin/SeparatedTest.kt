@@ -1,4 +1,3 @@
-
 import com.github.h0tk3y.betterParse.combinators.*
 import com.github.h0tk3y.betterParse.grammar.Grammar
 import com.github.h0tk3y.betterParse.lexer.regexToken
@@ -7,22 +6,24 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class SeparatedTest : Grammar<Nothing>() {
+internal class SeparatedTest : Grammar<Nothing>() {
     override val rootParser: Parser<Nothing> get() = throw NoSuchElementException()
 
     val number by regexToken("\\d+")
     val comma by regexToken(",\\s+")
     val word by regexToken("\\w+")
 
-    @Test fun separate() {
+    @Test
+    fun separate() {
         val tokens = tokenizer.tokenize("one, two, three")
-        val result = separated(word use { text }, comma).tryParse(tokens,0).toParsedOrThrow().value
+        val result = separated(word use { text }, comma).tryParse(tokens, 0).toParsedOrThrow().value
 
         assertEquals(listOf("one", "two", "three"), result.terms)
         assertEquals(2, result.separators.size)
     }
 
-    @Test fun singleSeparated() {
+    @Test
+    fun singleSeparated() {
         val tokens = tokenizer.tokenize("one")
         val result = separated(word use { text }, comma).parseToEnd(tokens)
 
@@ -30,17 +31,19 @@ class SeparatedTest : Grammar<Nothing>() {
         assertTrue(result.separators.isEmpty())
     }
 
-    @Test fun acceptZero() {
+    @Test
+    fun acceptZero() {
         val tokens = tokenizer.tokenize("123")
 
-        val resultRejectZero = separated(word asJust "x", comma).tryParse(tokens,0)
+        val resultRejectZero = separated(word asJust "x", comma).tryParse(tokens, 0)
         assertTrue(resultRejectZero is MismatchedToken)
 
-        val resultAcceptZero = separated(word asJust "x", comma, acceptZero = true).tryParse(tokens,0)
+        val resultAcceptZero = separated(word asJust "x", comma, acceptZero = true).tryParse(tokens, 0)
         assertTrue(resultAcceptZero is Parsed && resultAcceptZero.value.terms.isEmpty())
     }
 
-    @Test fun reduceLeftRight() {
+    @Test
+    fun reduceLeftRight() {
         val tokens = tokenizer.tokenize("3, 4, 5, 6")
         val result = separated(number use { text.toInt() }, comma).parseToEnd(tokens)
 
@@ -51,7 +54,8 @@ class SeparatedTest : Grammar<Nothing>() {
         assertEquals(6 - 5 - 4 - 3, minusRight)
     }
 
-    @Test fun associative() {
+    @Test
+    fun associative() {
         val tokens = tokenizer.tokenize("3, 4, 5, 6")
         val p = (number use { text.toInt() }) as Parser<Any>
 

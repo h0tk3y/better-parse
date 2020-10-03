@@ -1,16 +1,16 @@
 package com.github.h0tk3y.betterParse.lexer
 
 /** Stateful producer of tokens that yields [Token]s from some inputs sequence that it is based upon, one by one */
-interface TokenProducer {
-    fun nextToken(): TokenMatch?
+public interface TokenProducer {
+    public fun nextToken(): TokenMatch?
 }
 
-class TokenMatchesSequence(
+public class TokenMatchesSequence(
     private val tokenProducer: TokenProducer,
-    val tokenizer: Tokenizer,
+    public val tokenizer: Tokenizer,
     private val matches: MutableList<TokenMatch> = arrayListOf()
 ) : Sequence<TokenMatch> {
-    private inline fun ensureReadPosition(position: Int): Boolean {
+    private fun ensureReadPosition(position: Int): Boolean {
         while (position >= matches.size) {
             val next = tokenProducer.nextToken() ?: return false
             matches.add(next)
@@ -19,14 +19,14 @@ class TokenMatchesSequence(
         return true
     }
 
-    operator fun get(position: Int): TokenMatch? {
+    public operator fun get(position: Int): TokenMatch? {
         if (!ensureReadPosition(position))
             return null
 
         return matches[position]
     }
 
-    fun getNotIgnored(position: Int): TokenMatch? {
+    public fun getNotIgnored(position: Int): TokenMatch? {
         if (!ensureReadPosition(position))
             return null
 
@@ -53,7 +53,7 @@ class TokenMatchesSequence(
         }
     }
 
-    override fun iterator(): Iterator<TokenMatch> = object : AbstractIterator<TokenMatch>() {
+    public override fun iterator(): Iterator<TokenMatch> = object : AbstractIterator<TokenMatch>() {
         var position = 0
         var noneMatchedAtThisPosition = false
 

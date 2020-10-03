@@ -14,18 +14,13 @@ object EmptyParser : Parser<Unit> {
     override fun tryParse(tokens: TokenMatchesSequence, fromPosition: Int): ParseResult<Unit> = ParsedValue(Unit, fromPosition)
 }
 
-fun <T> Parser<T>.tryParseToEnd(tokens: TokenMatchesSequence, position: Int): ParseResult<T> {
-    val result = tryParse(tokens, position)
-    return when (result) {
+fun <T> Parser<T>.tryParseToEnd(tokens: TokenMatchesSequence, position: Int): ParseResult<T> =
+    when (val result = tryParse(tokens, position)) {
         is ErrorResult -> result
-        is Parsed -> tokens.getNotIgnored(result.nextPosition)?.let {
-            UnparsedRemainder(it)
-        } ?: result
+        is Parsed -> tokens.getNotIgnored(result.nextPosition)?.let { UnparsedRemainder(it) } ?: result
     }
-}
 
 fun <T> Parser<T>.parse(tokens: TokenMatchesSequence): T = tryParse(tokens, 0).toParsedOrThrow().value
-
 fun <T> Parser<T>.parseToEnd(tokens: TokenMatchesSequence): T = tryParseToEnd(tokens, 0).toParsedOrThrow().value
 
 

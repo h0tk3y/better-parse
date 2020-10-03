@@ -4,6 +4,13 @@ fun andCodegen(maxN: Int, outputFile: String) {
     fun genericsStr(i: Int) = (1..i).joinToString(prefix = "<", postfix = ">") { "T$it" }
 
     val resultCode = buildString {
+        // @file:Suppress("MoveLambdaOutsideParentheses", "NO_EXPLICIT_RETURN_TYPE_IN_API_MODE_WARNING",
+        //    "PackageDirectoryMismatch"
+        //)
+        appendln("@file:Suppress(\"MoveLambdaOutsideParentheses\", \"NO_EXPLICIT_RETURN_TYPE_IN_API_MODE_WARNING\",")
+        appendln("   \"PackageDirectoryMismatch\"")
+        appendln(")")
+        appendln()
         appendln("package com.github.h0tk3y.betterParse.combinators")
         appendln("import com.github.h0tk3y.betterParse.utils.*")
         appendln("import com.github.h0tk3y.betterParse.parser.*")
@@ -16,18 +23,22 @@ fun andCodegen(maxN: Int, outputFile: String) {
             val reifiedNext = (1..i + 1).joinToString { "reified T$it" }
             val casts = (1..i + 1).joinToString { "it[${it - 1}] as T$it" }
 
-            appendln("""
-            @JvmName("and$i") inline infix fun <$reifiedNext>
+            appendln(
+                """
+            @JvmName("and$i") public inline infix fun <$reifiedNext>
                 AndCombinator<Tuple$i$generics>.and(p${i + 1}: Parser<T${i + 1}>) =
                 AndCombinator(consumers + p${i + 1}, {
                     Tuple${i + 1}($casts)
                 })
-                """.trimIndent() + "\n")
+                """.trimIndent() + "\n"
+            )
 
-            appendln("""
-                @JvmName("and$i${"Operator"}") inline operator fun <$reifiedNext>
+            appendln(
+                """
+                @JvmName("and$i${"Operator"}") public inline operator fun <$reifiedNext>
                  AndCombinator<Tuple$i$generics>.times(p${i + 1}: Parser<T${i + 1}>) = this and p${i + 1}
-                """.trimIndent() + "\n\n")
+                """.trimIndent() + "\n\n"
+            )
         }
     }
 

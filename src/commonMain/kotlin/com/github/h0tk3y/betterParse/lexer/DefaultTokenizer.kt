@@ -2,7 +2,7 @@ package com.github.h0tk3y.betterParse.lexer
 
 /** Tokenizes input character sequences using the [tokens], prioritized by their order in the list,
  * first matched first. */
-class DefaultTokenizer(override val tokens: List<Token>) : Tokenizer {
+public class DefaultTokenizer(override val tokens: List<Token>) : Tokenizer {
     init {
         require(tokens.isNotEmpty()) { "The tokens list should not be empty" }
     }
@@ -11,7 +11,7 @@ class DefaultTokenizer(override val tokens: List<Token>) : Tokenizer {
     override fun tokenize(input: String): TokenMatchesSequence = tokenize(input as CharSequence)
 
     /** Tokenizes the [input] from a [CharSequence] into a [TokenMatchesSequence]. */
-    fun tokenize(input: CharSequence) = TokenMatchesSequence(DefaultTokenProducer(tokens, input), this)
+    public fun tokenize(input: CharSequence): TokenMatchesSequence = TokenMatchesSequence(DefaultTokenProducer(tokens, input), this)
 }
 
 private class DefaultTokenProducer(private val tokens: List<Token>, private val input: CharSequence) : TokenProducer {

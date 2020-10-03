@@ -1,4 +1,3 @@
-
 import com.github.h0tk3y.betterParse.combinators.times
 import com.github.h0tk3y.betterParse.combinators.use
 import com.github.h0tk3y.betterParse.grammar.Grammar
@@ -10,33 +9,29 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.text.RegexOption.*
 
-class FlagsCompatibilityTest {
+internal class FlagsCompatibilityTest {
     @Test
     fun testJavaPatternFlags() {
         val patternsGrammar = object : Grammar<String>() {
             val caseInsensitive by regexToken(Regex("abc", IGNORE_CASE))
 
             val comments by regexToken(
-                Regex(
-                    """
+                """
                     d # some comment
                     e # some comment
                     f # some comment
-                """.trimIndent(),
-                    COMMENTS
-                )
+                """.trimIndent().toRegex(COMMENTS)
             )
 
             val dotall by regexToken(Regex("eol.*?dotall", DOT_MATCHES_ALL))
-
             val literal by regexToken(Regex(".*.*.*", LITERAL))
-
             val multiline by regexToken(Regex("eol$\n^multiline", MULTILINE))
-
             val unixLines by regexToken(Regex(". x", UNIX_LINES))
 
             override val rootParser: Parser<String>
-                get() = (caseInsensitive * comments * dotall * literal * multiline /** unicodeCase*/ * unixLines).use {
+                get() = (caseInsensitive * comments * dotall * literal * multiline
+                        /** unicodeCase*/
+                        * unixLines).use {
                     components.joinToString("") { it.text }
                 }
         }
