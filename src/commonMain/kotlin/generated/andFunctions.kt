@@ -1,5 +1,5 @@
 @file:Suppress("MoveLambdaOutsideParentheses", "NO_EXPLICIT_RETURN_TYPE_IN_API_MODE_WARNING",
-    "PackageDirectoryMismatch"
+   "PackageDirectoryMismatch"
 )
 
 package com.github.h0tk3y.betterParse.combinators

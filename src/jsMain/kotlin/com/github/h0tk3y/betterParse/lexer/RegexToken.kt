@@ -30,11 +30,11 @@ public actual class RegexToken : Token {
         preprocessRegex(regex)
     }
 
-    override fun match(input: CharSequence, fromIndex: Int): Int =
+    public override fun match(input: CharSequence, fromIndex: Int): Int =
         regex.find(input, fromIndex)?.range?.let {
             val length = it.last - it.first + 1
             length
         } ?: 0
 
-    override fun toString() = "${name ?: ""} [$pattern]" + if (ignored) " [ignorable]" else ""
+    public override fun toString(): String = "${name ?: ""} [$pattern]" + if (ignored) " [ignorable]" else ""
 }

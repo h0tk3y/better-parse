@@ -59,5 +59,5 @@ public expect class ParserReference<out T> internal constructor(parserProvider: 
     public val parser: Parser<T>
 }
 
-public fun <T> Grammar<T>.tryParseToEnd(input: String) = rootParser.tryParseToEnd(tokenizer.tokenize(input), 0)
+public fun <T> Grammar<T>.tryParseToEnd(input: String): ParseResult<T> = rootParser.tryParseToEnd(tokenizer.tokenize(input), 0)
 public fun <T> Grammar<T>.parseToEnd(input: String): T = rootParser.parseToEnd(tokenizer.tokenize(input))

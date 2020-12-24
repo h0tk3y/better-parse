@@ -7,21 +7,20 @@ public actual class RegexToken : Token {
     private val regex: Regex
     private val matcher: Matcher
 
-    companion object {
-        const val inputStartPrefix = "\\A"
+    public companion object {
+        public const val inputStartPrefix: String = "\\A"
+    }
 
-        private fun prependPatternWithInputStart(patternString: String, options: Set<RegexOption> = emptySet()): Regex =
-            if (patternString.startsWith(inputStartPrefix))
-                patternString.toRegex(options)
-            else {
-                val lines = patternString.split("\n")
+    private fun prependPatternWithInputStart(patternString: String, options: Set<RegexOption> = emptySet()): Regex {
+        if (RegexOption.LITERAL in options)
+            return patternString.toRegex(RegexOption.LITERAL)
 
-                if (lines.size > 1)
-                    ("$inputStartPrefix(?:$patternString${if (lines.last().contains("#")) "\n)" else ")"}")
-                        .toRegex(options)
-                else
-                    ("$inputStartPrefix(?:$patternString)").toRegex(options)
-            }
+        if (patternString.startsWith(inputStartPrefix))
+            return patternString.toRegex(options)
+        else {
+            val needLineBreak = RegexOption.COMMENTS in options && "#" in patternString.split("\n").last()
+            return ("$inputStartPrefix(?:$patternString${if (needLineBreak) "\n" else ""})").toRegex(options)
+        }
     }
 
     public actual constructor(name: String?, @Language("RegExp", "", "") patternString: String, ignored: Boolean)
@@ -35,11 +34,10 @@ public actual class RegexToken : Token {
             : super(name, ignored) {
         pattern = regex.pattern
         this.regex = prependPatternWithInputStart(pattern, regex.options)
-        println(this.regex)
         matcher = this.regex.toPattern().matcher("")
     }
 
-    override fun match(input: CharSequence, fromIndex: Int): Int {
+    public override fun match(input: CharSequence, fromIndex: Int): Int {
         matcher.reset(input).region(fromIndex, input.length)
 
         if (!matcher.find())
@@ -49,5 +47,5 @@ public actual class RegexToken : Token {
         return end - fromIndex
     }
 
-    override fun toString() = "${name ?: ""} [$pattern]" + if (ignored) " [ignorable]" else ""
+    public override fun toString(): String = "${name ?: ""} [$pattern]" + if (ignored) " [ignorable]" else ""
 }

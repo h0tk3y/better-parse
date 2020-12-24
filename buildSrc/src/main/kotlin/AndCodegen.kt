@@ -19,7 +19,6 @@ fun andCodegen(maxN: Int, outputFile: String) {
 
         for (i in 2 until maxN) {
             val generics = genericsStr(i)
-
             val reifiedNext = (1..i + 1).joinToString { "reified T$it" }
             val casts = (1..i + 1).joinToString { "it[${it - 1}] as T$it" }
 

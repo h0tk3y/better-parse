@@ -33,5 +33,5 @@ public abstract class Token(name: String? = null, public val ignored: Boolean) :
 
 /** Token type indicating that there was no [Token] found to be matched by a [Tokenizer]. */
 public val noneMatched: Token = object : Token("no token matched", false) {
-    override fun match(input: CharSequence, fromIndex: Int): Int = 0
+    public override fun match(input: CharSequence, fromIndex: Int): Int = 0
 }

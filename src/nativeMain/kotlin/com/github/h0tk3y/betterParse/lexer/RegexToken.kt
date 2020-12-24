@@ -11,6 +11,7 @@ public actual class RegexToken : Token {
     public actual constructor(name: String?, @Language("RegExp", "", "") patternString: String, ignored: Boolean)
             : super(name, ignored) {
         pattern = patternString
+
         regex = if (patternString.startsWith(inputStartPrefix))
             patternString.toRegex()
         else
@@ -19,8 +20,13 @@ public actual class RegexToken : Token {
 
     public actual constructor(name: String?, regex: Regex, ignored: Boolean)
             : super(name, ignored) {
-        pattern = regex.pattern
-        this.regex = regex
+        val patternString = regex.toString()
+        pattern = patternString
+
+        this.regex = if (patternString.startsWith(inputStartPrefix))
+            patternString.toRegex(regex.options)
+        else
+            ("$inputStartPrefix(?:$patternString)").toRegex(regex.options)
     }
 
     private val relativeInput = object : CharSequence {

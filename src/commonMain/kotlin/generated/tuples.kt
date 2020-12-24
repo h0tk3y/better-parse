@@ -1,3 +1,5 @@
+@file:Suppress("PackageDirectoryMismatch", "NO_EXPLICIT_RETURN_TYPE_IN_API_MODE_WARNING")
+
 package com.github.h0tk3y.betterParse.utils
 
 public data class Tuple1<T1>(val t1: T1) : Tuple
