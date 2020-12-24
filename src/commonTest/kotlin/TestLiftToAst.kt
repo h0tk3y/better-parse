@@ -78,7 +78,7 @@ private fun SyntaxTree<*>.toTopDownStrings() = topDownNodesSequence()
             it.item?.typeName()
     }.toList()
 
-class TestLiftToAst {
+internal class TestLiftToAst {
     @Test
     fun continuousRange() {
         val astParser = booleanGrammar.liftToSyntaxTreeGrammar(LiftToSyntaxTreeOptions(retainSkipped = true), structureParsers = null)
@@ -218,4 +218,4 @@ class TestLiftToAst {
 
         assertTrue(value.children.size == 2 && value.children.all { it.parser === booleanGrammar.or })
     }
-} 
+}
