@@ -8,7 +8,7 @@ import com.github.h0tk3y.betterParse.parser.*
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
-class RepeatTest : Grammar<Nothing>() {
+internal class RepeatTest : Grammar<Nothing>() {
     override val rootParser: Parser<Nothing> get() = throw NoSuchElementException()
 
     val a by regexToken("a")
