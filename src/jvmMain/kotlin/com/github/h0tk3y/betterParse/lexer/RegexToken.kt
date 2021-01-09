@@ -12,16 +12,19 @@ actual class RegexToken : Token {
         const val inputStartPrefix = "\\A"
     }
 
-    private fun prependPatternWithInputStart(patternString: String) =
+    private fun prependPatternWithInputStart(patternString: String, options: Set<RegexOption>) =
         if (patternString.startsWith(inputStartPrefix))
-            patternString.toRegex()
-        else
-            ("$inputStartPrefix(?:$patternString)").toRegex()
+            patternString.toRegex(options)
+        else {
+            val newlineAfterComments = if (RegexOption.COMMENTS in options) "\n" else ""
+            val patternToEmbed = if (RegexOption.LITERAL in options) Regex.escape(patternString) else patternString
+            ("$inputStartPrefix(?:$patternToEmbed$newlineAfterComments)").toRegex(options - RegexOption.LITERAL)
+        }
 
     actual constructor(name: String?, @Language("RegExp", "", "") patternString: String, ignored: Boolean)
         : super(name, ignored) {
         pattern = patternString
-        regex = prependPatternWithInputStart(patternString)
+        regex = prependPatternWithInputStart(patternString, emptySet())
 
         matcher = regex.toPattern().matcher("")
     }
@@ -29,7 +32,7 @@ actual class RegexToken : Token {
     actual constructor(name: String?, regex: Regex, ignored: Boolean)
             : super(name, ignored) {
         pattern = regex.pattern
-        this.regex = prependPatternWithInputStart(pattern)
+        this.regex = prependPatternWithInputStart(pattern, regex.options)
         matcher = this.regex.toPattern().matcher("")
     }
 

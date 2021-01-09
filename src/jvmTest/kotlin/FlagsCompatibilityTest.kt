@@ -3,6 +3,7 @@ import com.github.h0tk3y.betterParse.combinators.times
 import com.github.h0tk3y.betterParse.combinators.use
 import com.github.h0tk3y.betterParse.grammar.Grammar
 import com.github.h0tk3y.betterParse.grammar.parseToEnd
+import com.github.h0tk3y.betterParse.lexer.DefaultTokenizer
 import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.utils.components
@@ -86,5 +87,14 @@ class FlagsCompatibilityTest {
 
         val result = regexesGrammar.parseToEnd(input)
         assertEquals(input, result)
+    }
+
+    @Test
+    fun issue28WithRegexFlags() {
+        val a = regexToken(Regex("\\\\", setOf(LITERAL)))
+        val b = regexToken(Regex("b#comment", setOf(COMMENTS)))
+        val input = "\\\\b\\\\b"
+        val lex = DefaultTokenizer(listOf(a, b))
+        assertEquals(listOf(a, b, a, b), lex.tokenize(input).toList().map { it.type })
     }
 }

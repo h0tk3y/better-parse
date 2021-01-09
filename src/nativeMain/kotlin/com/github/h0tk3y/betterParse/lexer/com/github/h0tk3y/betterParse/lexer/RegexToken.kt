@@ -8,19 +8,23 @@ actual class RegexToken : Token {
         const val inputStartPrefix = "\\A"
     }
 
+    private fun prependPatternWithInputStart(patternString: String, options: Set<RegexOption>) =
+        if (patternString.startsWith(inputStartPrefix))
+            patternString.toRegex(options)
+        else {
+            ("$inputStartPrefix(?:$patternString)").toRegex(options)
+        }
+
     actual constructor(name: String?, @Language("RegExp", "", "") patternString: String, ignored: Boolean)
             : super(name, ignored) {
         pattern = patternString
-        regex = if (patternString.startsWith(inputStartPrefix))
-            patternString.toRegex()
-        else
-            ("$inputStartPrefix(?:$patternString)").toRegex()
+        regex = prependPatternWithInputStart(patternString, emptySet())
     }
 
     actual constructor(name: String?, regex: Regex, ignored: Boolean)
             : super(name, ignored) {
         pattern = regex.pattern
-        this.regex = regex
+        this.regex = prependPatternWithInputStart(pattern, emptySet())
     }
 
     private val relativeInput = object : CharSequence {
