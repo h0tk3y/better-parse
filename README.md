@@ -28,16 +28,6 @@ val ast = booleanGrammar.parseToEnd("a & !b | b & (!a | c)")
     
 ### Using with Gradle
 
-Add the Bintray repository:
-
-```groovy
-repositories {
-    maven { setUrl("https://dl.bintray.com/hotkeytlt/maven") }
-}
-```
-
-Then add the dependency:
-
 ```groovy
 dependencies {
    implementation 'com.github.h0tk3y.betterParse:better-parse:0.4.1'
