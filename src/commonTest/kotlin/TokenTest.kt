@@ -30,7 +30,7 @@ class TokenTest {
     fun unexpectedEof() {
         val tokens = TokenMatchesSequence(object : TokenProducer {
             override fun nextToken(): TokenMatch? = null
-        }, DefaultTokenizer(listOf(a)), arrayListOf())
+        }, arrayListOf())
 
         val result = a.tryParseToEnd(tokens, 0)
 

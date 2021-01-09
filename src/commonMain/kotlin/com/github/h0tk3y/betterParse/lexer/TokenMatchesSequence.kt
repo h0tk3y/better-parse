@@ -7,7 +7,6 @@ interface TokenProducer {
 
 class TokenMatchesSequence(
     private val tokenProducer: TokenProducer,
-    val tokenizer: Tokenizer,
     private val matches: ArrayList<TokenMatch> = arrayListOf()
 ) : Sequence<TokenMatch> {
 
