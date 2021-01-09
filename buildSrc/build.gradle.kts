@@ -1,7 +1,9 @@
 plugins {
-    kotlin("jvm")
+    // TODO: setup the version in the same way as in the root project once IJ fixes importing of buildSrc
+    kotlin("jvm").version("1.4.21")
 }
 
-dependencies {
-    implementation(kotlin("stdlib"))
+repositories {
+    // TODO: unify repository setup with the root project once IJ fixes importing of buildSrc
+    jcenter()
 }
