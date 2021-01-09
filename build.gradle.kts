@@ -4,7 +4,9 @@ import java.net.URI
 
 plugins {
     kotlin("multiplatform")
-    `maven-publish`
+
+    id("maven-publish")
+    id("signing")
 }
 
 kotlin {
@@ -103,19 +105,82 @@ tasks.withType(AbstractPublishToMaven::class).all {
 publishing {
     repositories {
         maven {
-            name = "bintray"
-            val bintrayUsername = "hotkeytlt"
-            val bintrayRepoName = "maven"
-            val bintrayPackageName = "better-parse"
-            url = URI(
-                "https://api.bintray.com/maven/$bintrayUsername/$bintrayRepoName/$bintrayPackageName/;publish=0"
-            )
+            name = "central"
+            val sonatypeUsername = "h0tk3y"
+            url = URI("https://oss.sonatype.org/service/local/staging/deploy/maven2")
 
             credentials {
-                username = bintrayUsername
-                password = findProperty("bintray_api_key") as? String
+                username = sonatypeUsername
+                password = findProperty("sonatypePassword") as? String
             }
         }
+    }
+}
+
+// Add a Javadoc JAR to each publication as required by Maven Central:
+
+val javadocJar by tasks.creating(Jar::class) {
+    archiveClassifier.value("javadoc")
+    // TODO: instead of a single empty Javadoc JAR, generate real documentation for each module
+}
+
+publishing {
+    publications.withType<MavenPublication>().all {
+        artifact(javadocJar)
+    }
+}
+
+fun customizeForMavenCentral(pom: org.gradle.api.publish.maven.MavenPom) = pom.withXml {
+    fun groovy.util.Node.add(key: String, value: String) {
+        appendNode(key).setValue(value)
+    }
+
+    fun groovy.util.Node.node(key: String, content: groovy.util.Node.() -> Unit) {
+        appendNode(key).also(content)
+    }
+
+    asNode().run {
+        add("name", "better-parse")
+        add(
+            "description",
+            "A library that provides a set of parser combinator tools for building parsers and translators in Kotlin."
+        )
+        add("url", "https://github.com/h0tk3y/better-parse")
+        node("organization") {
+            add("name", "com.github.h0tk3y")
+            add("url", "https://github.com/h0tk3y")
+        }
+        node("issueManagement") {
+            add("system", "github")
+            add("url", "https://github.com/h0tk3y/better-parse/issues")
+        }
+        node("licenses") {
+            node("license") {
+                add("name", "Apache License 2.0")
+                add("url", "https://raw.githubusercontent.com/h0tk3y/better-parse/master/LICENSE")
+                add("distribution", "repo")
+            }
+        }
+        node("scm") {
+            add("url", "https://github.com/h0tk3y/better-parse")
+            add("connection", "scm:git:git://github.com/h0tk3y/better-parse")
+            add("developerConnection", "scm:git:ssh://github.com/h0tk3y/better-parse.git")
+        }
+        node("developers") {
+            node("developer") {
+                add("name", "h0tk3y")
+            }
+        }
+    }
+}
+
+publishing {
+    publications.withType<MavenPublication>().all {
+        customizeForMavenCentral(pom)
+
+        // Signing requires that
+        // `signing.keyId`, `signing.password`, and `signing.secretKeyRingFile` are provided as Gradle properties
+        signing.sign(this@all)
     }
 }
 
