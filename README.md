@@ -28,9 +28,7 @@ val ast = booleanGrammar.parseToEnd("a & !b | b & (!a | c)")
     
 ### Using with Gradle
 
-> Use version 0.4.0 with Kotiln 1.3.72 and version 0.4.0-1.4-M2 with Kotlin 1.4-M2.
-
-Add the JCenter repository:
+Add the Bintray repository:
 
 ```groovy
 repositories {
@@ -38,27 +36,11 @@ repositories {
 }
 ```
 
-Then, in Kotlin/JVM projects:
+Then add the dependency:
 
 ```groovy
 dependencies {
    implementation 'com.github.h0tk3y.betterParse:better-parse:0.4.0'
-}
-```
-
-In Kotlin/JS projects (since 0.4.0):
-
-```groovy
-dependencies {
-   implementation 'com.github.h0tk3y.betterParse:better-parse:0.4.0'
-}
-```
-
-In [Kotlin Multiplatform projects](http://kotlinlang.org/docs/reference/building-mpp-with-gradle.html#adding-dependencies) (since 0.4.0):
-
-```groovy
-dependencies {
-    commonMainImplementation 'com.github.h0tk3y.betterParse:better-parse:0.4.0'
 }
 ```
 
