@@ -26,7 +26,7 @@ class RepeatTest : Grammar<Nothing>() {
             }
 
         for (n in minN..maxN) {
-            val input = String(CharArray(n) { 'a' })
+            val input = CharArray(n) { 'a' }.concatToString()
             val tokens = tokenizer.tokenize(input)
 
             for ((range, parser) in rangeParsers) {

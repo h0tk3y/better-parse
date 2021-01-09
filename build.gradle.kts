@@ -13,12 +13,6 @@ kotlin {
             languageSettings.useExperimentalAnnotation("kotlin.ExperimentalMultiplatform")
         }
 
-        commonMain {
-            dependencies {
-                implementation(kotlin("stdlib-common"))
-            }
-        }
-
         commonTest {
             dependencies {
                 implementation(kotlin("test-common"))
@@ -32,9 +26,6 @@ kotlin {
     }
 
     jvm {
-        compilations["main"].defaultSourceSet.dependencies {
-            implementation(kotlin("stdlib"))
-        }
         compilations["test"].defaultSourceSet.dependencies {
             implementation(kotlin("test-junit"))
         }
@@ -47,9 +38,6 @@ kotlin {
         browser()
         nodejs()
 
-        compilations["main"].defaultSourceSet.dependencies {
-            implementation(kotlin("stdlib-js"))
-        }
         compilations["test"].defaultSourceSet.dependencies {
             implementation(kotlin("test-js"))
         }

@@ -4,7 +4,7 @@ fun tupleCodegen(maxN: Int, outputFile: String) {
     fun genericsStr(i: Int) = (1..i).joinToString(prefix = "<", postfix = ">") { "T$it" }
 
     val resultCode = buildString {
-        appendln("package com.github.h0tk3y.betterParse.utils\n")
+        appendLine("package com.github.h0tk3y.betterParse.utils\n")
 
         for (i in 1..maxN) {
             val generics = genericsStr(i)
@@ -17,7 +17,7 @@ fun tupleCodegen(maxN: Int, outputFile: String) {
                 val <T, $genericsBoundByT> Tuple$i$generics.components get() = listOf($components)
             """.trimIndent())
 
-            appendln()
+            appendLine()
         }
     }
 

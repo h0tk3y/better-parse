@@ -13,14 +13,15 @@ inline infix fun <reified A, reified B> Parser<A>.and(other: Parser<B>) =
 /** The same as `this `[and]` other`*/
 inline operator fun <reified A, reified B> Parser<A>.times(other: Parser<B>) = this and other
 
-/** Parses the sequence with the receiver [Parser] and then with the [other] parser. If both suceed, returns a [Tuple2]
+/** Parses the sequence with the receiver [Parser] and then with the [other] parser. If both succeed, returns a [Tuple2]
  * with the values from the [Parsed] results. Otherwise, returns the [ErrorResult] of the failed parser. */
 @JvmName("and0")
 inline infix fun <reified A, reified B> AndCombinator<A>.and(other: Parser<B>) =
     AndCombinator(consumers + listOf(other)) { (a1, a2) -> Tuple2(a1 as A, a2 as B) }
 
 /** The same as `this `[and]` other`*/
-inline operator fun <reified A, reified B> AndCombinator<A>.times(other: Parser<B>) = this and other
+public inline operator fun <reified A, reified B> AndCombinator<A>.times(other: Parser<B>): AndCombinator<Tuple2<A, B>> =
+    this and other
 
 class AndCombinator<out R> @PublishedApi internal constructor(
     val consumers: List<Any>,

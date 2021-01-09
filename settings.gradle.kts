@@ -8,7 +8,6 @@ pluginManagement {
         override fun invoke(repositories: RepositoryHandler, isPlugins: Boolean): Unit = with(repositories) {
             jcenter()
             maven("https://dl.bintray.com/kotlin/kotlinx")
-            maven("https://dl.bintray.com/kotlin/kotlin-dev")
             if (isPlugins) {
                 gradlePluginPortal()
             }

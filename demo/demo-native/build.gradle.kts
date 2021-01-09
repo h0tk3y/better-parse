@@ -13,7 +13,6 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(rootProject)
-                implementation("org.jetbrains.kotlin:kotlin-stdlib-common")
             }
         }
 
