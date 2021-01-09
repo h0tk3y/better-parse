@@ -56,8 +56,11 @@ abstract class Grammar<out T> : Parser<T> {
 /** A convenience function to use for referencing a parser that is not initialized up to this moment. */
 fun <T> parser(block: () -> Parser<T>): Parser<T> = ParserReference(block)
 
-expect class ParserReference<out T> internal constructor(parserProvider: () -> Parser<T>) : Parser<T> {
-    val parser: Parser<T>
+public class ParserReference<out T> internal constructor(parserProvider: () -> Parser<T>) : Parser<T> {
+    public val parser: Parser<T> by lazy(parserProvider)
+
+    override fun tryParse(tokens: TokenMatchesSequence, fromPosition: Int): ParseResult<T> =
+        parser.tryParse(tokens, fromPosition)
 }
 
 fun <T> Grammar<T>.tryParseToEnd(input: String) = rootParser.tryParseToEnd(tokenizer.tokenize(input), 0)
