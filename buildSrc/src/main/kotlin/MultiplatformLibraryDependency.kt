@@ -1,12 +1,12 @@
 import org.gradle.api.Project
 
-inline val Project.kotlinVersion: String
+val Project.kotlinVersion: String
     get() = project.property("kotlinVersion").toString()
 
-inline val Project.benchmarkVersion: String
+val Project.benchmarkVersion: String
     get() = project.property("benchmarkVersion").toString()
 
-inline val Project.serializationVersion: String
+val Project.serializationVersion: String
     get() = project.property("serializationVersion").toString()
 
 private const val serializationJsonPrefix = "org.jetbrains.kotlinx:kotlinx-serialization-json"

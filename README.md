@@ -32,7 +32,7 @@ Add the JCenter repository:
 
 ```groovy
 repositories {
-    maven { url 'https://dl.bintray.com/hotkeytlt/maven' }
+    maven { setUrl("https://dl.bintray.com/hotkeytlt/maven") }
 }
 ```
 
@@ -40,7 +40,7 @@ Then, in Kotlin/JVM projects:
 
 ```groovy
 dependencies {
-   implementation 'com.github.h0tk3y.betterParse:better-parse:0.4.0'
+   implementation("com.github.h0tk3y.betterParse:better-parse:0.4.0")
 }
 ```
 
@@ -48,7 +48,7 @@ In Kotlin/JS projects (since 0.4.0):
 
 ```groovy
 dependencies {
-   implementation 'com.github.h0tk3y.betterParse:better-parse:0.4.0'
+   implementation("com.github.h0tk3y.betterParse:better-parse:0.4.0")
 }
 ```
 
@@ -56,7 +56,7 @@ In [Kotlin Multiplatform projects](http://kotlinlang.org/docs/reference/building
 
 ```groovy
 dependencies {
-    commonMainImplementation 'com.github.h0tk3y.betterParse:better-parse:0.4.0'
+    commonMainImplementation("com.github.h0tk3y.betterParse:better-parse:0.4.0")
 }
 ```
 
