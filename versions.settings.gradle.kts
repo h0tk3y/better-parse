@@ -11,7 +11,7 @@ enum class KotlinPlugin {
 
 val versions = when (kotlinVersion) {
     KotlinPlugin.V1421 -> Versions(
-        version = "0.4.0",
+        version = "0.4.1",
         kotlinVersion = "1.4.21",
         serializationVersion = "1.0.1",
         benchmarkVersion = "0.2.0-dev-20"
