@@ -12,10 +12,12 @@ fun tupleCodegen(maxN: Int, outputFile: String) {
             val components = (1..i).joinToString { "t$it" }
             val genericsBoundByT = (1..i).joinToString { "T$it : T" }
 
-            appendln("""
-                data class Tuple$i$generics($ctorParameters) : Tuple
-                val <T, $genericsBoundByT> Tuple$i$generics.components get() = listOf($components)
-            """.trimIndent())
+            appendLine(
+                """
+                public data class Tuple$i$generics($ctorParameters) : Tuple
+                public val <T, $genericsBoundByT> Tuple$i$generics.components: List<T> get() = listOf($components)
+            """.trimIndent()
+            )
 
             appendLine()
         }

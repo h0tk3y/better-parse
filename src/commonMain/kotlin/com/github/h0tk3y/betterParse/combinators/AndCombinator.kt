@@ -7,35 +7,46 @@ import kotlin.jvm.JvmName
 
 /** Parses the sequence with the receiver [Parser] and then with the [other] parser. If both succeed, returns a [Tuple2]
  * with the values from the [Parsed] results. Otherwise, returns the [ErrorResult] of the failed parser. */
-inline infix fun <reified A, reified B> Parser<A>.and(other: Parser<B>) =
+public inline infix fun <reified A, reified B> Parser<A>.and(other: Parser<B>): AndCombinator<Tuple2<A, B>> =
     AndCombinator(listOf(this, other)) { (a1, a2) -> Tuple2(a1 as A, a2 as B) }
 
 /** The same as `this `[and]` other`*/
-inline operator fun <reified A, reified B> Parser<A>.times(other: Parser<B>) = this and other
+public inline operator fun <reified A, reified B> Parser<A>.times(other: Parser<B>): AndCombinator<Tuple2<A, B>> =
+    this and other
 
 /** Parses the sequence with the receiver [Parser] and then with the [other] parser. If both succeed, returns a [Tuple2]
  * with the values from the [Parsed] results. Otherwise, returns the [ErrorResult] of the failed parser. */
 @JvmName("and0")
-inline infix fun <reified A, reified B> AndCombinator<A>.and(other: Parser<B>) =
-    AndCombinator(consumers + listOf(other)) { (a1, a2) -> Tuple2(a1 as A, a2 as B) }
+public inline infix fun <reified A, reified B> AndCombinator<A>.and(other: Parser<B>): AndCombinator<Tuple2<A, B>> =
+    AndCombinator(consumersImpl + listOf(other)) { (a1, a2) -> Tuple2(a1 as A, a2 as B) }
 
 /** The same as `this `[and]` other`*/
 public inline operator fun <reified A, reified B> AndCombinator<A>.times(other: Parser<B>): AndCombinator<Tuple2<A, B>> =
     this and other
 
-class AndCombinator<out R> @PublishedApi internal constructor(
-    val consumers: List<Any>,
-    val transform: (List<Any?>) -> R
+public class AndCombinator<out R> @PublishedApi internal constructor(
+    @PublishedApi internal val consumersImpl: List<Any>,
+    internal val transform: (List<Any?>) -> R
 ) : Parser<R> {
 
-    internal val nonSkippedIndices = consumers.indices.filter { consumers[it] !is SkipParser }
+    @Deprecated("Use parsers or skipParsers instead to get the type-safe results.")
+    public val consumers: List<Any>
+        get() = consumersImpl
+
+    public val parsers: List<Parser<*>?>
+        get() = consumersImpl.map { it as? Parser<*> }
+
+    public val skipParsers: List<SkipParser?>
+        get() = consumersImpl.map { it as? SkipParser }
+
+    internal val nonSkippedIndices = consumersImpl.indices.filter { consumersImpl[it] !is SkipParser }
 
     override fun tryParse(tokens: TokenMatchesSequence, fromPosition: Int): ParseResult<R> {
         var nextPosition = fromPosition
 
         var results: ArrayList<Any?>? = null
-        loop@ for (index in 0 until consumers.size) {
-            val consumer = consumers[index]
+        loop@ for (index in 0 until consumersImpl.size) {
+            val consumer = consumersImpl[index]
             when (consumer) {
                 is Parser<*> -> {
                     val result = consumer.tryParse(tokens, nextPosition)

@@ -1,10 +1,10 @@
 package com.github.h0tk3y.betterParse.lexer
 
-actual class RegexToken : Token {
+public actual class RegexToken : Token {
     private val pattern: String
     private val regex: Regex
 
-    companion object {
+    private companion object {
         const val inputStartPrefix = "\\A"
     }
 
@@ -15,13 +15,13 @@ actual class RegexToken : Token {
             ("$inputStartPrefix(?:$patternString)").toRegex(options)
         }
 
-    actual constructor(name: String?, @Language("RegExp", "", "") patternString: String, ignored: Boolean)
+    public actual constructor(name: String?, @Language("RegExp", "", "") patternString: String, ignored: Boolean)
             : super(name, ignored) {
         pattern = patternString
         regex = prependPatternWithInputStart(patternString, emptySet())
     }
 
-    actual constructor(name: String?, regex: Regex, ignored: Boolean)
+    public actual constructor(name: String?, regex: Regex, ignored: Boolean)
             : super(name, ignored) {
         pattern = regex.pattern
         this.regex = prependPatternWithInputStart(pattern, emptySet())
@@ -49,5 +49,5 @@ actual class RegexToken : Token {
         } ?: 0
     }
 
-    override fun toString() = "${name ?: ""} [$pattern]" + if (ignored) " [ignorable]" else ""
+    override fun toString(): String = "${name ?: ""} [$pattern]" + if (ignored) " [ignorable]" else ""
 }

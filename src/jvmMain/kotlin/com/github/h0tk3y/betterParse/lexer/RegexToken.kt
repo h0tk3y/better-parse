@@ -3,12 +3,12 @@ package com.github.h0tk3y.betterParse.lexer
 import java.util.*
 import java.util.regex.Matcher
 
-actual class RegexToken : Token {
+public actual class RegexToken : Token {
     private val pattern: String
     private val regex: Regex
     private val matcher: Matcher
 
-    companion object {
+    private companion object {
         const val inputStartPrefix = "\\A"
     }
 
@@ -21,7 +21,7 @@ actual class RegexToken : Token {
             ("$inputStartPrefix(?:$patternToEmbed$newlineAfterComments)").toRegex(options - RegexOption.LITERAL)
         }
 
-    actual constructor(name: String?, @Language("RegExp", "", "") patternString: String, ignored: Boolean)
+    public actual constructor(name: String?, @Language("RegExp", "", "") patternString: String, ignored: Boolean)
         : super(name, ignored) {
         pattern = patternString
         regex = prependPatternWithInputStart(patternString, emptySet())
@@ -29,7 +29,7 @@ actual class RegexToken : Token {
         matcher = regex.toPattern().matcher("")
     }
 
-    actual constructor(name: String?, regex: Regex, ignored: Boolean)
+    public actual constructor(name: String?, regex: Regex, ignored: Boolean)
             : super(name, ignored) {
         pattern = regex.pattern
         this.regex = prependPatternWithInputStart(pattern, regex.options)
@@ -47,5 +47,5 @@ actual class RegexToken : Token {
         return end - fromIndex
     }
 
-    override fun toString() = "${name ?: ""} [$pattern]" + if (ignored) " [ignorable]" else ""
+    override fun toString(): String = "${name ?: ""} [$pattern]" + if (ignored) " [ignorable]" else ""
 }

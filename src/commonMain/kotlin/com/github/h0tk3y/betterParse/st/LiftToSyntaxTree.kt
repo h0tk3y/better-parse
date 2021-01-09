@@ -8,22 +8,22 @@ import com.github.h0tk3y.betterParse.lexer.TokenMatch
 import com.github.h0tk3y.betterParse.parser.EmptyParser
 import com.github.h0tk3y.betterParse.parser.Parser
 
-/** Encloses custom logic for transforming a [Parser] to a parser of [AST].
+/** Encloses custom logic for transforming a [Parser] to a parser of [SyntaxTree].
  * A correct implementation overrides [liftToSyntaxTree] so that it calls `recurse` for the sub-parsers, if any, and
  * combines them into the parser that it returns. */
-interface LiftToSyntaxTreeTransformer {
-    interface DefaultTransformerReference {
-        fun <T> transform(parser: Parser<T>): Parser<SyntaxTree<T>>
+public interface LiftToSyntaxTreeTransformer {
+    public interface DefaultTransformerReference {
+        public fun <T> transform(parser: Parser<T>): Parser<SyntaxTree<T>>
     }
 
-    fun <T> liftToSyntaxTree(parser: Parser<T>, default: DefaultTransformerReference): Parser<SyntaxTree<T>>
+    public fun <T> liftToSyntaxTree(parser: Parser<T>, default: DefaultTransformerReference): Parser<SyntaxTree<T>>
 }
 
 /** Options for transforming a [Parser] to a parser of [SyntaxTree].
  * @param retainSkipped - whether the [skip]ped parsers should be present in the syntax tree structure.
  * @param retainSeparators - whether the separators of [separated], [leftAssociative] and [rightAssociative] should be
  * present in the syntax tree structure. */
-data class LiftToSyntaxTreeOptions(
+public data class LiftToSyntaxTreeOptions(
     val retainSkipped: Boolean = false,
     val retainSeparators: Boolean = true
 )
@@ -33,7 +33,7 @@ data class LiftToSyntaxTreeOptions(
  * used to determine which parts of the syntax tree should be dropped. The [structureParsers] define the resulting
  * structure of the syntax tree: only the nodes having these parsers are retained (see: [SyntaxTree.flatten]), pass
  * empty set to retain all nodes. */
-fun <T> Parser<T>.liftToSyntaxTreeParser(
+public fun <T> Parser<T>.liftToSyntaxTreeParser(
     liftOptions: LiftToSyntaxTreeOptions = LiftToSyntaxTreeOptions(),
     structureParsers: Set<Parser<*>>? = null,
     transformer: LiftToSyntaxTreeTransformer? = null
@@ -45,11 +45,11 @@ fun <T> Parser<T>.liftToSyntaxTreeParser(
 }
 
 /** Converts a [Grammar] so that its [Grammar.rootParser] parses a [SyntaxTree]. See: [liftToSyntaxTreeParser]. */
-fun <T> Grammar<T>.liftToSyntaxTreeGrammar(
+public fun <T> Grammar<T>.liftToSyntaxTreeGrammar(
     liftOptions: LiftToSyntaxTreeOptions = LiftToSyntaxTreeOptions(),
     structureParsers: Set<Parser<*>>? = declaredParsers,
     transformer: LiftToSyntaxTreeTransformer? = null
-) = object : Grammar<SyntaxTree<T>>() {
+): Grammar<SyntaxTree<T>> = object : Grammar<SyntaxTree<T>>() {
     override val rootParser: Parser<SyntaxTree<T>> = this@liftToSyntaxTreeGrammar.rootParser
         .liftToSyntaxTreeParser(liftOptions, structureParsers, transformer)
 
@@ -119,7 +119,7 @@ private class ParserToSyntaxTreeLifter(
     }
 
     private fun <T> liftAndCombinatorToAST(combinator: AndCombinator<T>): AndCombinator<SyntaxTree<T>> {
-        val liftedConsumers = combinator.consumers.map {
+        val liftedConsumers = combinator.consumersImpl.map {
             when (it) {
                 is Parser<*> -> lift(it)
                 is SkipParser -> lift(it.innerParser)

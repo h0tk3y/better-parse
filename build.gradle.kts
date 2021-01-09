@@ -8,6 +8,8 @@ plugins {
 }
 
 kotlin {
+    explicitApi()
+
     sourceSets {
         all {
             languageSettings.useExperimentalAnnotation("kotlin.ExperimentalMultiplatform")

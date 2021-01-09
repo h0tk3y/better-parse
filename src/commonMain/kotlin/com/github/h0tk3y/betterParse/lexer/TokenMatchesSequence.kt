@@ -1,11 +1,11 @@
 package com.github.h0tk3y.betterParse.lexer
 
 /** Stateful producer of tokens that yields [Token]s from some inputs sequence that it is based upon, one by one */
-interface TokenProducer {
-    fun nextToken(): TokenMatch?
+public interface TokenProducer {
+    public fun nextToken(): TokenMatch?
 }
 
-class TokenMatchesSequence(
+public class TokenMatchesSequence(
     private val tokenProducer: TokenProducer,
     private val matches: ArrayList<TokenMatch> = arrayListOf()
 ) : Sequence<TokenMatch> {
@@ -19,14 +19,14 @@ class TokenMatchesSequence(
         return true
     }
 
-    operator fun get(position: Int): TokenMatch? {
+    public operator fun get(position: Int): TokenMatch? {
         if (!ensureReadPosition(position)) {
             return null
         }
         return matches[position]
     }
     
-    fun getNotIgnored(position: Int): TokenMatch? {
+    public fun getNotIgnored(position: Int): TokenMatch? {
         if (!ensureReadPosition(position)) {
             return null
         }

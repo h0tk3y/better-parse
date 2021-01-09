@@ -14,7 +14,7 @@ import kotlin.reflect.KProperty
  * A language grammar represented by a list of [Token]s and one or more [Parser]s, with one
  * specific [rootParser] that accepts the words of this [Grammar].
  */
-abstract class Grammar<out T> : Parser<T> {
+public abstract class Grammar<out T> : Parser<T> {
 
     private val _tokens = arrayListOf<Token>()
 
@@ -22,16 +22,16 @@ abstract class Grammar<out T> : Parser<T> {
 
     /** List of tokens that is by default used for tokenizing a sequence before parsing this language. The tokens are
      * added to this list during an instance construction. */
-    open val tokens get(): List<Token> = _tokens.distinctBy { it.name ?: it }
+    public open val tokens: List<Token> get(): List<Token> = _tokens.distinctBy { it.name ?: it }
 
     /** Set of the tokens and parsers that were declared by delegation to the parser instances (`val p by someParser`), and [rootParser] */
-    open val declaredParsers get() = (_parsers + _tokens + rootParser).toSet()
+    public open val declaredParsers: Set<Parser<*>> get() = (_parsers + _tokens + rootParser).toSet()
 
     /** A [Tokenizer] that is built with the [Token]s defined within this [Grammar], in their order of declaration */
-    open val tokenizer: Tokenizer by lazy { DefaultTokenizer(tokens) }
+    public open val tokenizer: Tokenizer by lazy { DefaultTokenizer(tokens) }
 
     /** A [Parser] that represents the root rule of this [Grammar] and is used by default for parsing. */
-    abstract val rootParser: Parser<T>
+    public abstract val rootParser: Parser<T>
 
     final override fun tryParse(tokens: TokenMatchesSequence, fromPosition: Int): ParseResult<T> = rootParser.tryParse(
         tokens, fromPosition
@@ -54,7 +54,7 @@ abstract class Grammar<out T> : Parser<T> {
 }
 
 /** A convenience function to use for referencing a parser that is not initialized up to this moment. */
-fun <T> parser(block: () -> Parser<T>): Parser<T> = ParserReference(block)
+public fun <T> parser(block: () -> Parser<T>): Parser<T> = ParserReference(block)
 
 public class ParserReference<out T> internal constructor(parserProvider: () -> Parser<T>) : Parser<T> {
     public val parser: Parser<T> by lazy(parserProvider)
@@ -63,6 +63,8 @@ public class ParserReference<out T> internal constructor(parserProvider: () -> P
         parser.tryParse(tokens, fromPosition)
 }
 
-fun <T> Grammar<T>.tryParseToEnd(input: String) = rootParser.tryParseToEnd(tokenizer.tokenize(input), 0)
+public fun <T> Grammar<T>.tryParseToEnd(input: String): ParseResult<T> =
+    rootParser.tryParseToEnd(tokenizer.tokenize(input), 0)
 
-fun <T> Grammar<T>.parseToEnd(input: String): T = rootParser.parseToEnd(tokenizer.tokenize(input))
+public fun <T> Grammar<T>.parseToEnd(input: String): T =
+    rootParser.parseToEnd(tokenizer.tokenize(input))
