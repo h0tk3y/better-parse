@@ -31,9 +31,11 @@ val ast = booleanGrammar.parseToEnd("a & !b | b & (!a | c)")
 
 ```groovy
 dependencies {
-   implementation 'com.github.h0tk3y.betterParse:better-parse:0.4.1'
+   implementation("com.github.h0tk3y.betterParse:better-parse:0.4.1")
 }
 ```
+
+With multiplatform projects, it's OK to add the dependency just to the `commonMain` source set, or some other source set if you want it for specific parts of the code.
 
 ## Tokens ##
 As many other language recognition tools, `better-parse` abstracts away from raw character input by 
