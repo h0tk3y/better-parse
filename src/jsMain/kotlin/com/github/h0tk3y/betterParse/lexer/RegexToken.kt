@@ -11,7 +11,13 @@ public actual class RegexToken : Token {
         js(
             """
             var r = regex.nativePattern_0;
-            regex.nativePattern_0 = new RegExp(r.source, r.flags + (r.sticky ? "" : "y")); 
+
+            if (typeof r === 'undefined' || r === null) {
+                r = regex._nativePattern;
+                regex._nativePattern = new RegExp(r.source, r.flags + (r.sticky ? "" : "y")); 
+            } else {
+                regex.nativePattern_0 = new RegExp(r.source, r.flags + (r.sticky ? "" : "y")); 
+            }
             """
         )
     }
