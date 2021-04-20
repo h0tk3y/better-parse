@@ -6,8 +6,7 @@ pluginManagement {
     abstract class RepositorySetup :
         BuildServiceParameters, (RepositoryHandler, Boolean) -> Unit, BuildService<RepositorySetup> {
         override fun invoke(repositories: RepositoryHandler, isPlugins: Boolean): Unit = with(repositories) {
-            jcenter()
-            maven("https://dl.bintray.com/kotlin/kotlinx")
+            mavenCentral()
             if (isPlugins) {
                 gradlePluginPortal()
             }
@@ -27,7 +26,7 @@ pluginManagement {
         kotlin("multiplatform").version(kotlinVersion)
         kotlin("js").version(kotlinVersion)
         kotlin("plugin.allopen").version(kotlinVersion)
-        id("kotlinx.benchmark").version(benchmarkVersion)
+        id("org.jetbrains.kotlinx.benchmark").version(benchmarkVersion)
     }
 }
 

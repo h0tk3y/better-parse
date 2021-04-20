@@ -1,7 +1,7 @@
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.allopen")
-    id("kotlinx.benchmark")
+    id("org.jetbrains.kotlinx.benchmark")
 }
 
 kotlin {

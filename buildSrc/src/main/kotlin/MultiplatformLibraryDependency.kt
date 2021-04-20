@@ -10,7 +10,7 @@ val Project.serializationVersion: String
     get() = project.property("serializationVersion").toString()
 
 private const val serializationJsonPrefix = "org.jetbrains.kotlinx:kotlinx-serialization-json"
-private const val benchmarksRuntimePrefix = "org.jetbrains.kotlinx:kotlinx.benchmark.runtime"
+private const val benchmarksRuntimePrefix = "org.jetbrains.kotlinx:kotlinx-benchmark-runtime"
 
 data class MultiplatformLibraryDependency(
     val rootModule: String,

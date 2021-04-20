@@ -5,5 +5,5 @@ plugins {
 
 repositories {
     // TODO: unify repository setup with the root project once IJ fixes importing of buildSrc
-    jcenter()
+    mavenCentral()
 }
