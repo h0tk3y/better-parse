@@ -10,7 +10,7 @@ public class RepeatCombinator<T> internal constructor(
     public val parser: Parser<T>,
     public val atLeast: Int = 0,
     public val atMost: Int = -1
-) : Parser<List<T>> {
+) : Parser<List<T>>, TokenProvider by parser {
 
     init {
         require(atLeast >= 0) { "atLeast = $atLeast, expected non-negative" }

@@ -1,5 +1,6 @@
 package com.github.h0tk3y.betterParse.combinators
 
+import com.github.h0tk3y.betterParse.lexer.Token
 import com.github.h0tk3y.betterParse.lexer.TokenMatchesSequence
 import com.github.h0tk3y.betterParse.parser.*
 
@@ -9,6 +10,10 @@ public class SeparatedCombinator<T, S>(
     public val separatorParser: Parser<S>,
     public val acceptZero: Boolean
 ) : Parser<Separated<T, S>> {
+
+    public override val tokens: List<Token>
+        get() = termParser.tokens + separatorParser.tokens
+
     override fun tryParse(tokens: TokenMatchesSequence, fromPosition: Int): ParseResult<Separated<T, S>> {
         val termMatches = mutableListOf<T>()
         val separatorMatches = mutableListOf<S>()

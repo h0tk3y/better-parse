@@ -9,7 +9,8 @@ import com.github.h0tk3y.betterParse.parser.*
 public class MapCombinator<T, R>(
     public val innerParser: Parser<T>,
     public val transform: (T) -> R
-) : Parser<R> {
+) : Parser<R>, TokenProvider by innerParser {
+
     override fun tryParse(tokens: TokenMatchesSequence, fromPosition: Int): ParseResult<R> {
         val innerResult = innerParser.tryParse(tokens, fromPosition)
         return when (innerResult) {

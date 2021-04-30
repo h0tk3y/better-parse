@@ -6,11 +6,12 @@ import com.github.h0tk3y.betterParse.lexer.TokenMatchesSequence
 
 /** A common interface for parsers that can try to consume a part or the whole [TokenMatch] sequence and return one of
  * possible [ParseResult], either [Parsed] or [ErrorResult] */
-public interface Parser<out T> {
+public interface Parser<out T>: TokenProvider {
     public fun tryParse(tokens: TokenMatchesSequence, fromPosition: Int): ParseResult<T>
 }
 
 public object EmptyParser : Parser<Unit> {
+    override val tokens: List<Token> = listOf()
     override fun tryParse(tokens: TokenMatchesSequence, fromPosition: Int): ParseResult<Unit> = ParsedValue(Unit, fromPosition)
 }
 

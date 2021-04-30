@@ -2,11 +2,12 @@ package com.github.h0tk3y.betterParse.combinators
 
 import com.github.h0tk3y.betterParse.parser.Parsed
 import com.github.h0tk3y.betterParse.parser.Parser
+import com.github.h0tk3y.betterParse.parser.TokenProvider
 import com.github.h0tk3y.betterParse.utils.Tuple
 import com.github.h0tk3y.betterParse.utils.Tuple1
 
 /** Wraps a [Parser] to distinguish it from other parsers when it is used in [and] functions. */
-public class SkipParser(public val innerParser: Parser<*>)
+public class SkipParser(public val innerParser: Parser<*>): TokenProvider by innerParser
 
 /** Wraps a [Parser] to distinguish it from other parsers when it is used in [and] functions. */
 public fun <T> skip(parser: Parser<T>): SkipParser = SkipParser(parser)
