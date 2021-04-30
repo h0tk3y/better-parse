@@ -4,26 +4,49 @@ import com.github.h0tk3y.betterParse.lexer.*
 import com.github.h0tk3y.betterParse.parser.*
 import kotlin.test.*
 
-class OrTest : Grammar<Nothing>() {
-    override val rootParser: Parser<Nothing> get() = throw NoSuchElementException()
+class OrTest {
 
     val a by regexToken("a")
+    val aa by regexToken("aa")
     val b by regexToken("b")
 
     @Test fun aOrB() {
-        val tokens = tokenizer.tokenize("abababa")
-        val abOrA = zeroOrMore((a and b use { t2 }) or a) use { map { it.type } }
-        val result = abOrA.parseToEnd(tokens)
-
-        assertEquals(listOf(b, b, b, a), result)
+        assertEquals(
+            listOf(b, b, b, a),
+            grammar(zeroOrMore((a and b use { t2 }) or a) use { map { it.type } })
+                .parseToEnd("abababa"))
     }
 
     @Test fun alternativesError() {
-        val tokens = tokenizer.tokenize("ab")
-        val parser = (a and a) or (a and b and a)
-        val result = parser.tryParse(tokens,0) as AlternativesFailure
+        val result = grammar((a and a) or (a and b and a)).tryParseToEnd("ab") as AlternativesFailure
 
         assertTrue(result.errors[0] is MismatchedToken)
         assertTrue(result.errors[1] is UnexpectedEof)
+    }
+
+    @Test fun aOrAa() {
+        // aa defined first
+        assertEquals(
+            listOf("aa"),
+            grammar(oneOrMore(aa or a) use { map { it.text} }).parseToEnd("aa")
+        )
+
+        // a defined first
+        assertEquals(
+            listOf("a", "a"),
+            grammar(oneOrMore(a or aa) use { map { it.text} }).parseToEnd("aa")
+        )
+
+        /*
+         * a is first in the declared tokens, but aa first in the parser. For backwards
+         * compatibility, the order of declared tokens is honored.
+         */
+        val grammar = object : Grammar<List<String>>() {
+            val a by regexToken("a")
+            val aa by regexToken("aa")
+            override val rootParser: Parser<List<String>> by oneOrMore(aa or a) use { map { it.text } }
+        }
+
+        assertEquals(listOf("a", "a"), grammar.parseToEnd("aa"))
     }
 }

@@ -3,6 +3,7 @@ import com.github.h0tk3y.betterParse.combinators.*
 import com.github.h0tk3y.betterParse.grammar.Grammar
 import com.github.h0tk3y.betterParse.grammar.parseToEnd
 import com.github.h0tk3y.betterParse.grammar.parser
+import com.github.h0tk3y.betterParse.lexer.Token
 import com.github.h0tk3y.betterParse.lexer.TokenMatch
 import com.github.h0tk3y.betterParse.lexer.TokenMatchesSequence
 import com.github.h0tk3y.betterParse.lexer.regexToken
@@ -148,6 +149,9 @@ internal class TestLiftToAst {
     fun testCustomTransformer() {
         class ForcedDuplicate<T>(val alternatives: List<Parser<T>>) :
             Parser<Pair<T, T>> {
+
+            override val tokens: List<Token> = alternatives.flatMap { it.tokens }
+
             override fun tryParse(
                 tokens: TokenMatchesSequence,
                 fromPosition: Int
@@ -175,6 +179,7 @@ internal class TestLiftToAst {
                 if (parser is ForcedDuplicate<*>)
                     return object : Parser<SyntaxTree<T>> {
                         val parsers = parser.alternatives.map { default.transform(it) }
+                        override val tokens: List<Token> = parsers.flatMap { it.tokens }
 
                         override fun tryParse(
                             tokens: TokenMatchesSequence,

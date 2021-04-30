@@ -1,5 +1,6 @@
 package com.github.h0tk3y.betterParse.combinators
 
+import com.github.h0tk3y.betterParse.lexer.Token
 import com.github.h0tk3y.betterParse.lexer.TokenMatchesSequence
 import com.github.h0tk3y.betterParse.parser.*
 import com.github.h0tk3y.betterParse.utils.Tuple2
@@ -25,9 +26,12 @@ public inline operator fun <reified A, reified B> AndCombinator<A>.times(other: 
     this and other
 
 public class AndCombinator<out R> @PublishedApi internal constructor(
-    @PublishedApi internal val consumersImpl: List<Any>,
+    @PublishedApi internal val consumersImpl: List<TokenProvider>,
     internal val transform: (List<Any?>) -> R
 ) : Parser<R> {
+
+    public override val tokens: List<Token>
+        get() = consumersImpl.flatMap { it.tokens }
 
     @Deprecated("Use parsers or skipParsers instead to get the type-safe results.")
     public val consumers: List<Any>
