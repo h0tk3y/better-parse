@@ -11,7 +11,7 @@ internal inline class ParseStateMemo<T>(private val map: MutableMap<Int, MemoRes
 
 public class ParsingContext {
     internal val memo: MutableMap<Parser<*>, ParseStateMemo<*>> = hashMapOf()
-    internal var lrStateStack: LrState<*>? = null
+    internal val lrStateStack: MutableList<LrState<*>> = ArrayList(64)
     internal val lrHeads: MutableMap<Int, LrHead<*>> = hashMapOf()
 }
 
@@ -44,8 +44,7 @@ internal class LrState<T>(
     /**
      * The head entry of the encountered left recursion if encountered.
      */
-    var head: LrHead<*>?,
-    val next: LrState<*>?
+    var head: LrHead<*>?
 ) : MemoResult<T>()
 
 public abstract class MemoizedParser<out T> : Parser<T> {
@@ -71,12 +70,12 @@ public abstract class MemoizedParser<out T> : Parser<T> {
 
         return when (recalled) {
             null -> {
-                val lr = LrState(this, LrNoResultYet, null, context.lrStateStack)
-                context.lrStateStack = lr
+                val lr = LrState(this, LrNoResultYet, null)
+                context.lrStateStack += lr
                 memo[fromPosition] = lr
                 val result = tryParseImpl(tokens, fromPosition, context)
                 memo[fromPosition] = MemoParseResult(result)
-                context.lrStateStack = context.lrStateStack!!.next
+                context.lrStateStack.removeLast()
 
                 if (lr.head != null) {
                     // Left recursion detected
@@ -101,11 +100,12 @@ public abstract class MemoizedParser<out T> : Parser<T> {
             .also { lr.head = it }
         val involved = lrHead.involvedSet
 
-        var stackElement = context.lrStateStack
-        while (stackElement != null && stackElement.head != lrHead) {
+        for (stackIndex in context.lrStateStack.indices.reversed()) {
+            val stackElement = context.lrStateStack.get(stackIndex)
+            if (stackElement.head == lr.head)
+                break
             stackElement.head = lr.head
             involved += stackElement.parser
-            stackElement = stackElement.next
         }
     }
 
