@@ -27,9 +27,11 @@ public inline operator fun <reified A, reified B> AndCombinator<A>.times(other: 
 public class AndCombinator<out R> @PublishedApi internal constructor(
     @PublishedApi internal val consumersImpl: List<Any>,
     internal val transform: (List<Any?>) -> R
-) : Parser<R> {
+) : MemoizedParser<R>() {
 
-    @Deprecated("Use parsers or skipParsers instead to get the type-safe results.")
+    @Deprecated(
+        "Use parsers or skipParsers instead to get the type-safe results.", replaceWith = ReplaceWith("parsers")
+    )
     public val consumers: List<Any>
         get() = consumersImpl
 
@@ -41,7 +43,11 @@ public class AndCombinator<out R> @PublishedApi internal constructor(
 
     internal val nonSkippedIndices = consumersImpl.indices.filter { consumersImpl[it] !is SkipParser }
 
-    override fun tryParse(tokens: TokenMatchesSequence, fromPosition: Int): ParseResult<R> {
+    override fun tryParseImpl(
+        tokens: TokenMatchesSequence,
+        fromPosition: Int,
+        context: ParsingContext
+    ): ParseResult<R> {
         var nextPosition = fromPosition
 
         var results: ArrayList<Any?>? = null
@@ -49,7 +55,7 @@ public class AndCombinator<out R> @PublishedApi internal constructor(
             val consumer = consumersImpl[index]
             when (consumer) {
                 is Parser<*> -> {
-                    val result = consumer.tryParse(tokens, nextPosition)
+                    val result = consumer.tryParseWithContextIfSupported(tokens, nextPosition, context)
                     when (result) {
                         is ErrorResult -> return result
                         is Parsed<*> -> {
@@ -59,7 +65,7 @@ public class AndCombinator<out R> @PublishedApi internal constructor(
                     }
                 }
                 is SkipParser -> {
-                    val result = consumer.innerParser.tryParse(tokens, nextPosition)
+                    val result = consumer.innerParser.tryParseWithContextIfSupported(tokens, nextPosition, context)
                     when (result) {
                         is ErrorResult -> return result
                         is Parsed<*> -> nextPosition = result.nextPosition

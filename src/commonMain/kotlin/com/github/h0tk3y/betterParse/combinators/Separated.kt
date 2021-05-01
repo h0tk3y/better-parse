@@ -8,12 +8,16 @@ public class SeparatedCombinator<T, S>(
     public val termParser: Parser<T>,
     public val separatorParser: Parser<S>,
     public val acceptZero: Boolean
-) : Parser<Separated<T, S>> {
-    override fun tryParse(tokens: TokenMatchesSequence, fromPosition: Int): ParseResult<Separated<T, S>> {
+) : MemoizedParser<Separated<T, S>>() {
+    override fun tryParseImpl(
+        tokens: TokenMatchesSequence,
+        fromPosition: Int,
+        context: ParsingContext
+    ): ParseResult<Separated<T, S>> {
         val termMatches = mutableListOf<T>()
         val separatorMatches = mutableListOf<S>()
 
-        val first = termParser.tryParse(tokens, fromPosition)
+        val first = termParser.tryParseWithContextIfSupported(tokens, fromPosition, context)
 
         return when (first) {
             is ErrorResult -> if (acceptZero)
@@ -25,11 +29,12 @@ public class SeparatedCombinator<T, S>(
                 termMatches.add(first.value)
                 var nextPosition = first.nextPosition
                 loop@ while (true) {
-                    val separator = separatorParser.tryParse(tokens, nextPosition)
+                    val separator = separatorParser.tryParseWithContextIfSupported(tokens, nextPosition, context)
                     when (separator) {
                         is ErrorResult -> break@loop
                         is Parsed -> {
-                            val nextTerm = termParser.tryParse(tokens, separator.nextPosition)
+                            val nextTerm =
+                                termParser.tryParseWithContextIfSupported(tokens, separator.nextPosition, context)
                             when (nextTerm) {
                                 is ErrorResult -> break@loop
                                 is Parsed -> {

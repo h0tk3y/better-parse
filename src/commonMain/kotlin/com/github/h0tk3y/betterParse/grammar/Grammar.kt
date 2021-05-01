@@ -4,10 +4,7 @@ import com.github.h0tk3y.betterParse.lexer.DefaultTokenizer
 import com.github.h0tk3y.betterParse.lexer.Token
 import com.github.h0tk3y.betterParse.lexer.TokenMatchesSequence
 import com.github.h0tk3y.betterParse.lexer.Tokenizer
-import com.github.h0tk3y.betterParse.parser.ParseResult
-import com.github.h0tk3y.betterParse.parser.Parser
-import com.github.h0tk3y.betterParse.parser.parseToEnd
-import com.github.h0tk3y.betterParse.parser.tryParseToEnd
+import com.github.h0tk3y.betterParse.parser.*
 import kotlin.reflect.KProperty
 
 /**
@@ -56,11 +53,19 @@ public abstract class Grammar<out T> : Parser<T> {
 /** A convenience function to use for referencing a parser that is not initialized up to this moment. */
 public fun <T> parser(block: () -> Parser<T>): Parser<T> = ParserReference(block)
 
-public class ParserReference<out T> internal constructor(parserProvider: () -> Parser<T>) : Parser<T> {
+public class ParserReference<out T> internal constructor(parserProvider: () -> Parser<T>) : MemoizedParser<T>() {
     public val parser: Parser<T> by lazy(parserProvider)
 
-    override fun tryParse(tokens: TokenMatchesSequence, fromPosition: Int): ParseResult<T> =
-        parser.tryParse(tokens, fromPosition)
+    override fun tryParse(tokens: TokenMatchesSequence, fromPosition: Int, context: ParsingContext): ParseResult<T> =
+        parser.tryParseWithContextIfSupported(tokens, fromPosition, context)
+
+    override fun tryParseImpl(
+        tokens: TokenMatchesSequence,
+        fromPosition: Int,
+        context: ParsingContext
+    ): ParseResult<T> {
+        error("not supported")
+    }
 }
 
 public fun <T> Grammar<T>.tryParseToEnd(input: String): ParseResult<T> =

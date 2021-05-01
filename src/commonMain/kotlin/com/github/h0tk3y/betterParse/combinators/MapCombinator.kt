@@ -9,9 +9,13 @@ import com.github.h0tk3y.betterParse.parser.*
 public class MapCombinator<T, R>(
     public val innerParser: Parser<T>,
     public val transform: (T) -> R
-) : Parser<R> {
-    override fun tryParse(tokens: TokenMatchesSequence, fromPosition: Int): ParseResult<R> {
-        val innerResult = innerParser.tryParse(tokens, fromPosition)
+) : MemoizedParser<R>() {
+    override fun tryParseImpl(
+        tokens: TokenMatchesSequence,
+        fromPosition: Int,
+        context: ParsingContext
+    ): ParseResult<R> {
+        val innerResult = innerParser.tryParseWithContextIfSupported(tokens, fromPosition, context)
         return when (innerResult) {
             is ErrorResult -> innerResult
             is Parsed -> ParsedValue(transform(innerResult.value), innerResult.nextPosition)

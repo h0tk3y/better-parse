@@ -10,18 +10,22 @@ public class RepeatCombinator<T> internal constructor(
     public val parser: Parser<T>,
     public val atLeast: Int = 0,
     public val atMost: Int = -1
-) : Parser<List<T>> {
+) : MemoizedParser<List<T>>() {
 
     init {
         require(atLeast >= 0) { "atLeast = $atLeast, expected non-negative" }
         require(atMost == -1 || atMost >= atLeast) { "atMost = $atMost is invalid, should be greater or equal than atLeast = $atLeast" }
     }
 
-    override fun tryParse(tokens: TokenMatchesSequence, fromPosition: Int): ParseResult<List<T>> {
+    override fun tryParseImpl(
+        tokens: TokenMatchesSequence,
+        fromPosition: Int,
+        context: ParsingContext
+    ): ParseResult<List<T>> {
         val resultsList = arrayListOf<T>()
         var nextPosition = fromPosition
         while (atMost == -1 || resultsList.size < atMost) {
-            val result = parser.tryParse(tokens, nextPosition)
+            val result = parser.tryParseWithContextIfSupported(tokens, nextPosition, context)
             when (result) {
                 is ErrorResult -> {
                     return if (resultsList.size >= atLeast)

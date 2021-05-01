@@ -20,7 +20,7 @@ public actual class RegexToken private constructor(
         private const val inputStartPrefix = "\\A"
 
         private fun prependPatternWithInputStart(patternString: String, options: Set<RegexOption>) =
-            if (patternString.startsWith(Companion.inputStartPrefix))
+            if (patternString.startsWith(inputStartPrefix))
                 patternString.toRegex(options)
             else {
                 val newlineAfterComments = if (RegexOption.COMMENTS in options) "\n" else ""

@@ -15,6 +15,7 @@ kotlin {
     sourceSets {
         all {
             languageSettings.useExperimentalAnnotation("kotlin.ExperimentalMultiplatform")
+            languageSettings.enableLanguageFeature("InlineClasses")
         }
 
         commonTest {

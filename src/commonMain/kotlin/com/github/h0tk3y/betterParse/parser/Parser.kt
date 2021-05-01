@@ -10,6 +10,15 @@ public interface Parser<out T> {
     public fun tryParse(tokens: TokenMatchesSequence, fromPosition: Int): ParseResult<T>
 }
 
+public fun <T> Parser<T>.tryParseWithContextIfSupported(
+    tokens: TokenMatchesSequence,
+    fromPosition: Int,
+    context: ParsingContext
+): ParseResult<T> = when (this) {
+    is MemoizedParser -> tryParse(tokens, fromPosition, context)
+    else -> tryParse(tokens, fromPosition)
+}
+
 public object EmptyParser : Parser<Unit> {
     override fun tryParse(tokens: TokenMatchesSequence, fromPosition: Int): ParseResult<Unit> = ParsedValue(Unit, fromPosition)
 }
@@ -81,6 +90,10 @@ public data class UnexpectedEof(val expected: Token) : ErrorResult()
 
 /** A parser tried several alternatives but all resulted into [errors]. */
 public data class AlternativesFailure(val errors: List<ErrorResult>) : ErrorResult()
+
+/** The parser got stuck in left recursion. Its rule or the underlying rule did not provide any alternative that
+ * makes progress rather than bet back to the left-recursive rule */
+public class LeftRecursionEncountered : ErrorResult()
 
 /** Thrown when a [Parser] is forced to parse a sequence with [parseToEnd] or [parse] and fails with an [ErrorResult]. */
 public class ParseException(@Suppress("CanBeParameter") public val errorResult: ErrorResult)

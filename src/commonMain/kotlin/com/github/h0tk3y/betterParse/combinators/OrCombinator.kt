@@ -6,11 +6,15 @@ import com.github.h0tk3y.betterParse.parser.*
 /** Tries to parse the sequence with the [parsers] until one succeeds. Returns its [Parsed] result in this case.
  * If none succeeds, returns the [AlternativesFailure] with all the [ErrorResult]s. */
 public class OrCombinator<T>(public val parsers: List<Parser<T>>) :
-    Parser<T> {
-    override fun tryParse(tokens: TokenMatchesSequence, fromPosition: Int): ParseResult<T> {
+    MemoizedParser<T>() {
+    override fun tryParseImpl(
+        tokens: TokenMatchesSequence,
+        fromPosition: Int,
+        context: ParsingContext
+    ): ParseResult<T> {
         var failures: ArrayList<ErrorResult>? = null
         for (index in 0 until parsers.size) {
-            val result = parsers[index].tryParse(tokens, fromPosition)
+            val result = parsers[index].tryParseWithContextIfSupported(tokens, fromPosition, context)
             when (result) {
                 is Parsed -> return result
                 is ErrorResult -> {
