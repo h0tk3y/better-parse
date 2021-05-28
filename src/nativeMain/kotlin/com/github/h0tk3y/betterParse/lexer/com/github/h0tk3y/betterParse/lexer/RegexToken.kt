@@ -27,10 +27,7 @@ public actual class RegexToken : Token {
         this.regex = prependPatternWithInputStart(pattern, emptySet())
     }
 
-    private val relativeInput = object : CharSequence {
-        var fromIndex: Int = 0
-        var input: CharSequence = ""
-
+    private class RelativeInput(val fromIndex: Int, val input: CharSequence) : CharSequence {
         override val length: Int get() = input.length - fromIndex
         override fun get(index: Int): Char = input[index + fromIndex]
         override fun subSequence(startIndex: Int, endIndex: Int) =
@@ -40,8 +37,7 @@ public actual class RegexToken : Token {
     }
 
     override fun match(input: CharSequence, fromIndex: Int): Int {
-        relativeInput.input = input
-        relativeInput.fromIndex = fromIndex
+        val relativeInput = RelativeInput(fromIndex, input)
 
         return regex.find(relativeInput)?.range?.let {
             val length = it.last - it.first + 1
