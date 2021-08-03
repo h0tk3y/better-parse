@@ -15,8 +15,7 @@ kotlin {
         }
         commonTest {
             dependencies {
-                implementation(kotlin("test-common"))
-                implementation(kotlin("test-annotations-common"))
+                implementation(kotlin("test"))
             }
         }
     }
@@ -24,10 +23,6 @@ kotlin {
     jvm {
         compilations["main"].apply {
             kotlinOptions.jvmTarget = "1.8"
-
-            defaultSourceSet.dependencies {
-                implementation(kotlin("stdlib"))
-            }
         }
 
         compilations["test"].defaultSourceSet.dependencies {
@@ -45,6 +40,10 @@ kotlin {
             implementation(kotlin("test-js"))
         }
     }
+
+    macosX64 { }
+    linuxX64 { }
+    mingwX64 { }
 }
 
 allOpen.annotation("org.openjdk.jmh.annotations.State")
@@ -52,6 +51,9 @@ allOpen.annotation("org.openjdk.jmh.annotations.State")
 benchmark {
     targets.register("jvm")
     targets.register("js")
+    targets.register("macosX64")
+    targets.register("linuxX64")
+    targets.register("mingwX64")
 
     configurations["main"].apply {
         warmups = 5
