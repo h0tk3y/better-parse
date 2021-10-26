@@ -5,8 +5,9 @@ import com.github.h0tk3y.betterParse.grammar.Grammar
 import com.github.h0tk3y.betterParse.grammar.ParserReference
 import com.github.h0tk3y.betterParse.lexer.Token
 import com.github.h0tk3y.betterParse.lexer.TokenMatch
-import com.github.h0tk3y.betterParse.parser.EmptyParser
-import com.github.h0tk3y.betterParse.parser.Parser
+import com.github.h0tk3y.betterParse.lexer.TokenMatchesSequence
+import com.github.h0tk3y.betterParse.parser.*
+import com.github.h0tk3y.betterParse.parser.ParsedValue
 
 /** Encloses custom logic for transforming a [Parser] to a parser of [SyntaxTree].
  * A correct implementation overrides [liftToSyntaxTree] so that it calls `recurse` for the sub-parsers, if any, and
@@ -108,9 +109,21 @@ private class ParserToSyntaxTreeLifter(
     }
 
     private fun <T> liftOptionalCombinatorToAST(combinator: OptionalCombinator<T>): Parser<SyntaxTree<T?>> {
-        val optionalLifted = optional(lift(combinator.parser))
-        return optionalLifted.map {
-            SyntaxTree(it?.item, listOfNotNull(it), combinator, it?.range ?: 0..0)
+        return object: Parser<SyntaxTree<T?>> {
+            override fun tryParse(tokens: TokenMatchesSequence, fromPosition: Int): ParseResult<SyntaxTree<T?>> {
+                val result = optional(lift(combinator.parser)).tryParse(tokens, fromPosition)
+                return when (result) {
+                    is ErrorResult -> result
+                    is Parsed -> {
+                        val inputPosition = tokens[fromPosition]?.offset ?: 0
+                        val ast = SyntaxTree(result.value?.item,
+                            listOfNotNull(result.value),
+                            combinator,
+                            result.value?.range ?: inputPosition..inputPosition)
+                        ParsedValue(ast, result.nextPosition)
+                    }
+                }
+            }
         }
     }
 
