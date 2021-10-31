@@ -20,8 +20,8 @@ jobs:
         run: chmod +x gradlew
       - name: Extract keyring
         run: |
-          echo "${{secrets.SIGNING_SECRET_KEY_RING_FILE}}" > ~/.gradle/secring.gpg.b64
-          base64 -d ~/.gradle/secring.gpg.b64 > ~/.gradle/secring.gpg
+          echo "${{secrets.SIGNING_SECRET_KEY_RING_FILE}}" > secring.gpg.b64
+          base64 -d secring.gpg.b64 > secring.gpg
       - name: Publish
         uses: gradle/gradle-build-action@v2
         with:
@@ -29,5 +29,5 @@ jobs:
             publish
             -PsonatypePassword=${{secrets.SONATYPE_PASSWORD}}
             -Psigning.keyId=${{secrets.SIGNING_KEYID}}
-            -Psigning.secretKeyRingFile=~/.gradle/secring.gpg
+            -Psigning.secretKeyRingFile=secring.gpg
             -Psigning.password=${{secrets.SIGNING_PASSWORD}}
