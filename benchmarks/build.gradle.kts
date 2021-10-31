@@ -51,9 +51,12 @@ allOpen.annotation("org.openjdk.jmh.annotations.State")
 benchmark {
     targets.register("jvm")
     targets.register("js")
-    targets.register("macosX64")
-    targets.register("linuxX64")
-    targets.register("mingwX64")
+
+//  TODO: enable Kotlin/Native benchmark once the issue
+//   with kotlinx.benchmarks 0.3.1 and Kotlin 1.5.21+ compatibility is resolved
+//    targets.register("macosX64")
+//    targets.register("linuxX64")
+//    targets.register("mingwX64")
 
     configurations["main"].apply {
         warmups = 5
