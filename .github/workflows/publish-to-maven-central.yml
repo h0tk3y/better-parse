@@ -18,10 +18,12 @@ jobs:
           java-version: 11
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-      - name: Extract keyring
-        run: |
-          echo "${{secrets.SIGNING_SECRET_KEY_RING_FILE}}" > secring.gpg.b64
-          base64 -d secring.gpg.b64 > secring.gpg
+      - name: Run Workflow
+        uses: timheuer/base64-to-file@v1
+        with:
+          fileName: 'secring.gpg'
+          fileDir: .
+          encodedString: ${{secrets.SIGNING_SECRET_KEY_RING_FILE}}
       - name: Publish
         uses: gradle/gradle-build-action@v2
         with:
