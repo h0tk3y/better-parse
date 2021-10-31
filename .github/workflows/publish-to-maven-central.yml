@@ -22,7 +22,7 @@ jobs:
         uses: timheuer/base64-to-file@v1.1
         with:
           fileName: 'secring.gpg'
-          fileDir: ${{env.GITHUB_WORKSPACE}}/keys
+          fileDir: ${{github.workspace}}/keys
           encodedString: ${{secrets.SIGNING_SECRET_KEY_RING_FILE}}
       - name: Publish
         uses: gradle/gradle-build-action@v2
@@ -31,5 +31,5 @@ jobs:
             publish
             -PsonatypePassword=${{secrets.SONATYPE_PASSWORD}}
             -Psigning.keyId=${{secrets.SIGNING_KEYID}}
-            -Psigning.secretKeyRingFile=${{env.GITHUB_WORKSPACE}}/keys/secring.gpg
+            -Psigning.secretKeyRingFile=${{github.workspace}}/keys/secring.gpg
             -Psigning.password=${{secrets.SIGNING_PASSWORD}}
