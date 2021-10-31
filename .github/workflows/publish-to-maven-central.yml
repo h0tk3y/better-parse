@@ -19,7 +19,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Run Workflow
-        uses: timheuer/base64-to-file@v1
+        uses: timheuer/base64-to-file@v1.1
         with:
           fileName: 'secring.gpg'
           fileDir: ${{env.GITHUB_WORKSPACE}}/keys
