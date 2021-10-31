@@ -1,0 +1,36 @@
+name: Publish to Maven Central
+
+on:
+  release:
+    types: [ created ]
+
+jobs:
+  gradle:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Build everything and run all tests
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: build
+      - name: Extract keyring
+        run: |
+          echo "${{secrets.SIGNING_SECRET_KEY_RING_FILE}}" > ~/.gradle/secring.gpg.b64
+          base64 -d ~/.gradle/secring.gpg.b64 > ~/.gradle/secring.gpg
+      - name: Publish
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: |
+            publish
+            -PsonatypePassword=${{secrets.SONATYPE_PASSWORD}}
+            -Psigning.keyId=${{secrets.SIGNING_KEYID}}
+            -Psigning.secretKeyRingFile=~/.gradle/secring.gpg
+            -Psigning.password=${{secrets.SIGNING_PASSWORD}}

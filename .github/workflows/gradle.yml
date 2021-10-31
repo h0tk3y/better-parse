@@ -23,6 +23,7 @@ jobs:
         java-version: 11
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-    - uses: eskatos/gradle-command-action@v1
+    - name: Build everything and run all tests
+      uses: gradle/gradle-build-action@v2
       with:
         arguments: build
