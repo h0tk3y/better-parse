@@ -12,12 +12,10 @@ var assembleWeb = task<Sync>("assembleWeb") {
     val main by kotlin.js().compilations.getting
 
     from(project.provider {
-        main.compileDependencyFiles.map { it.absolutePath }.map(::zipTree).forEach {
-            includeEmptyDirs = false
-
-            include { fileTreeElement ->
-                val path = fileTreeElement.path
-                path.endsWith(".js") && (path.startsWith("META-INF/resources/") || !path.startsWith("META-INF/"))
+        main.compileDependencyFiles.map { it.absolutePath }.map(::zipTree).map {
+            it.matching {
+                include("*.js")
+                exclude("**/META-INFΩ/**")
             }
         }
     })
