@@ -11,8 +11,8 @@ kotlin.js().nodejs()
 var assembleWeb = task<Sync>("assembleWeb") {
     val main by kotlin.js().compilations.getting
 
-    main.compileDependencyFiles.map { it.absolutePath }.map(::zipTree).forEach {
-        from(it) {
+    from(project.provider {
+        main.compileDependencyFiles.map { it.absolutePath }.map(::zipTree).forEach {
             includeEmptyDirs = false
 
             include { fileTreeElement ->
@@ -20,7 +20,7 @@ var assembleWeb = task<Sync>("assembleWeb") {
                 path.endsWith(".js") && (path.startsWith("META-INF/resources/") || !path.startsWith("META-INF/"))
             }
         }
-    }
+    })
 
     from(main.compileKotlinTaskProvider.map { it.destinationDir })
     from(kotlin.sourceSets.main.get().resources) { include("*.html") }

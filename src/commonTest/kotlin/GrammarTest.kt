@@ -21,7 +21,7 @@ class GrammarTest {
                     length++
                 length
             }
-            val s by regexToken("\\-|\\+")
+            val s by regexToken("\\+|-")
             val ws by regexToken("\\s+", ignore = true)
 
             override val rootParser: Parser<Int> = separated(n use { text.toInt() }, s use { text }).map {

@@ -3,18 +3,18 @@ package com.github.h0tk3y.betterParse.build
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import kotlin.reflect.full.memberProperties
 
-val kotlinVersion = KotlinPlugin.V1431
+val kotlinVersion = KotlinPlugin.V1531
 
 enum class KotlinPlugin {
-    V1431, /* TODO: support 1.5 pre-releases */
+    V1531
 }
 
 val versions = when (kotlinVersion) {
-    KotlinPlugin.V1431 -> Versions(
-        version = "0.4.2",
-        kotlinVersion = "1.4.31",
-        serializationVersion = "1.1.0",
-        benchmarkVersion = "0.3.0"
+    KotlinPlugin.V1531 -> Versions(
+        version = "0.4.3",
+        kotlinVersion = "1.5.31",
+        serializationVersion = "1.3.0",
+        benchmarkVersion = "0.3.1"
     )
 }
 
