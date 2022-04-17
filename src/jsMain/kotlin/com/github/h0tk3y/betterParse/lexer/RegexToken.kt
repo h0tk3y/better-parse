@@ -1,5 +1,7 @@
 package com.github.h0tk3y.betterParse.lexer
 
+import kotlin.js.RegExp
+
 public actual class RegexToken : Token {
     private val pattern: String
     private val regex: Regex
@@ -7,19 +9,17 @@ public actual class RegexToken : Token {
     /** To ensure that the [regex] will only match its pattern from the index where it is called on with
      * Regex.find(input, startIndex), set the JS RegExp flag 'y', which makes the RegExp 'sticky'.
      * See: https://javascript.info/regexp-sticky */
-    private fun preprocessRegex(@Suppress("UNUSED_PARAMETER") regex: Regex) {
-        js(
-            """
-            var r = regex.nativePattern_0;
-
-            if (typeof r === 'undefined' || r === null) {
-                r = regex._nativePattern;
-                regex._nativePattern = new RegExp(r.source, r.flags + (r.sticky ? "" : "y")); 
-            } else {
-                regex.nativePattern_0 = new RegExp(r.source, r.flags + (r.sticky ? "" : "y")); 
+    private fun preprocessRegex(regex: Regex) {
+        val possibleNames = listOf("nativePattern_1", "nativePattern_0", "_nativePattern")
+        for(name in possibleNames) {
+            val r = regex.asDynamic()[name]
+            if(jsTypeOf(r) !== "undefined" && r !== null) {
+                val src = r.source as String
+                val flags = r.flags as String + if(r.sticky as Boolean) "" else "y"
+                regex.asDynamic()[name] = RegExp(src, flags)
+                break
             }
-            """
-        )
+        }
     }
 
     public actual constructor(name: String?, patternString: String, ignored: Boolean)
