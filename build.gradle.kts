@@ -14,7 +14,7 @@ kotlin {
 
     sourceSets {
         all {
-            languageSettings.useExperimentalAnnotation("kotlin.ExperimentalMultiplatform")
+            languageSettings.optIn("kotlin.ExperimentalMultiplatform")
         }
 
         commonTest {
