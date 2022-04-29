@@ -129,6 +129,19 @@ There are several kinds of combinators included in `better-parse`:
     
     * `foo asJust bar` can be used to map a parser to some constant value.
     
+* `bind`, `useBind` 
+
+    The bind combinator works like the map combinator, but instead of running a parser and mapping over its
+    result, bind runs a parser, transforms the output, then runs the transformed output on any remaining input.
+    
+    ```kotlin
+    val abMany = Token("(a|b)*")
+    val revABMany = abMany bind { Token(it.text.reversed()) }
+    // Parser<String>, parses some string of "a"s and "b"s and then the reverse, returning just the reverse
+    ```
+    
+    * `someParser useBind { ... }` is a `bind` equivalent that takes a function with receiver instead. Example: `id useBind { Token(text) }`.
+
 * `optional(...)`
  
      Given a `Parser<T>`, tries to parse the sequence with it, but returns a `null` result if the parser failed, and thus never fails itself:
