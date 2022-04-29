@@ -261,6 +261,11 @@ val term by
 
 A `Grammar` implementation can override the `tokenizer` property to provide a custom implementation of `Tokenizer`.
 
+If nothing in `Grammar` needs to be overridden, the `grammar` function can also be used:
+```kotlin
+val matches = grammar(zeroOrMore(regexToken("foo") use { text })).parseToEnd(input)
+```
+
 ## Syntax trees
 
 A `Parser<T>` can be converted to another `Parser<SyntaxTree<T>>`, where a `SyntaxTree<T>`, along with the parsed `T` 
