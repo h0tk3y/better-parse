@@ -34,7 +34,7 @@ kotlin {
             implementation(kotlin("test-junit"))
         }
         compilations.all {
-            kotlinOptions.jvmTarget = "1.6"
+            kotlinOptions.jvmTarget = "17"
         }
     }
 
