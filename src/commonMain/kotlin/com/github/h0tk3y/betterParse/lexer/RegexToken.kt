@@ -1,8 +1,13 @@
 package com.github.h0tk3y.betterParse.lexer
 
-public expect class RegexToken : Token {
-    public constructor(name: String?, @Language("RegExp", "", "") patternString: String, ignored: Boolean = false)
-    public constructor(name: String?, regex: Regex, ignored: Boolean = false)
+
+public class RegexToken(name: String?, private val pattern: Regex, ignored: Boolean = false) : Token(name = name, ignored = ignored) {
+
+    public constructor(name: String?, pattern: String, ignored: Boolean = false): this(name, pattern.toRegex(), ignored)
+    override fun match(input: CharSequence, fromIndex: Int): Int {
+        val result = this.pattern.matchAt(input, fromIndex)
+        return result?.range?.count() ?: 0
+    }
 }
 
 public fun regexToken(name: String, @Language("RegExp", "", "") pattern: String, ignore: Boolean = false): RegexToken =
