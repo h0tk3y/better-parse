@@ -22,7 +22,7 @@ kotlin {
 
     jvm {
         compilations["main"].apply {
-            kotlinOptions.jvmTarget = "1.8"
+            kotlinOptions.jvmTarget = "17"
         }
 
         compilations["test"].defaultSourceSet.dependencies {
