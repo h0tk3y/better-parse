@@ -305,6 +305,7 @@ See [`SyntaxTreeDemo.kt`](https://github.com/h0tk3y/better-parse/blob/master/dem
 * A boolean expressions parser that constructs a simple AST: [`BooleanExpression.kt`](https://github.com/h0tk3y/better-parse/blob/master/demo/demo-jvm/src/main/kotlin/com/example/BooleanExpression.kt)
 * An integer arithmetic expressions evaluator: [`ArithmeticsEvaluator.kt`](https://github.com/h0tk3y/better-parse/blob/master/demo/demo-jvm/src/main/kotlin/com/example/ArithmeticsEvaluator.kt)
 * A toy programming language parser: [(link)](https://github.com/h0tk3y/compilers-course/blob/master/src/main/kotlin/com/github/h0tk3y/compilersCourse/parsing/Parser.kt)
+* Another toy language parser: [(link)](https://github.com/lucasnlm/rinha-compiler-kotlin/blob/main/src/nativeMain/kotlin/parser/RinhaGrammar.kt)
 * A sample JSON parser by [silmeth](https://github.com/silmeth): [(link)](https://github.com/silmeth/jsonParser)
 
 ## Benchmarks
