@@ -5,25 +5,20 @@ plugins {
 }
 
 kotlin {
-    macosX64("macos")
-    linuxX64("linux")
-    mingwX64("windows")
+    applyDefaultHierarchyTemplate()
+
+    macosArm64()
+    linuxX64()
+    mingwX64()
+
+    targets.withType<KotlinNativeTarget>().configureEach {
+        binaries.executable { }
+    }
 
     sourceSets {
-        val commonMain by getting {
+        commonMain {
             dependencies {
                 api(rootProject)
-            }
-        }
-
-        val nativeMain by creating {
-            dependsOn(commonMain)
-        }
-
-        kotlin.targets.withType<KotlinNativeTarget>().all {
-            compilations.getByName("main") {
-                defaultSourceSet.dependsOn(nativeMain)
-                binaries.executable { }
             }
         }
     }

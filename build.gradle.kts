@@ -1,5 +1,6 @@
 import org.apache.tools.ant.taskdefs.condition.Os
-import org.jetbrains.kotlin.gradle.plugin.mpp.AbstractKotlinNativeTargetPreset
+import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.net.URI
 
 plugins {
@@ -12,6 +13,8 @@ plugins {
 kotlin {
     explicitApi()
 
+    applyDefaultHierarchyTemplate()
+
     sourceSets {
         all {
             languageSettings.optIn("kotlin.ExperimentalMultiplatform")
@@ -19,43 +22,55 @@ kotlin {
 
         commonTest {
             dependencies {
-                implementation(kotlin("test-common"))
-                implementation(kotlin("test-annotations-common"))
+                implementation(kotlin("test"))
             }
-        }
-
-        create("nativeMain") {
-            dependsOn(commonMain.get())
         }
     }
 
     jvm {
-        compilations["test"].defaultSourceSet.dependencies {
-            implementation(kotlin("test-junit"))
-        }
-        compilations.all {
-            kotlinOptions.jvmTarget = "1.6"
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_1_8)
         }
     }
 
-    js(BOTH) {
+    js {
         browser()
         nodejs()
 
-        compilations["test"].defaultSourceSet.dependencies {
-            implementation(kotlin("test-js"))
-        }
-        compilations.all {
-            kotlinOptions.moduleKind = "umd"
+        compilerOptions {
+            moduleKind.set(JsModuleKind.MODULE_UMD)
         }
     }
 
-    presets.withType<AbstractKotlinNativeTargetPreset<*>>().forEach {
-        targetFromPreset(it) {
-            compilations.getByName("main") {
-                defaultSourceSet.dependsOn(sourceSets["nativeMain"])
-            }
-        }
+    macosX64()
+    macosArm64()
+
+    iosArm64()
+    iosX64()
+    iosSimulatorArm64()
+
+    watchosArm32()
+    watchosArm64()
+    watchosX64()
+    watchosSimulatorArm64()
+    watchosDeviceArm64()
+
+    tvosArm64()
+    tvosX64()
+    tvosSimulatorArm64()
+
+    linuxX64()
+    linuxArm64()
+
+    androidNativeArm32()
+    androidNativeArm64()
+    androidNativeX64()
+    androidNativeX86()
+
+    mingwX64()
+
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
     }
 }
 
@@ -82,7 +97,7 @@ kotlin.sourceSets.commonMain {
 
 //region Publication
 
-val publicationsFromWindows = listOf("mingwX64", "mingwX86")
+val publicationsFromWindows = listOf("mingwX64")
 
 val publicationsFromMacos =
     kotlin.targets.names.filter {

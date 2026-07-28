@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.allopen")
@@ -21,24 +23,13 @@ kotlin {
     }
 
     jvm {
-        compilations["main"].apply {
-            kotlinOptions.jvmTarget = "1.8"
-        }
-
-        compilations["test"].defaultSourceSet.dependencies {
-            implementation(kotlin("test-junit"))
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_1_8)
         }
     }
 
     js {
         nodejs()
-
-        compilations["main"].defaultSourceSet.dependencies {
-            implementation(kotlin("stdlib-js"))
-        }
-        compilations["test"].defaultSourceSet.dependencies {
-            implementation(kotlin("test-js"))
-        }
     }
 
     macosX64 { }
