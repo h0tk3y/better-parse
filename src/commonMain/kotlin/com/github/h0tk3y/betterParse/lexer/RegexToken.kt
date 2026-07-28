@@ -3,6 +3,8 @@ package com.github.h0tk3y.betterParse.lexer
 public expect class RegexToken : Token {
     public constructor(name: String?, @Language("RegExp", "", "") patternString: String, ignored: Boolean = false)
     public constructor(name: String?, regex: Regex, ignored: Boolean = false)
+
+    override fun match(input: CharSequence, fromIndex: Int): Int
 }
 
 public fun regexToken(name: String, @Language("RegExp", "", "") pattern: String, ignore: Boolean = false): RegexToken =

@@ -52,7 +52,7 @@ public actual class RegexToken private constructor(
         prependPatternWithInputStart(regex.pattern, regex.options)
     )
 
-    override fun match(input: CharSequence, fromIndex: Int): Int {
+    actual override fun match(input: CharSequence, fromIndex: Int): Int {
         matcher.reset(input).region(fromIndex, input.length)
 
         if (!matcher.find()) {

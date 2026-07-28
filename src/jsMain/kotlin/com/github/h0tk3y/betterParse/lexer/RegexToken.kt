@@ -36,7 +36,7 @@ public actual class RegexToken : Token {
         preprocessRegex(regex)
     }
 
-    override fun match(input: CharSequence, fromIndex: Int): Int =
+    actual override fun match(input: CharSequence, fromIndex: Int): Int =
         regex.find(input, fromIndex)?.range?.let {
             val length = it.last - it.first + 1
             length

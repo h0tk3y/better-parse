@@ -15,7 +15,7 @@ public actual class RegexToken : Token {
             ("$inputStartPrefix(?:$patternString)").toRegex(options)
         }
 
-    public actual constructor(name: String?, @Language("RegExp", "", "") patternString: String, ignored: Boolean)
+    public actual constructor(name: String?, patternString: String, ignored: Boolean)
             : super(name, ignored) {
         pattern = patternString
         regex = prependPatternWithInputStart(patternString, emptySet())
@@ -36,7 +36,7 @@ public actual class RegexToken : Token {
         override fun toString(): String = error("unsupported operation")
     }
 
-    override fun match(input: CharSequence, fromIndex: Int): Int {
+    actual override fun match(input: CharSequence, fromIndex: Int): Int {
         val relativeInput = RelativeInput(fromIndex, input)
 
         return regex.find(relativeInput)?.range?.let {
